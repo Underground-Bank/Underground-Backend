@@ -20,10 +20,14 @@
     <PackageReference Include="StackExchange.Redis" Version="2.8.24" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.6.0" />
+	 <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.3.0" />
+	 <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.13" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
+    <ProjectReference Include="..\UndergroundBank.AccountService.Domain\UndergroundBank.AccountService.Domain.csproj" />
+    <ProjectReference Include="..\UndergroundBank.AccountService.Infrastructure\UndergroundBank.AccountService.Infrastructure.csproj" />
+    <ProjectReference Include="..\UndergroundBank.Common\UndergroundBank.Common.csproj" />
   </ItemGroup>
 
 </Project>
