@@ -26,5 +26,10 @@ namespace UndergroundBank.AccountService.Application.Interfaces
         /// Method for logout from system
         /// </summary>
         public Task Logout(string token, string userId);
+
+        /// <summary>
+        /// Method for refresh token
+        /// </summary>
+        public Task<AuthResponseDto> RefreshToken(RefreshTokenRequestDto refreshTokenRequest);
     }
 }

@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <Folder Include="Data\Enums\" />
+    <Folder Include="Helpers\Validation\" />
   </ItemGroup>
 
 </Project>
