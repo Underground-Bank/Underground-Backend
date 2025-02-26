@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using UndergroundBank.AccountService.Application.Dto;
+using UndergroundBank.AccountService.Application.Helpers.Validations;
 using UndergroundBank.AccountService.Application.Interfaces;
 using UndergroundBank.AccountService.Domain.Entities;
 using UndergroundBank.AccountService.Infrastructure.Helpers.TokenHerlpers;
@@ -44,6 +45,21 @@ namespace UndergroundBank.AccountService.Infrastructure.Services
         /// <inheritdoc/>
         public async Task<AuthResponseDto> Register(RegisterInfoDto registerCreds)
         {
+            var validateUserData = UserValidations.ValidateUserData(
+                registerCreds.Name,
+                registerCreds.Surname,
+                registerCreds.Password,
+                registerCreds.Email,
+                registerCreds.BirthDate,
+                registerCreds.PhoneNumber,
+                registerCreds.Gender
+            );
+
+            if (validateUserData != string.Empty)
+            {
+                throw new BadRequestException(validateUserData);
+            }
+
             var user = _mapper.Map<User>(registerCreds);
             user.UserName = user.Email;
             var result = await _userManager.CreateAsync(user, registerCreds.Password);
@@ -75,7 +91,7 @@ namespace UndergroundBank.AccountService.Infrastructure.Services
             );
             if (veryfiedUser == null)
             {
-                throw new NotFoundException("Данного пользователя не существует!");
+                throw new BadRequestException("Неверный Email или пароль!");
             }
 
             var user = await _userManager.Users.FirstOrDefaultAsync(u =>

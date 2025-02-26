@@ -8,6 +8,7 @@ using UndergroundBank.AccountService.Infrastructure;
 using UndergroundBank.AccountService.Web.Configurations;
 using UndergroundBank.Common.Configurations.JWT;
 using UndergroundBank.Common.Helpers.TokenRequirment;
+using UndergroundBank.Common.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,6 +53,8 @@ if (app.Environment.IsDevelopment())
 using var serviceScope = app.Services.CreateScope();
 var dbContext = serviceScope.ServiceProvider.GetService<AccountDbContext>();
 dbContext?.Database.Migrate();
+
+app.UseMiddleware<DefaultMiddleware>();
 
 // Enable HTTPS redirection
 app.UseHttpsRedirection();
