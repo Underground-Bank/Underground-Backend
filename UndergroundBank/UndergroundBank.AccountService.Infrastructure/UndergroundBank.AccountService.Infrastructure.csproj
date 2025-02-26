@@ -23,6 +23,14 @@
 		<PackageReference Include="Npgsql" Version="8.0.6" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11" />
 		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.6.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.3.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.13" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\UndergroundBank.AccountService.Application\UndergroundBank.AccountService.Application.csproj" />
+	  <ProjectReference Include="..\UndergroundBank.AccountService.Domain\UndergroundBank.AccountService.Domain.csproj" />
+	  <ProjectReference Include="..\UndergroundBank.Common\UndergroundBank.Common.csproj" />
 	</ItemGroup>
 
 </Project>
