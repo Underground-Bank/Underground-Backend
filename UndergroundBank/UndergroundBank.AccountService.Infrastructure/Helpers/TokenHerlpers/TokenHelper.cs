@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -52,7 +48,12 @@ namespace UndergroundBank.AccountService.Infrastructure.Helpers.TokenHerlpers
 
         public string GenerateJwtToken(User user, IList<string> roles)
         {
-            var claims = new List<Claim> { new Claim(ClaimTypes.Email, user.Id.ToString()) };
+            return GenerateJwtTokenInternal(user.Id.ToString(), roles);
+        }
+
+        private string GenerateJwtTokenInternal(string userId, IList<string> roles)
+        {
+            var claims = new List<Claim> { new Claim(ClaimTypes.NameIdentifier, userId) };
 
             foreach (var role in roles)
             {
@@ -95,66 +96,33 @@ namespace UndergroundBank.AccountService.Infrastructure.Helpers.TokenHerlpers
         )
         {
             var principal = GetUserIdFromToken(refreshTokenRequestDTO.AccessToken);
-
             if (principal == null)
             {
                 Console.WriteLine("principal null");
+                return null;
             }
+
             var user = await _userManager.Users.FirstOrDefaultAsync(u =>
                 u.Id.ToString() == principal
             );
-            Console.WriteLine(principal);
             if (user == null)
             {
                 Console.WriteLine("user null");
+                return null;
             }
+
             var roles = await _userManager.GetRolesAsync(user);
+            var accessToken = GenerateJwtTokenInternal(user.Id.ToString(), roles);
+            var refreshToken = GenerateRefreshToken();
 
-            var claims = new List<Claim> { new Claim(ClaimTypes.Email, user.Id.ToString()) };
-
-            foreach (var role in roles)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, role));
-            }
-
-            var jwt = new JwtSecurityToken(
-                issuer: _configuration.GetSection("Jwt")["Issuer"],
-                audience: _configuration.GetSection("Jwt")["Audience"],
-                notBefore: DateTime.UtcNow,
-                claims: claims,
-                expires: DateTime.UtcNow.Add(
-                    TimeSpan.FromMinutes(
-                        _configuration
-                            .GetSection("Jwt")
-                            .GetValue<int>("AccessTokenLifetimeInMinutes")
-                    )
-                ),
-                signingCredentials: new SigningCredentials(
-                    new SymmetricSecurityKey(
-                        Encoding.ASCII.GetBytes(
-                            _configuration.GetSection("Jwt")["Secret"] ?? string.Empty
-                        )
-                    ),
-                    SecurityAlgorithms.HmacSha256
-                )
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(
+                _configuration.GetSection("Jwt").GetValue<int>("RefreshTokenLifetimeInDays")
             );
-
-            var tokenRefresh = GenerateRefreshToken();
-
-            user.RefreshToken = tokenRefresh;
-            var refreshTokenLifetimeInDays = _configuration
-                .GetSection("Jwt")
-                .GetValue<int>("RefreshTokenLifetimeInDays");
-            var refreshTokenExpiry = DateTime.UtcNow.AddDays(refreshTokenLifetimeInDays);
-            user.RefreshTokenExpiry = refreshTokenExpiry;
 
             await _accountDBContext.SaveChangesAsync();
 
-            return new AuthResponseDto
-            {
-                AccessToken = new JwtSecurityTokenHandler().WriteToken(jwt),
-                RefreshToken = tokenRefresh,
-            };
+            return new AuthResponseDto { AccessToken = accessToken, RefreshToken = refreshToken };
         }
 
         public string? GetUserIdFromToken(string token)

@@ -21,5 +21,10 @@ namespace UndergroundBank.AccountService.Application.Interfaces
         /// <param name="registerCreds">Register creds</param>
         /// <returns></returns>
         public Task<AuthResponseDto> Register(RegisterInfoDto registerCreds);
+
+        /// <summary>
+        /// Method for logout from system
+        /// </summary>
+        public Task Logout(string token, string userId);
     }
 }

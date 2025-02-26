@@ -1,10 +1,13 @@
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using UndergroundBank.AccountService.Application.Configurations;
 using UndergroundBank.AccountService.Domain.Enums;
 using UndergroundBank.AccountService.Infrastructure;
 using UndergroundBank.AccountService.Web.Configurations;
+using UndergroundBank.Common.Configurations.JWT;
+using UndergroundBank.Common.Helpers.TokenRequirment;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,7 +24,7 @@ builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerConfiguration();
 
 // Add business logic service dependencies
 builder.Services.AddAccountBlServiceDependencies(builder.Configuration);
@@ -32,8 +35,10 @@ builder.Services.AddMicIdentityConfiguration();
 // Application layer configuration
 builder.Services.ConfigureApplicationLayer();
 
-// Presentation layer configuration
-builder.Services.ConfigurePresentationLayer(builder.Configuration);
+builder.Services.AddTokenRequirement();
+
+builder.Services.UseJwtConfiguration(builder.Configuration);
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 

@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace UndergroundBank.Common.Base
@@ -12,15 +11,6 @@ namespace UndergroundBank.Common.Base
         protected BaseController(IMediator mediator)
         {
             Mediator = mediator;
-        }
-
-        protected Guid UserId
-        {
-            get
-            {
-                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-                return userIdClaim != null ? Guid.Parse(userIdClaim.Value) : Guid.Empty;
-            }
         }
     }
 }

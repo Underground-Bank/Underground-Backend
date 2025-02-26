@@ -7,6 +7,7 @@ using UndergroundBank.AccountService.Application.Dto;
 using UndergroundBank.AccountService.Application.Interfaces;
 using UndergroundBank.AccountService.Domain.Entities;
 using UndergroundBank.AccountService.Infrastructure.Helpers.TokenHerlpers;
+using UndergroundBank.Common.Data;
 
 namespace UndergroundBank.AccountService.Infrastructure.Services
 {
@@ -18,6 +19,7 @@ namespace UndergroundBank.AccountService.Infrastructure.Services
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly IConfiguration _configuration;
+        private readonly RedisDbContext _redisDBContext;
 
         public AuthService(
             UserManager<User> userManager,
@@ -25,7 +27,8 @@ namespace UndergroundBank.AccountService.Infrastructure.Services
             IConfiguration configuration,
             TokenHelper tokenHelper,
             IMapper mapper,
-            IUserRepository userRepository
+            IUserRepository userRepository,
+            RedisDbContext redisDBContext
         )
         {
             _userManager = userManager;
@@ -34,6 +37,7 @@ namespace UndergroundBank.AccountService.Infrastructure.Services
             _tokenHelper = tokenHelper;
             _mapper = mapper;
             _userRepository = userRepository;
+            _redisDBContext = redisDBContext;
         }
 
         public async Task<AuthResponseDto> Register(RegisterInfoDto registerCreds)
@@ -92,9 +96,20 @@ namespace UndergroundBank.AccountService.Infrastructure.Services
             return new AuthResponseDto { AccessToken = jwt, RefreshToken = tokenRefresh };
         }
 
+        public async Task Logout(string token, string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                throw new Exception("Not found youuuu");
+            }
+            user.RefreshToken = null;
+            await _userManager.UpdateAsync(user);
+            await _redisDBContext.AddToken(token);
+        }
+
         private async Task<ClaimsIdentity> CheckBasedUserInformation(string email, string password)
         {
-            Console.WriteLine(email);
             var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
             {
