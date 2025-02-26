@@ -27,6 +27,7 @@ namespace UndergroundBank.AccountService.Web.Configurations
             });
 
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IProfileService, ProfileService>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<AdditionalTokenHelper>();
             services.AddScoped<TokenHelper>();

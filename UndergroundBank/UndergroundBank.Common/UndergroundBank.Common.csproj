@@ -18,4 +18,12 @@
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.6.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\UndergroundBank.AccountService.Domain\UndergroundBank.AccountService.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Data\Enums\" />
+  </ItemGroup>
+
 </Project>

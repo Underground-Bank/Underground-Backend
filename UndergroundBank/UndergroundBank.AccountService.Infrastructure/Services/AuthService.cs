@@ -8,6 +8,7 @@ using UndergroundBank.AccountService.Application.Interfaces;
 using UndergroundBank.AccountService.Domain.Entities;
 using UndergroundBank.AccountService.Infrastructure.Helpers.TokenHerlpers;
 using UndergroundBank.Common.Data;
+using UndergroundBank.Common.Middlewares;
 
 namespace UndergroundBank.AccountService.Infrastructure.Services
 {
@@ -40,6 +41,7 @@ namespace UndergroundBank.AccountService.Infrastructure.Services
             _redisDBContext = redisDBContext;
         }
 
+        /// <inheritdoc/>
         public async Task<AuthResponseDto> Register(RegisterInfoDto registerCreds)
         {
             var user = _mapper.Map<User>(registerCreds);
@@ -58,10 +60,13 @@ namespace UndergroundBank.AccountService.Infrastructure.Services
             }
             else
             {
-                throw new Exception("User registration failed");
+                throw new NotFoundException(
+                    "Ошибка регистрации! Проверьте данные или попробуйте позже!"
+                );
             }
         }
 
+        /// <inheritdoc/>
         public async Task<AuthResponseDto> Login(LoginInfoDto loginCreds)
         {
             var veryfiedUser = await CheckBasedUserInformation(
@@ -70,7 +75,7 @@ namespace UndergroundBank.AccountService.Infrastructure.Services
             );
             if (veryfiedUser == null)
             {
-                Console.WriteLine("NotFound");
+                throw new NotFoundException("Данного пользователя не существует!");
             }
 
             var user = await _userManager.Users.FirstOrDefaultAsync(u =>
@@ -78,7 +83,7 @@ namespace UndergroundBank.AccountService.Infrastructure.Services
             );
             if (user == null)
             {
-                Console.WriteLine("NotFound");
+                throw new NotFoundException("Данного пользователя не существует!");
             }
 
             var roles = await _userManager.GetRolesAsync(user);
@@ -96,12 +101,13 @@ namespace UndergroundBank.AccountService.Infrastructure.Services
             return new AuthResponseDto { AccessToken = jwt, RefreshToken = tokenRefresh };
         }
 
+        /// <inheritdoc/>
         public async Task Logout(string token, string userId)
         {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
-                throw new Exception("Not found youuuu");
+                throw new NotFoundException("Данного пользователя не существует!");
             }
             user.RefreshToken = null;
             await _userManager.UpdateAsync(user);
