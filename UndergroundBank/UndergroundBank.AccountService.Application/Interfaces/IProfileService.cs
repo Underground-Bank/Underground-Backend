@@ -21,5 +21,12 @@ namespace UndergroundBank.AccountService.Application.Interfaces
         /// </summary>
         /// <param name="editCreds">Parametrs which user can edit</param>
         public Task EditProfile(EditProfileInfoDto editCreds, string userId);
+
+        /// <summary>
+        /// Method for change user password
+        /// </summary>
+        /// <param name="changePassword">Creds for password from corresponding user</param>
+        /// <param name="userId">Id of correspoding user</param>
+        public Task ChangePassword(ChangePasswordDto changePassword, string userId);
     }
 }

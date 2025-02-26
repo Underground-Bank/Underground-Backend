@@ -155,9 +155,9 @@ namespace UndergroundBank.AccountService.Infrastructure.Helpers.TokenHerlpers
                 )
                     return null;
 
-                var emailClaim = claimsPrincipal.FindFirst(ClaimTypes.Email);
+                var idClaim = claimsPrincipal.FindFirst(ClaimTypes.NameIdentifier);
 
-                return emailClaim?.Value;
+                return idClaim?.Value;
             }
             catch (Exception)
             {

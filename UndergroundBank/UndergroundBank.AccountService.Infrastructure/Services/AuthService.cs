@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -111,6 +112,42 @@ namespace UndergroundBank.AccountService.Infrastructure.Services
             user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(
                 _configuration.GetSection("Jwt").GetValue<int>("RefreshTokenLifetimeInDays")
             );
+
+            await _userRepository.SaveChangeAsync();
+
+            return new AuthResponseDto { AccessToken = jwt, RefreshToken = tokenRefresh };
+        }
+
+        public async Task<AuthResponseDto> RefreshToken(RefreshTokenRequestDto refreshTokenRequest)
+        {
+            var principal = _tokenHelper.GetUserIdFromToken(refreshTokenRequest.AccessToken);
+
+            if (principal == null)
+            {
+                throw new ForbiddenException("Пользователь не авторизован!");
+            }
+
+            var user = await _userManager.Users.FirstOrDefaultAsync(u =>
+                u.Id.ToString() == principal
+            );
+
+            if (user == null)
+            {
+                throw new NotFoundException("Данного пользователя не существует!");
+            }
+
+            var roles = await _userManager.GetRolesAsync(user);
+
+            var jwt = _tokenHelper.GenerateJwtToken(user, roles);
+
+            var tokenRefresh = _tokenHelper.GenerateRefreshToken();
+
+            user.RefreshToken = tokenRefresh;
+            var refreshTokenLifetimeInDays = _configuration
+                .GetSection("Jwt")
+                .GetValue<int>("RefreshTokenLifetimeInDays");
+            var refreshTokenExpiry = DateTime.UtcNow.AddDays(refreshTokenLifetimeInDays);
+            user.RefreshTokenExpiry = refreshTokenExpiry;
 
             await _userRepository.SaveChangeAsync();
 

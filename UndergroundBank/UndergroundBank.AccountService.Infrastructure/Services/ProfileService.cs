@@ -6,8 +6,6 @@ using UndergroundBank.AccountService.Application.Helpers.Validations;
 using UndergroundBank.AccountService.Application.Interfaces;
 using UndergroundBank.AccountService.Domain.Entities;
 using UndergroundBank.AccountService.Domain.Enums;
-using UndergroundBank.AccountService.Infrastructure.Helpers.TokenHerlpers;
-using UndergroundBank.Common.Data;
 using UndergroundBank.Common.Dto.AccountService;
 using UndergroundBank.Common.Middlewares;
 
@@ -84,6 +82,30 @@ namespace UndergroundBank.AccountService.Infrastructure.Services
             user.Gender = editCreds.Gender;
 
             await _userManager.UpdateAsync(user);
+        }
+
+        public async Task ChangePassword(ChangePasswordDto changePasswordCreds, string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+            if (user == null)
+            {
+                throw new NotFoundException("Пользователь не найден!");
+            }
+            if (changePasswordCreds.Password != changePasswordCreds.ConfirmPassword)
+            {
+                throw new BadRequestException("Пароли должны совпадать!");
+            }
+            var result = await _userManager.ChangePasswordAsync(
+                user,
+                changePasswordCreds.OldPassword,
+                changePasswordCreds.Password
+            );
+            if (!result.Succeeded)
+            {
+                throw new BadRequestException(
+                    string.Join(", ", result.Errors.Select(x => x.Description))
+                );
+            }
         }
     }
 }
