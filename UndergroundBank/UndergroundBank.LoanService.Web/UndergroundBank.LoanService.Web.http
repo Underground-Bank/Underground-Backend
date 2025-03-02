@@ -1,0 +1,6 @@
+@UndergroundBank.LoanService.Web_HostAddress = http://localhost:5126
+
+GET {{UndergroundBank.LoanService.Web_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

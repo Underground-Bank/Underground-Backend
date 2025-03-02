@@ -4,8 +4,6 @@ using Microsoft.Extensions.Configuration;
 using UndergroundBank.AccountService.Application.Interfaces;
 using UndergroundBank.AccountService.Domain.Entities;
 using UndergroundBank.AccountService.Domain.Enums;
-using UndergroundBank.AccountService.Infrastructure.Helpers.TokenHerlpers;
-using UndergroundBank.Common.Data;
 using UndergroundBank.Common.Dto.AccountService;
 using UndergroundBank.Common.Middlewares;
 
