@@ -14,12 +14,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Communication\Commands\" />
-	  <Folder Include="Communication\Queries\" />
-	  <Folder Include="Configurations\" />
-	  <Folder Include="Interfaces\" />
-	  <Folder Include="Helpers\" />
 	  <Folder Include="Dto\" />
+	  <Folder Include="Helpers\Validations\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\UndergroundBank.BankAccountService.Domain\UndergroundBank.BankAccountService.Domain.csproj" />
+	  <ProjectReference Include="..\UndergroundBank.Common\UndergroundBank.Common.csproj" />
 	</ItemGroup>
 
 </Project>

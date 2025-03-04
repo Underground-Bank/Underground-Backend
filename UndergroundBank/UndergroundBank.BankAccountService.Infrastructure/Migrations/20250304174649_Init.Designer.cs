@@ -12,7 +12,7 @@ using UndergroundBank.BankAccountService.Infrastructure;
 namespace UndergroundBank.BankAccountService.Infrastructure.Migrations
 {
     [DbContext(typeof(BankAccountDbContext))]
-    [Migration("20250228152626_Init")]
+    [Migration("20250304174649_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -27,14 +27,14 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Migrations
 
             modelBuilder.Entity("UndergroundBank.BankAccountService.Domain.Entities.BankAccount", b =>
                 {
-                    b.Property<int>("AccountNumber")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("AccountNumber"));
+                    b.Property<string>("AccountNumber")
+                        .HasColumnType("text");
 
                     b.Property<double>("Balance")
                         .HasColumnType("double precision");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
                         .IsRequired()

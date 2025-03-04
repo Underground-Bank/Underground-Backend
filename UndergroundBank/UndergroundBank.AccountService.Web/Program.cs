@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using UndergroundBank.AccountService.Application.Configurations;
 using UndergroundBank.AccountService.Domain.Enums;
 using UndergroundBank.AccountService.Infrastructure;
+using UndergroundBank.AccountService.Infrastructure.MessageBroker;
 using UndergroundBank.AccountService.Web.Configurations;
 using UndergroundBank.Common.Configurations.JWT;
 using UndergroundBank.Common.Helpers.TokenRequirment;
@@ -39,6 +40,7 @@ builder.Services.ConfigureApplicationLayer();
 builder.Services.AddTokenRequirement();
 
 builder.Services.UseJwtConfiguration(builder.Configuration);
+builder.Services.QueueSubscribe();
 builder.Services.AddHttpClient();
 
 var app = builder.Build();

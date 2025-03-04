@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace UndergroundBank.AccountService.Application.Dto
+﻿namespace UndergroundBank.Common.Dto.AccountService
 {
     public class ChangePasswordDto
     {

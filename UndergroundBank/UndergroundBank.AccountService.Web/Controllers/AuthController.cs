@@ -63,10 +63,8 @@ namespace UndergroundBank.AccountService.Web.Controllers
         public async Task<ActionResult> Logout()
         {
             string token = _additionalTokenHelper.GetTokenFromHeader();
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            var userId = userIdClaim.Value;
 
-            var logoutCommand = new LogoutCommand(token, userId);
+            var logoutCommand = new LogoutCommand(token, UserId.ToString());
             await Mediator.Send(logoutCommand);
 
             return Ok();
