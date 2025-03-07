@@ -17,6 +17,6 @@ namespace UndergroundBank.LoanService.Domain.Entities
 
         [Range(1, int.MaxValue, ErrorMessage = "Сумма должна быть положительным числом.")]
         public double MaxAmount { get; set; }
-        public double InterestRate { get; set; }
+        public decimal InterestRate { get; set; }
     }
 }

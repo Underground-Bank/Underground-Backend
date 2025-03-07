@@ -1,9 +1,9 @@
 ﻿using MediatR;
 using UndergroundBank.LoanService.Application.Interfaces;
 
-namespace UndergroundBank.LoanService.Application.Communication.Commands.LoanService.SomeMethod
+namespace UndergroundBank.LoanService.Application.Communication.Commands.LoanService.TopUpLoan
 {
-    public class TopUpLoanCommandHandler : IRequestHandler<TakeLoanCommand>
+    public class TopUpLoanCommandHandler : IRequestHandler<TopUpLoanCommand>
     {
         private readonly ILoanService _loanService;
 
@@ -13,11 +13,11 @@ namespace UndergroundBank.LoanService.Application.Communication.Commands.LoanSer
         }
 
         public async Task Handle(
-            TakeLoanCommand request,
+            TopUpLoanCommand request,
             CancellationToken cancellationToken
         )
         {
-            await _loanService.TakeLoan(request.takeLoanCreds, request.userId);
+            await _loanService.TopUpLoan(request.topUpLoanDto.Amount, request.topUpLoanDto.LoanId);
         }
 
     }

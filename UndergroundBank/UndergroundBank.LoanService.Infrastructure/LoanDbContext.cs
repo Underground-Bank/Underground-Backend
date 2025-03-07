@@ -1,8 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using UndergroundBank.LoanService.Domain.Entities;
-using UndergroundBank.LoanService.Infrastructure;
 
-namespace UndergroundBank.AccountService.Infrastructure
+namespace UndergroundBank.LoanService.Infrastructure
 {
     public class LoanDbContext : DbContext
     {

@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
-using UndergroundBank.AccountService.Infrastructure;
 using UndergroundBank.Common.Configurations.JWT;
 using UndergroundBank.LoanService.Application.Configurations;
+using UndergroundBank.LoanService.Infrastructure;
 using UndergroundBank.LoanService.Web.Configurations;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,11 +22,12 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerConfiguration();
 
-// Application layer configuration
-builder.Services.ConfigureApplicationLayer();
-
 // Add business logic service dependencies
 builder.Services.AddLoanBlServiceDependencies(builder.Configuration);
+builder.Services.AddQuartzDependencies(builder.Configuration);
+
+// Application layer configuration
+builder.Services.ConfigureApplicationLayer();
 
 builder.Services.AddTokenRequirement();
 
@@ -42,9 +43,20 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-using var serviceScope = app.Services.CreateScope();
-var dbContext = serviceScope.ServiceProvider.GetService<LoanDbContext>();
-dbContext?.Database.Migrate();
+
+try
+{
+    using var serviceScope = app.Services.CreateScope();
+    var dbContext = serviceScope.ServiceProvider.GetService<LoanDbContext>();
+    dbContext?.Database.Migrate();
+}
+catch (Exception ex)
+{
+    var logger = app.Services.GetRequiredService<ILogger<Program>>();
+    logger.LogError(ex, "An error occurred while migrating the database.");
+    throw;
+
+}
 
 // Enable HTTPS redirection
 app.UseHttpsRedirection();

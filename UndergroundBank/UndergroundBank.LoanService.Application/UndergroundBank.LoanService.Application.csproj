@@ -12,10 +12,6 @@
 	  <ProjectReference Include="..\UndergroundBank.LoanService.Domain\UndergroundBank.LoanService.Domain.csproj" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="Communication\Queries\LoanService\" />
-	</ItemGroup>
-
 
 	<PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>

@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using UndergroundBank.AccountService.Infrastructure;
+using UndergroundBank.Common.Middlewares;
 using UndergroundBank.LoanService.Application.Dto.Tariff;
 using UndergroundBank.LoanService.Application.Interfaces;
 using UndergroundBank.LoanService.Domain.Entities;
@@ -45,6 +45,10 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
         public async Task<GetTariffDto> GetTariff(Guid tariffId)
         {
             var tariff = await _dbContext.Tariffs.Where(t => t.Id == tariffId).FirstOrDefaultAsync();
+            if (tariff == null)
+            {
+                throw new NotFoundException("Тарифа с таким id не сущетсвует!");
+            }
             var tariffDto = _mapper.Map<GetTariffDto>(tariff);
             return tariffDto;
         }

@@ -4,11 +4,11 @@ using UndergroundBank.LoanService.Application.Interfaces;
 
 namespace UndergroundBank.LoanService.Application.Communication.Queries.TariffService.GetTariff
 {
-    public class GetUserProfileQueryHandler : IRequestHandler<GetTariffQuery, GetTariffDto>
+    public class GetTariffQueryHandler : IRequestHandler<GetTariffQuery, GetTariffDto>
     {
         private readonly ITariffService _tariffService;
 
-        public GetUserProfileQueryHandler(ITariffService tariffService)
+        public GetTariffQueryHandler(ITariffService tariffService)
         {
             _tariffService = tariffService;
         }

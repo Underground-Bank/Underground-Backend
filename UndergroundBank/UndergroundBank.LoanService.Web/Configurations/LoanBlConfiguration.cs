@@ -1,10 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Quartz;
+using Quartz.Impl;
 using UndergroundBank.AccountService.Application.Interfaces;
-using UndergroundBank.AccountService.Infrastructure;
-using UndergroundBank.AccountService.Infrastructure.Repositories;
 using UndergroundBank.Common.Data;
 using UndergroundBank.LoanService.Application.Interfaces;
 using UndergroundBank.LoanService.Infrastructure;
+using UndergroundBank.LoanService.Infrastructure.BackgroundJob;
+using UndergroundBank.LoanService.Infrastructure.Repositories;
 using UndergroundBank.LoanService.Infrastructure.Services;
 
 namespace UndergroundBank.LoanService.Web.Configurations
@@ -16,8 +18,12 @@ namespace UndergroundBank.LoanService.Web.Configurations
             IConfiguration configuration
         )
         {
+
+            services.AddHttpContextAccessor();
+            services.AddScoped<IUserContext, UserContext>();
+
             services.AddDbContext<LoanDbContext>(options =>
-                options.UseNpgsql(configuration.GetConnectionString("LoanDatabasePostgres"))
+            options.UseNpgsql(configuration.GetConnectionString("LoanDatabasePostgres"))
             );
             services.AddSingleton<RedisDbContext>(provider =>
             {
@@ -25,13 +31,21 @@ namespace UndergroundBank.LoanService.Web.Configurations
                 return new RedisDbContext(connectionString);
             });
 
+            services.AddScoped<ILoanRepository, LoanRepository>();
             services.AddScoped<ILoanService, LoansService>();
             services.AddScoped<ITariffService, TariffService>();
-            services.AddScoped<ILoanRepository, LoanRepository>();
-            services.AddSingleton<IUserContext, UserContext>();
-            services.AddHttpContextAccessor();
-            services.AddScoped<IUserContext, UserContext>();
 
+            return services;
+        }
+        public static IServiceCollection AddQuartzDependencies(
+        this IServiceCollection services,
+        IConfiguration configuration
+        )
+        {
+            services.AddQuartz();
+            services.AddQuartzHostedService(options => options.WaitForJobsToComplete = true);
+            services.AddSingleton<TopUpLoanJob>();
+            services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
             return services;
         }
     }

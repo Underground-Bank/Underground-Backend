@@ -1,62 +1,62 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using UndergroundBank.AccountService.Application.Interfaces;
-using UndergroundBank.AccountService.Infrastructure;
+using Quartz;
 using UndergroundBank.Common.Middlewares;
 using UndergroundBank.LoanService.Application.Dto.Loan;
 using UndergroundBank.LoanService.Application.Interfaces;
 using UndergroundBank.LoanService.Domain.Entities;
+using UndergroundBank.LoanService.Infrastructure.BackgroundJob;
 
 namespace UndergroundBank.LoanService.Infrastructure.Services
 {
     public class LoansService : ILoanService
     {
         private readonly IMapper _mapper;
-        private readonly ILoanRepository _loanRepository;
         private readonly LoanDbContext _dbContext;
+        private readonly ISchedulerFactory _schedulerFactory;
 
-        public LoansService(ILoanRepository loanRepository, LoanDbContext dbContext, IMapper mapper)
+        public LoansService(LoanDbContext dbContext, IMapper mapper, ISchedulerFactory schedulerFactory)
         {
             _mapper = mapper;
-            _loanRepository = loanRepository;
             _dbContext = dbContext;
             _mapper = mapper;
+            _schedulerFactory = schedulerFactory;
         }
 
-        public Task GetAllLoans()
+        public async Task<GetLoansDto> GetAllLoans()
         {
-            throw new NotImplementedException();
+            _dbContext.ignoreUserFilter = true;
+            return await GetLoansLogic();
         }
 
-        public Task GetLoan()
+        public async Task<GetLoanDto> GetLoan(Guid loanId)
         {
-            throw new NotImplementedException();
+            _dbContext.ignoreUserFilter = true;
+            var loan = await _dbContext.Loans.Where(l => l.Id == loanId).FirstOrDefaultAsync();
+            if (loan == null) { throw new NotFoundException("Кредита с таким id не существует"); }
+            var loanDto = _mapper.Map<GetLoanDto>(loan);
+            return loanDto;
         }
 
-        public Task GetMyLoans()
+        public async Task<GetLoansDto> GetMyLoans()
         {
-            throw new NotImplementedException();
+            return await GetLoansLogic();
         }
 
-        public async Task TakeLoan(string userId) { }
         public async Task TakeLoan(TakeLoanDto takeLoanDto, Guid userId)
         {
-            ValidateStartDate(takeLoanDto.StartDate);
-
             var tariff = await _dbContext
                 .Tariffs.Where(t => t.Id == takeLoanDto.TariffId)
                 .FirstOrDefaultAsync();
-            var loanStatus =
-                takeLoanDto.StartDate > DateOnly.FromDateTime(DateTime.Today)
-                    ? LoanStatus.NotStarted
-                    : LoanStatus.Active;
+
+            if (tariff == null) { throw new NotFoundException("Тарифа с таким id не существует"); }
 
             var newLoan = new Loan()
             {
                 Amount = takeLoanDto.LoanAmount,
                 LoanDurationInMonth = takeLoanDto.LoanDurationInMonths,
-                StartDate = takeLoanDto.StartDate,
-                Status = loanStatus,
+                StartDate = DateOnly.FromDateTime(DateTime.Today),
+                Status = LoanStatus.Active,
                 RemainingPayment = takeLoanDto.LoanAmount,
                 TariffId = takeLoanDto.TariffId,
                 UserId = userId,
@@ -66,12 +66,72 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
             await _dbContext.SaveChangesAsync();
         }
 
-        private void ValidateStartDate(DateOnly startDate)
+        //TODO add remainig month calculation
+        public async Task TopUpLoan(decimal payment, Guid loanId)
         {
-            if (startDate < DateOnly.FromDateTime(DateTime.Today))
+            var loan = _dbContext.Loans.Where(l => l.Id == loanId).Include(u => u.Tariff).FirstOrDefault();
+            if (loan == null) { throw new NotFoundException("Кредита с таким id не существует"); }
+            await TopUpLoanLogic(loan, payment);
+        }
+
+        public async Task AutoTopUpLoan(Guid loanId)
+        {
+            var loan = _dbContext.Loans.Where(l => l.Id == loanId).Include(u => u.Tariff).FirstOrDefault();
+            if (loan == null) { throw new NotFoundException("Кредита с таким id не существует"); }
+            var monthPayment = CalculateMonthPayment(loan.Tariff, loan.LoanDurationInMonth, loan.Amount);
+            await TopUpLoanLogic(loan, monthPayment);
+        }
+
+        private async Task TopUpLoanLogic(Loan loan, decimal payment)
+        {
+            loan.RemainingPayment -= payment;
+            if (loan.RemainingPayment <= 0)
             {
-                throw new BadRequestException("Нельзя взять кредит в прошлое");
-            }
+                loan.Status = LoanStatus.Closed;
+            };
+
+            _dbContext.Update(loan);
+
+            await _dbContext.SaveChangesAsync();
+        }
+
+        private async Task<GetLoansDto> GetLoansLogic()
+        {
+            var loans = await _dbContext.Loans.ToListAsync();
+            var loansListDto = _mapper.Map<List<GetLoanDto>>(loans);
+            return new GetLoansDto()
+            {
+                loans = loansListDto
+            };
+        }
+
+        private decimal CalculateMonthPayment(Tariff tariff, int loanDurationInMonth, decimal loanAmount)
+        {
+            var monthPayment = (loanAmount * (tariff.InterestRate)) / (loanDurationInMonth * 100);
+            return monthPayment;
+        }
+
+        public async Task CreateAutoTopUp(Guid bankAccountId, Guid loanId)
+        {
+            var scheduler = await _schedulerFactory.GetScheduler();
+
+            var jobKey = new JobKey($"{loanId}-{bankAccountId}", "CreditRepaymentJobs");
+
+            var job = JobBuilder.Create<TopUpLoanJob>()
+                .WithIdentity(jobKey)
+                .UsingJobData("LoanId", loanId.ToString())
+                .UsingJobData("BankAccountId", bankAccountId.ToString())
+                .Build();
+
+            var trigger = TriggerBuilder.Create()
+                .WithIdentity($"{loanId}-{bankAccountId}-trigger", "CreditRepaymentTriggers")
+                .StartNow()
+                .WithSimpleSchedule(x => x
+                    .WithIntervalInMinutes(20)
+                    .RepeatForever())
+                .Build();
+
+            await scheduler.ScheduleJob(job, trigger);
         }
     }
 }

@@ -32,8 +32,9 @@ namespace UndergroundBank.AccountService.Web.Controllers
         [HttpGet("{id}")]
         [Authorize]
         [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 404)]
         [ProducesResponseType(typeof(Error), 500)]
-        public async Task<ActionResult<GetTariffDto>> CreateTariff(Guid id)
+        public async Task<ActionResult<GetTariffDto>> GetTariff(Guid id)
         {
             var getTariffQuery = new GetTariffQuery(id);
             var tariff = await Mediator.Send(getTariffQuery);

@@ -2,7 +2,7 @@
 using UndergroundBank.Common.Base;
 using UndergroundBank.LoanService.Domain.Entities;
 
-namespace UndergroundBank.AccountService.Infrastructure.Repositories
+namespace UndergroundBank.LoanService.Infrastructure.Repositories
 {
     public class LoanRepository : BaseRepository<Loan, LoanDbContext>, ILoanRepository
     {
