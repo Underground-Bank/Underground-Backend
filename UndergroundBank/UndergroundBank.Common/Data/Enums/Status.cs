@@ -10,6 +10,7 @@ namespace UndergroundBank.Common.Data.Enums
     {
         Approved,
         InProgress,
+        Rejected,
         Finished,
     }
 }
