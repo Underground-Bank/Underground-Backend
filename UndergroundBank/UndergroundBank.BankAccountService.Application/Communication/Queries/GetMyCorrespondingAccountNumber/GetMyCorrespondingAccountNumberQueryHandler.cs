@@ -25,7 +25,10 @@ namespace UndergroundBank.BankAccountService.Application.Communication.Queries.G
             CancellationToken cancellationToken
         )
         {
-            return await _bankService.GetMyCorrespondingAccountNumber(request.accountNumber);
+            return await _bankService.GetMyCorrespondingAccountNumber(
+                request.accountNumber,
+                request.userId
+            );
         }
     }
 }

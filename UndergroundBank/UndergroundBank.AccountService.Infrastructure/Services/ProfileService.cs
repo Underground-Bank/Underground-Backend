@@ -1,11 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
-using UndergroundBank.AccountService.Application.Dto;
 using UndergroundBank.AccountService.Application.Helpers.Validations;
 using UndergroundBank.AccountService.Application.Interfaces;
 using UndergroundBank.AccountService.Domain.Entities;
-using UndergroundBank.AccountService.Domain.Enums;
+using UndergroundBank.Common.Data.Enums;
 using UndergroundBank.Common.Dto.AccountService;
 using UndergroundBank.Common.Middlewares;
 

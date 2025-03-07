@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using EasyNetQ;
+using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using UndergroundBank.BankAccountService.Application.Interfaces;
 using UndergroundBank.BankAccountService.Domain.Entities;
+using UndergroundBank.Common.Data.Enums;
 using UndergroundBank.Common.Dto.AccountService;
 using UndergroundBank.Common.Dto.BankAccountService;
 using UndergroundBank.Common.Middlewares;
@@ -65,7 +67,7 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Services
                 userId,
                 x => x.WithQueueName("bank_UserProfileResponse")
             );
-
+            if (user.Roles.Contains(Role.Employee)) { }
             if (user == null)
             {
                 throw new NotFoundException("Данного пользователя не существует!");
@@ -111,7 +113,10 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Services
             return _mapper.Map<List<BankAccountDto>>(bankAccount);
         }
 
-        public async Task<BankAccountDto> GetMyCorrespondingAccountNumber(string accountNumber)
+        public async Task<BankAccountDto> GetMyCorrespondingAccountNumber(
+            string accountNumber,
+            Guid userId
+        )
         {
             var bankAccount = await _dbContext.BankAccounts.FirstOrDefaultAsync(b =>
                 b.AccountNumber == accountNumber
@@ -120,6 +125,12 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Services
             {
                 throw new NotFoundException("Данного счета не существует!");
             }
+
+            if (bankAccount.UserId != userId)
+            {
+                throw new BadRequestException("Вы не смотреть чужой кошелек");
+            }
+
             return _mapper.Map<BankAccountDto>(bankAccount);
         }
 
@@ -176,6 +187,20 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Services
 
             bankAccount.Balance -= moneyCount;
             await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task<List<BankAccountDto>> GetAccountNumbersWithUserId(Guid userId)
+        {
+            var bankAccounts = await _dbContext
+                .BankAccounts.Where(bc => bc.UserId == userId)
+                .ToListAsync();
+
+            if (!bankAccounts.Any())
+            {
+                throw new BadRequestException("У этого пользователя нет счетов!");
+            }
+
+            return _mapper.Map<List<BankAccountDto>>(bankAccounts);
         }
 
         private string GenerateAccountNumber()

@@ -12,6 +12,7 @@ using UndergroundBank.BankAccountService.Application.Communication.Queries.GetAl
 using UndergroundBank.BankAccountService.Application.Communication.Queries.GetMyAccountNumbers;
 using UndergroundBank.BankAccountService.Application.Communication.Queries.GetMyCorrespondingAccountNumber;
 using UndergroundBank.Common.Base;
+using UndergroundBank.Common.Data.Enums;
 using UndergroundBank.Common.Data.Models;
 using UndergroundBank.Common.Dto.AccountService;
 using UndergroundBank.Common.Dto.BankAccountService;
@@ -28,6 +29,7 @@ namespace UndergroundBank.BankAccountService.Web.Controllers
 
         [HttpPost]
         [Authorize(Policy = "TokenNotInBlackList")]
+        [Authorize(Roles = $"{nameof(Role.Employee)}, {nameof(Role.Admin)}")]
         [Route("block")]
         [ProducesResponseType(200)]
         [ProducesResponseType(typeof(Error), 400)]
@@ -43,6 +45,7 @@ namespace UndergroundBank.BankAccountService.Web.Controllers
 
         [HttpPost]
         [Authorize(Policy = "TokenNotInBlackList")]
+        [Authorize(Roles = $"{nameof(Role.Employee)}, {nameof(Role.Admin)}")]
         [Route("unblock")]
         [ProducesResponseType(200)]
         [ProducesResponseType(typeof(Error), 400)]
@@ -126,6 +129,7 @@ namespace UndergroundBank.BankAccountService.Web.Controllers
 
         [HttpGet("all")]
         [Authorize(Policy = "TokenNotInBlackList")]
+        [Authorize(Roles = $"{nameof(Role.Employee)}, {nameof(Role.Admin)}")]
         [ProducesResponseType(typeof(BankAccountDto), 200)]
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 500)]
@@ -159,7 +163,7 @@ namespace UndergroundBank.BankAccountService.Web.Controllers
             [FromQuery] string accountNumber
         )
         {
-            var bankAccountQuery = new GetMyCorrespondingAccountNumberQuery(accountNumber);
+            var bankAccountQuery = new GetMyCorrespondingAccountNumberQuery(accountNumber, UserId);
             var bankAccountResponse = await Mediator.Send(bankAccountQuery);
 
             return Ok(bankAccountResponse);

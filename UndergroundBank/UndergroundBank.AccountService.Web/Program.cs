@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using UndergroundBank.AccountService.Application.Configurations;
-using UndergroundBank.AccountService.Domain.Enums;
 using UndergroundBank.AccountService.Infrastructure;
 using UndergroundBank.AccountService.Infrastructure.MessageBroker;
 using UndergroundBank.AccountService.Web.Configurations;
 using UndergroundBank.Common.Configurations.JWT;
+using UndergroundBank.Common.Data.Enums;
 using UndergroundBank.Common.Helpers.TokenRequirment;
 using UndergroundBank.Common.Middlewares;
 
