@@ -134,7 +134,7 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Services
             return _mapper.Map<BankAccountDto>(bankAccount);
         }
 
-        public async Task TopUpAccountNumber(string accountNumber, int moneyCount)
+        public async Task TopUpAccountNumber(string accountNumber, decimal moneyCount)
         {
             if (moneyCount <= 0)
             {
@@ -159,7 +159,7 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Services
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task WithdrawAccountNumber(string accountNumber, int moneyCount)
+        public async Task WithdrawAccountNumber(string accountNumber, decimal moneyCount)
         {
             if (moneyCount <= 0)
             {

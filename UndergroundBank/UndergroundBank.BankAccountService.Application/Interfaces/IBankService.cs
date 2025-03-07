@@ -22,8 +22,8 @@ namespace UndergroundBank.BankAccountService.Application.Interfaces
 
         public Task<List<BankAccountDto>> GetAccountNumbersWithUserId(Guid userId);
 
-        public Task TopUpAccountNumber(string accountNumber, int moneyCount);
+        public Task TopUpAccountNumber(string accountNumber, decimal moneyCount);
 
-        public Task WithdrawAccountNumber(string accountNumber, int moneyCount);
+        public Task WithdrawAccountNumber(string accountNumber, decimal moneyCount);
     }
 }

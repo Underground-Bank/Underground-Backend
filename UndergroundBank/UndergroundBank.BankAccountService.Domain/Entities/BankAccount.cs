@@ -13,7 +13,7 @@ namespace UndergroundBank.BankAccountService.Domain.Entities
         public string Surname { get; set; }
         public string PhoneNumber { get; set; }
         public DateTime CreatedDate { get; set; }
-        public Double Balance { get; set; }
+        public decimal Balance { get; set; }
         public Boolean IsLocked { get; set; }
     }
 }

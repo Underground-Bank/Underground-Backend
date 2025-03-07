@@ -7,5 +7,5 @@ using MediatR;
 
 namespace UndergroundBank.BankAccountService.Application.Communication.Commands.WithdrawAccountNumber
 {
-    public record WithdrawAccountNumberCommand(string accountNumber, int moneyCount) : IRequest;
+    public record WithdrawAccountNumberCommand(string accountNumber, decimal moneyCount) : IRequest;
 }

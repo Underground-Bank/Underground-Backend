@@ -81,7 +81,7 @@ namespace UndergroundBank.BankAccountService.Web.Controllers
         [ProducesResponseType(typeof(Error), 500)]
         public async Task<ActionResult> TopUpAccountNumber(
             [FromQuery] string accountNumber,
-            int moneyCount = 0
+            decimal moneyCount = 0
         )
         {
             var topUpAccountNumberCommand = new TopUpAccountNumberCommand(
@@ -101,7 +101,7 @@ namespace UndergroundBank.BankAccountService.Web.Controllers
         [ProducesResponseType(typeof(Error), 500)]
         public async Task<ActionResult> WithdrawAccountNumber(
             [FromQuery] string accountNumber,
-            int moneyCount = 0
+            decimal moneyCount = 0
         )
         {
             var withdrawAccountNumberCommand = new WithdrawAccountNumberCommand(

@@ -12,7 +12,7 @@ namespace UndergroundBank.Common.Dto.BankAccountService
         public Guid UserId { get; set; }
         public string Name { get; set; }
         public string Surname { get; set; }
-        public string Balance { get; set; }
+        public decimal Balance { get; set; }
         public bool IsLocked { get; set; }
     }
 }

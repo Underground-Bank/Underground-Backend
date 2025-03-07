@@ -7,5 +7,5 @@ using MediatR;
 
 namespace UndergroundBank.BankAccountService.Application.Communication.Commands.TopUpAccountNumber
 {
-    public record TopUpAccountNumberCommand(string accountNumber, int moneyCount) : IRequest;
+    public record TopUpAccountNumberCommand(string accountNumber, decimal moneyCount) : IRequest;
 }
