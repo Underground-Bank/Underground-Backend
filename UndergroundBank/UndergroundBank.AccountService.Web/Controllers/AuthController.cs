@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UndergroundBank.AccountService.Application.Communication.Commands.Auth.Login;
 using UndergroundBank.AccountService.Application.Communication.Commands.Auth.Logout;
+using UndergroundBank.AccountService.Application.Communication.Commands.Auth.RefreshToken;
 using UndergroundBank.AccountService.Application.Communication.Commands.Auth.Register;
 using UndergroundBank.AccountService.Application.Dto;
 using UndergroundBank.AccountService.Infrastructure.Helpers.TokenHerlpers;
@@ -62,13 +63,28 @@ namespace UndergroundBank.AccountService.Web.Controllers
         public async Task<ActionResult> Logout()
         {
             string token = _additionalTokenHelper.GetTokenFromHeader();
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            var userId = userIdClaim.Value;
 
-            var logoutCommand = new LogoutCommand(token, userId);
+            var logoutCommand = new LogoutCommand(token, UserId.ToString());
             await Mediator.Send(logoutCommand);
 
             return Ok();
+        }
+
+        [HttpPost]
+        [Authorize(Policy = "TokenNotInBlackList")]
+        [Route("refresh-token")]
+        [ProducesResponseType(typeof(AuthResponseDto), 200)]
+        [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 401)]
+        [ProducesResponseType(typeof(Error), 500)]
+        public async Task<ActionResult<AuthResponseDto>> RefreshToken(
+            RefreshTokenRequestDto refreshTokenRequestCreds
+        )
+        {
+            var refreshTokenCommand = new RefreshTokenCommand(refreshTokenRequestCreds);
+            var newTokens = await Mediator.Send(refreshTokenCommand);
+
+            return Ok(newTokens);
         }
     }
 }

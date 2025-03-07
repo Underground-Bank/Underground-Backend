@@ -3,11 +3,13 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using UndergroundBank.AccountService.Application.Configurations;
-using UndergroundBank.AccountService.Domain.Enums;
 using UndergroundBank.AccountService.Infrastructure;
+using UndergroundBank.AccountService.Infrastructure.MessageBroker;
 using UndergroundBank.AccountService.Web.Configurations;
 using UndergroundBank.Common.Configurations.JWT;
+using UndergroundBank.Common.Data.Enums;
 using UndergroundBank.Common.Helpers.TokenRequirment;
+using UndergroundBank.Common.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,6 +40,7 @@ builder.Services.ConfigureApplicationLayer();
 builder.Services.AddTokenRequirement();
 
 builder.Services.UseJwtConfiguration(builder.Configuration);
+builder.Services.QueueSubscribe();
 builder.Services.AddHttpClient();
 
 var app = builder.Build();
@@ -52,6 +55,8 @@ if (app.Environment.IsDevelopment())
 using var serviceScope = app.Services.CreateScope();
 var dbContext = serviceScope.ServiceProvider.GetService<AccountDbContext>();
 dbContext?.Database.Migrate();
+
+app.UseMiddleware<DefaultMiddleware>();
 
 // Enable HTTPS redirection
 app.UseHttpsRedirection();

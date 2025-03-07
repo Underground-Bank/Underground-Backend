@@ -2,7 +2,10 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using UndergroundBank.AccountService.Application.Communication.Commands.Profile.ChangePassword;
+using UndergroundBank.AccountService.Application.Communication.Commands.Profile.EditProfile;
 using UndergroundBank.AccountService.Application.Communication.Queries.ProfileService.GetUserProfile;
+using UndergroundBank.AccountService.Application.Dto;
 using UndergroundBank.Common.Base;
 using UndergroundBank.Common.Data.Models;
 using UndergroundBank.Common.Dto.AccountService;
@@ -29,12 +32,40 @@ namespace UndergroundBank.AccountService.Web.Controllers
         [ProducesResponseType(typeof(Error), 500)]
         public async Task<ActionResult<ProfileDto>> GetProfile()
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            var userId = userIdClaim.Value;
-            var profileQuery = new GetUserProfileQuery(userId);
+            var profileQuery = new GetUserProfileQuery(UserId.ToString());
             var profileResponse = await Mediator.Send(profileQuery);
 
             return Ok(profileResponse);
+        }
+
+        [HttpPut()]
+        [Authorize(Policy = "TokenNotInBlackList")]
+        [ProducesResponseType(typeof(Error), 200)]
+        [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 500)]
+        public async Task<ActionResult> EditProfile(EditProfileInfoDto editProfileInfo)
+        {
+            var editCommand = new EditProfileCommand(editProfileInfo, UserId.ToString());
+            await Mediator.Send(editCommand);
+
+            return Ok();
+        }
+
+        [HttpPut()]
+        [Authorize(Policy = "TokenNotInBlackList")]
+        [Route("change-password")]
+        [ProducesResponseType(typeof(Error), 200)]
+        [ProducesResponseType(typeof(Error), 400)]
+        [ProducesResponseType(typeof(Error), 500)]
+        public async Task<ActionResult> ChangePassword(ChangePasswordDto changePasswordCreds)
+        {
+            var changePasswordCommand = new ChangePasswordCommand(
+                UserId.ToString(),
+                changePasswordCreds
+            );
+            await Mediator.Send(changePasswordCommand);
+
+            return Ok();
         }
     }
 }
