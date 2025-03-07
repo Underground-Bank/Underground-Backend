@@ -3,11 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.12.35527.113
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Элементы решения", "Элементы решения", "{9F77A41F-EA56-427A-867B-988EE7AEF24D}"
-	ProjectSection(SolutionItems) = preProject
-		.gitignore = .gitignore
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.AccountService.Web", "UndergroundBank.AccountService.Web\UndergroundBank.AccountService.Web.csproj", "{EC1EA6DF-D057-4C38-8EAF-9112F1E1588D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.AccountService.Infrastructure", "UndergroundBank.AccountService.Infrastructure\UndergroundBank.AccountService.Infrastructure.csproj", "{DB253F44-903C-4068-80BE-7D9089378328}"
@@ -18,6 +13,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.AccountServ
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.Common", "UndergroundBank.Common\UndergroundBank.Common.csproj", "{1B1EB0CB-DD90-449A-8C19-73BBB1156327}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.LoanService.Web", "UndergroundBank.LoanService.Web\UndergroundBank.LoanService.Web.csproj", "{0E495A9D-8B27-4E3C-9BE6-CBB577D37B6C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.LoanService.Application", "UndergroundBank.LoanService.Application\UndergroundBank.LoanService.Application.csproj", "{5987D938-E488-41DD-BAB9-17EDDCB556F1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.LoanService.Infrastructure", "UndergroundBank.LoanService.Infrastructure\UndergroundBank.LoanService.Infrastructure.csproj", "{D2CB55CD-7D96-4B4A-9176-9099CD3FAA6E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.LoanService.Domain", "UndergroundBank.LoanService.Domain\UndergroundBank.LoanService.Domain.csproj", "{27B371DF-0CEC-47E4-BD8A-90BBB2CAE82E}"
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.BankAccountService.Application", "UndergroundBank.BankAccountService.Application\UndergroundBank.BankAccountService.Application.csproj", "{0ED3760B-0575-4D52-AC60-2CD489901D0A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.BankAccountService.Infrastructure", "UndergroundBank.BankAccountService.Infrastructure\UndergroundBank.BankAccountService.Infrastructure.csproj", "{7426CF9D-719C-4224-BA81-1A7B7047B47A}"
@@ -52,6 +54,22 @@ Global
 		{1B1EB0CB-DD90-449A-8C19-73BBB1156327}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1B1EB0CB-DD90-449A-8C19-73BBB1156327}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1B1EB0CB-DD90-449A-8C19-73BBB1156327}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E495A9D-8B27-4E3C-9BE6-CBB577D37B6C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E495A9D-8B27-4E3C-9BE6-CBB577D37B6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E495A9D-8B27-4E3C-9BE6-CBB577D37B6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E495A9D-8B27-4E3C-9BE6-CBB577D37B6C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5987D938-E488-41DD-BAB9-17EDDCB556F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5987D938-E488-41DD-BAB9-17EDDCB556F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5987D938-E488-41DD-BAB9-17EDDCB556F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5987D938-E488-41DD-BAB9-17EDDCB556F1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D2CB55CD-7D96-4B4A-9176-9099CD3FAA6E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2CB55CD-7D96-4B4A-9176-9099CD3FAA6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2CB55CD-7D96-4B4A-9176-9099CD3FAA6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2CB55CD-7D96-4B4A-9176-9099CD3FAA6E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27B371DF-0CEC-47E4-BD8A-90BBB2CAE82E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27B371DF-0CEC-47E4-BD8A-90BBB2CAE82E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27B371DF-0CEC-47E4-BD8A-90BBB2CAE82E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27B371DF-0CEC-47E4-BD8A-90BBB2CAE82E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0ED3760B-0575-4D52-AC60-2CD489901D0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0ED3760B-0575-4D52-AC60-2CD489901D0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0ED3760B-0575-4D52-AC60-2CD489901D0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
