@@ -1,14 +1,9 @@
 using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using UndergroundBank.AccountService.Application.Configurations;
-using UndergroundBank.AccountService.Infrastructure;
-using UndergroundBank.AccountService.Infrastructure.MessageBroker;
-using UndergroundBank.AccountService.Web.Configurations;
+using UndergroundBank.BankAccountService.Application.Configurations;
+using UndergroundBank.BankAccountService.Infrastructure;
+using UndergroundBank.BankAccountService.Web.Configurations;
 using UndergroundBank.Common.Configurations.JWT;
-using UndergroundBank.Common.Data.Enums;
-using UndergroundBank.Common.Helpers.TokenRequirment;
 using UndergroundBank.Common.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,18 +24,14 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerConfiguration();
 
 // Add business logic service dependencies
-builder.Services.AddAccountBlServiceDependencies(builder.Configuration);
-
-// Add Identity dependencies configuration
-builder.Services.AddMicIdentityConfiguration();
+builder.Services.AddBankAccountServiceConfiguration(builder.Configuration);
 
 // Application layer configuration
-builder.Services.ConfigureApplicationLayer();
+builder.Services.ConfigureBankAccountApplicationLayer();
 
 builder.Services.AddTokenRequirement();
 
 builder.Services.UseJwtConfiguration(builder.Configuration);
-builder.Services.QueueSubscribe();
 builder.Services.AddHttpClient();
 
 var app = builder.Build();
@@ -53,7 +44,7 @@ if (app.Environment.IsDevelopment())
 }
 
 using var serviceScope = app.Services.CreateScope();
-var dbContext = serviceScope.ServiceProvider.GetService<AccountDbContext>();
+var dbContext = serviceScope.ServiceProvider.GetService<BankAccountDbContext>();
 dbContext?.Database.Migrate();
 
 app.UseMiddleware<DefaultMiddleware>();
@@ -67,16 +58,5 @@ app.UseAuthorization();
 
 // Map controllers
 app.MapControllers();
-
-using (var scope = app.Services.CreateScope())
-{
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
-    var roles = Enum.GetNames(typeof(Role));
-    foreach (var roleName in roles)
-    {
-        if (!await roleManager.RoleExistsAsync(roleName))
-            await roleManager.CreateAsync(new IdentityRole<Guid>(roleName));
-    }
-}
 
 app.Run();

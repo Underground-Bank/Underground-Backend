@@ -1,6 +1,6 @@
 ﻿using UndergroundBank.AccountService.Domain.Enums;
 
-namespace UndergroundBank.AccountService.Application.Dto
+namespace UndergroundBank.Common.Dto.AccountService
 {
     public class EditProfileInfoDto
     {

@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFramework>net8.0</TargetFramework>
-		<Nullable>enable</Nullable>
-		<ImplicitUsings>enable</ImplicitUsings>
-	</PropertyGroup>
-
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+	
 	<ItemGroup>
 		<PackageReference Include="AutoMapper" Version="14.0.0" />
 		<PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
@@ -28,10 +28,10 @@
 		<PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.3.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.13" />
 	</ItemGroup>
-
+	
 	<ItemGroup>
-	  <ProjectReference Include="..\UndergroundBank.AccountService.Application\UndergroundBank.AccountService.Application.csproj" />
-	  <ProjectReference Include="..\UndergroundBank.AccountService.Domain\UndergroundBank.AccountService.Domain.csproj" />
+	  <ProjectReference Include="..\UndergroundBank.BankAccountService.Application\UndergroundBank.BankAccountService.Application.csproj" />
+	  <ProjectReference Include="..\UndergroundBank.BankAccountService.Domain\UndergroundBank.BankAccountService.Domain.csproj" />
 	  <ProjectReference Include="..\UndergroundBank.Common\UndergroundBank.Common.csproj" />
 	</ItemGroup>
 

@@ -9,7 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using UndergroundBank.AccountService.Application.Dto;
 using UndergroundBank.AccountService.Domain.Entities;
-using UndergroundBank.AccountService.Domain.Enums;
+using UndergroundBank.Common.Data.Enums;
 
 namespace UndergroundBank.AccountService.Infrastructure.Helpers.TokenHerlpers
 {

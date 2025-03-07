@@ -32,9 +32,7 @@ namespace UndergroundBank.AccountService.Web.Controllers
         [ProducesResponseType(typeof(Error), 500)]
         public async Task<ActionResult<ProfileDto>> GetProfile()
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            var userId = userIdClaim.Value;
-            var profileQuery = new GetUserProfileQuery(userId);
+            var profileQuery = new GetUserProfileQuery(UserId.ToString());
             var profileResponse = await Mediator.Send(profileQuery);
 
             return Ok(profileResponse);
@@ -47,9 +45,7 @@ namespace UndergroundBank.AccountService.Web.Controllers
         [ProducesResponseType(typeof(Error), 500)]
         public async Task<ActionResult> EditProfile(EditProfileInfoDto editProfileInfo)
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            var userId = userIdClaim.Value;
-            var editCommand = new EditProfileCommand(editProfileInfo, userId);
+            var editCommand = new EditProfileCommand(editProfileInfo, UserId.ToString());
             await Mediator.Send(editCommand);
 
             return Ok();
@@ -63,10 +59,10 @@ namespace UndergroundBank.AccountService.Web.Controllers
         [ProducesResponseType(typeof(Error), 500)]
         public async Task<ActionResult> ChangePassword(ChangePasswordDto changePasswordCreds)
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-            var userId = userIdClaim.Value;
-
-            var changePasswordCommand = new ChangePasswordCommand(userId, changePasswordCreds);
+            var changePasswordCommand = new ChangePasswordCommand(
+                UserId.ToString(),
+                changePasswordCreds
+            );
             await Mediator.Send(changePasswordCommand);
 
             return Ok();

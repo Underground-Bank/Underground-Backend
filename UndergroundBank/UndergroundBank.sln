@@ -18,6 +18,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.AccountServ
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.Common", "UndergroundBank.Common\UndergroundBank.Common.csproj", "{1B1EB0CB-DD90-449A-8C19-73BBB1156327}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.BankAccountService.Application", "UndergroundBank.BankAccountService.Application\UndergroundBank.BankAccountService.Application.csproj", "{0ED3760B-0575-4D52-AC60-2CD489901D0A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.BankAccountService.Infrastructure", "UndergroundBank.BankAccountService.Infrastructure\UndergroundBank.BankAccountService.Infrastructure.csproj", "{7426CF9D-719C-4224-BA81-1A7B7047B47A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.BankAccountService.Domain", "UndergroundBank.BankAccountService.Domain\UndergroundBank.BankAccountService.Domain.csproj", "{EE0C7C08-DC07-42D4-B4D6-8E75C4C136FE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.BankAccountService.Web", "UndergroundBank.BankAccountService.Web\UndergroundBank.BankAccountService.Web.csproj", "{5E619BC6-39E2-4A68-B500-71B43AE40F9C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,6 +52,22 @@ Global
 		{1B1EB0CB-DD90-449A-8C19-73BBB1156327}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1B1EB0CB-DD90-449A-8C19-73BBB1156327}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1B1EB0CB-DD90-449A-8C19-73BBB1156327}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0ED3760B-0575-4D52-AC60-2CD489901D0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0ED3760B-0575-4D52-AC60-2CD489901D0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0ED3760B-0575-4D52-AC60-2CD489901D0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0ED3760B-0575-4D52-AC60-2CD489901D0A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7426CF9D-719C-4224-BA81-1A7B7047B47A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7426CF9D-719C-4224-BA81-1A7B7047B47A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7426CF9D-719C-4224-BA81-1A7B7047B47A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7426CF9D-719C-4224-BA81-1A7B7047B47A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE0C7C08-DC07-42D4-B4D6-8E75C4C136FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE0C7C08-DC07-42D4-B4D6-8E75C4C136FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE0C7C08-DC07-42D4-B4D6-8E75C4C136FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE0C7C08-DC07-42D4-B4D6-8E75C4C136FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E619BC6-39E2-4A68-B500-71B43AE40F9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E619BC6-39E2-4A68-B500-71B43AE40F9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E619BC6-39E2-4A68-B500-71B43AE40F9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E619BC6-39E2-4A68-B500-71B43AE40F9C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
