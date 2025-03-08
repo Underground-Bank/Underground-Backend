@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using UndergroundBank.Common.Data.Enums;
 
-namespace UndergroundBank.Common.Dto
+namespace UndergroundBank.Common.Dto.Transaction
 {
-    public class TransactionSecondDto
+    public class TransactionResponseDto
     {
         public Guid TransactionId { get; set; }
         public Guid LoanId { get; set; }

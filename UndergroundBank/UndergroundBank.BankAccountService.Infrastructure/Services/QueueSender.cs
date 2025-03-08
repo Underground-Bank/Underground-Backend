@@ -1,6 +1,6 @@
 ﻿using EasyNetQ;
 using UndergroundBank.Common.Data.Constants;
-using UndergroundBank.Common.Dto;
+using UndergroundBank.Common.Dto.Transaction;
 
 namespace UndergroundBank.BankAccountService.Infrastructure.Services
 {
@@ -18,7 +18,7 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Services
             await _bus.PubSub.PublishAsync(message, topik);
         }
 
-        public async Task SendTransaction(TransactionSecondDto transaction)
+        public async Task SendTransaction(TransactionResponseDto transaction)
         {
             await SendMessage(transaction, Queues.TRANSACTION_QUEUE_RESPONSE);
         }

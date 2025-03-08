@@ -3,8 +3,8 @@ using EasyNetQ;
 using Microsoft.Extensions.DependencyInjection;
 using UndergroundBank.BankAccountService.Application.Interfaces;
 using UndergroundBank.Common.Data.Constants;
-using UndergroundBank.Common.Dto;
 using UndergroundBank.Common.Dto.AccountService;
+using UndergroundBank.Common.Dto.Transaction;
 
 namespace UndergroundBank.BankAccountService.Infrastructure.MessageBroker
 {
@@ -16,7 +16,7 @@ namespace UndergroundBank.BankAccountService.Infrastructure.MessageBroker
             var bus = RabbitHutch.CreateBus("host=localhost");
             var bankAccountService = serviceProvider.GetRequiredService<IBankService>();
 
-            bus.PubSub.Subscribe<TransactionDto>(
+            bus.PubSub.Subscribe<TransactionRequestDto>(
                 Queues.TRANSACTION_QUEUE_REQUEST,
                 async data =>
                 {

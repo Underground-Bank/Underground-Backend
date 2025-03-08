@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore;
 using UndergroundBank.BankAccountService.Application.Interfaces;
 using UndergroundBank.BankAccountService.Domain.Entities;
 using UndergroundBank.Common.Data.Enums;
-using UndergroundBank.Common.Dto;
 using UndergroundBank.Common.Dto.AccountService;
 using UndergroundBank.Common.Dto.BankAccountService;
+using UndergroundBank.Common.Dto.Transaction;
 using UndergroundBank.Common.Middlewares;
 
 namespace UndergroundBank.BankAccountService.Infrastructure.Services
@@ -219,7 +219,7 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Services
             return _mapper.Map<List<BankAccountDto>>(bankAccounts);
         }
 
-        public async Task WithdrawMoneyForLoan(TransactionDto transactionCreds)
+        public async Task WithdrawMoneyForLoan(TransactionRequestDto transactionCreds)
         {
             var bankAccount = await _dbContext.BankAccounts.FirstOrDefaultAsync(bc =>
                 bc.AccountNumber == transactionCreds.AccountNumber
@@ -235,7 +235,7 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Services
                 bankAccount.Balance -= transactionCreds.MoneyCount;
                 await _dbContext.SaveChangesAsync();
             }
-            var trans = new TransactionSecondDto()
+            var trans = new TransactionResponseDto()
             {
                 TransactionId = transactionCreds.TransactionId,
                 Status = transactionCreds.Status,

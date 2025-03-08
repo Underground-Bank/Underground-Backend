@@ -4,7 +4,7 @@ using Quartz;
 using UndergroundBank.Common.Data.Constants;
 using UndergroundBank.Common.Data.Enums;
 using UndergroundBank.Common.Data.Models;
-using UndergroundBank.Common.Dto;
+using UndergroundBank.Common.Dto.Transaction;
 using UndergroundBank.Common.Middlewares;
 using UndergroundBank.LoanService.Application.Dto.Loan;
 using UndergroundBank.LoanService.Application.Interfaces;
@@ -21,7 +21,12 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
         private readonly ISchedulerFactory _schedulerFactory;
         private readonly QueueSender _queueSender;
 
-        public LoansService(LoanDbContext dbContext, IMapper mapper, ISchedulerFactory schedulerFactory, QueueSender queueSender)
+        public LoansService(
+            LoanDbContext dbContext,
+            IMapper mapper,
+            ISchedulerFactory schedulerFactory,
+            QueueSender queueSender
+        )
         {
             _mapper = mapper;
             _dbContext = dbContext;
@@ -40,7 +45,10 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
         {
             _dbContext.ignoreUserFilter = true;
             var loan = await _dbContext.Loans.Where(l => l.Id == loanId).FirstOrDefaultAsync();
-            if (loan == null) { throw new NotFoundException("Кредита с таким id не существует"); }
+            if (loan == null)
+            {
+                throw new NotFoundException("Кредита с таким id не существует");
+            }
             var loanDto = _mapper.Map<GetLoanDto>(loan);
             return loanDto;
         }
@@ -56,7 +64,10 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
                 .Tariffs.Where(t => t.Id == takeLoanDto.TariffId)
                 .FirstOrDefaultAsync();
 
-            if (tariff == null) { throw new NotFoundException("Тарифа с таким id не существует"); }
+            if (tariff == null)
+            {
+                throw new NotFoundException("Тарифа с таким id не существует");
+            }
 
             var newLoan = new Loan()
             {
@@ -75,9 +86,15 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
 
         public async Task StartTopUpLoan(decimal payment, string BankAccountNumber, Guid loanId)
         {
-            var loan = _dbContext.Loans.Where(l => l.Id == loanId).Include(u => u.Tariff).FirstOrDefault();
-            if (loan == null) { throw new NotFoundException("Кредита с таким id не существует"); }
-            var transaction = new TransactionDto
+            var loan = _dbContext
+                .Loans.Where(l => l.Id == loanId)
+                .Include(u => u.Tariff)
+                .FirstOrDefault();
+            if (loan == null)
+            {
+                throw new NotFoundException("Кредита с таким id не существует");
+            }
+            var transaction = new TransactionRequestDto
             {
                 TransactionId = Guid.NewGuid(),
                 AccountNumber = BankAccountNumber,
@@ -85,17 +102,30 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
                 MoneyCount = payment,
                 Status = Status.InProgress,
             };
-            await _queueSender.SendMessage<TransactionDto>(transaction, Queues.TRANSACTION_QUEUE_REQUEST);
+            await _queueSender.SendMessage<TransactionRequestDto>(
+                transaction,
+                Queues.TRANSACTION_QUEUE_REQUEST
+            );
             await WriteTransaction(transaction);
         }
 
         public async Task AutoTopUpLoan(Guid loanId, string accountNumber)
         {
             _dbContext.ignoreUserFilter = true;
-            var loan = _dbContext.Loans.Where(l => l.Id == loanId).Include(u => u.Tariff).FirstOrDefault();
-            if (loan == null) { throw new NotFoundException("Кредита с таким id не существует"); }
-            var monthPayment = CalculateMonthPayment(loan.Tariff, loan.LoanDurationInMonth, loan.Amount);
-            var transaction = new TransactionDto
+            var loan = _dbContext
+                .Loans.Where(l => l.Id == loanId)
+                .Include(u => u.Tariff)
+                .FirstOrDefault();
+            if (loan == null)
+            {
+                throw new NotFoundException("Кредита с таким id не существует");
+            }
+            var monthPayment = CalculateMonthPayment(
+                loan.Tariff,
+                loan.LoanDurationInMonth,
+                loan.Amount
+            );
+            var transaction = new TransactionRequestDto
             {
                 TransactionId = Guid.NewGuid(),
                 AccountNumber = accountNumber,
@@ -103,7 +133,10 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
                 MoneyCount = monthPayment,
                 Status = Status.InProgress,
             };
-            await _queueSender.SendMessage<TransactionDto>(transaction, Queues.TRANSACTION_QUEUE_REQUEST);
+            await _queueSender.SendMessage<TransactionRequestDto>(
+                transaction,
+                Queues.TRANSACTION_QUEUE_REQUEST
+            );
             await WriteTransaction(transaction);
         }
 
@@ -118,14 +151,17 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
 
             if (loan.RemainingPayment - payment < 0)
             {
-                throw new BadRequestException("Сумма пополнения кредита не может превышать оставшийся платёж по кредиту");
+                throw new BadRequestException(
+                    "Сумма пополнения кредита не может превышать оставшийся платёж по кредиту"
+                );
             }
 
             loan.RemainingPayment -= payment;
             if (loan.RemainingPayment == 0)
             {
                 loan.Status = LoanStatus.Closed;
-            };
+            }
+            ;
 
             _dbContext.Update(loan);
 
@@ -134,17 +170,18 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
 
         private async Task<GetLoansDto> GetLoansLogic(Guid? userId)
         {
-            var loans = await _dbContext.Loans
-                .Where(l => userId == null || l.UserId == userId)
+            var loans = await _dbContext
+                .Loans.Where(l => userId == null || l.UserId == userId)
                 .ToListAsync();
 
-            return new GetLoansDto
-            {
-                loans = _mapper.Map<List<GetLoanDto>>(loans)
-            };
+            return new GetLoansDto { loans = _mapper.Map<List<GetLoanDto>>(loans) };
         }
 
-        private decimal CalculateMonthPayment(Tariff tariff, int loanDurationInMonth, decimal loanAmount)
+        private decimal CalculateMonthPayment(
+            Tariff tariff,
+            int loanDurationInMonth,
+            decimal loanAmount
+        )
         {
             var monthPayment = (loanAmount * (tariff.InterestRate)) / (loanDurationInMonth * 100);
             return monthPayment;
@@ -156,27 +193,29 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
 
             var jobKey = new JobKey($"{loanId}-{bankAccountId}", "CreditRepaymentJobs");
 
-            var job = JobBuilder.Create<TopUpLoanJob>()
+            var job = JobBuilder
+                .Create<TopUpLoanJob>()
                 .WithIdentity(jobKey)
                 .UsingJobData("LoanId", loanId.ToString())
                 .UsingJobData("BankAccountNumber", bankAccountId.ToString())
                 .Build();
 
-            var trigger = TriggerBuilder.Create()
+            var trigger = TriggerBuilder
+                .Create()
                 .WithIdentity($"{loanId}-{bankAccountId}-trigger", "CreditRepaymentTriggers")
                 .StartNow()
-                .WithSimpleSchedule(x => x
-                    .WithIntervalInMinutes(20)
-                    .RepeatForever())
+                .WithSimpleSchedule(x => x.WithIntervalInMinutes(20).RepeatForever())
                 .Build();
 
             await scheduler.ScheduleJob(job, trigger);
         }
 
-        public async Task EndTopUpLoanTransaction(TransactionDto transactionDto)
+        public async Task EndTopUpLoanTransaction(TransactionRequestDto transactionDto)
         {
             _dbContext.ignoreUserFilter = true;
-            var transaction = _dbContext.Transactions.Where(t => t.Id == transactionDto.TransactionId).FirstOrDefault();
+            var transaction = _dbContext
+                .Transactions.Where(t => t.Id == transactionDto.TransactionId)
+                .FirstOrDefault();
             if (transaction == null)
             {
                 throw new NotFoundException("Транзакции с таким id не существует");
@@ -190,9 +229,9 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
             transaction.EndAt = DateTime.UtcNow;
             _dbContext.Update(transaction);
             await _dbContext.SaveChangesAsync();
-
         }
-        private async Task WriteTransaction(TransactionDto transactionDto)
+
+        private async Task WriteTransaction(TransactionRequestDto transactionDto)
         {
             var transaction = new Transaction
             {
@@ -201,7 +240,7 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
                 Status = Status.InProgress,
                 Id = transactionDto.TransactionId,
                 Description = "",
-                Name = ""
+                Name = "",
             };
             await _dbContext.AddAsync(transaction);
             await _dbContext.SaveChangesAsync();

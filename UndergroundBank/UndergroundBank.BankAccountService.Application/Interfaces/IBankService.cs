@@ -1,7 +1,7 @@
 ﻿using System.Transactions;
 using UndergroundBank.Common.Data.Enums;
-using UndergroundBank.Common.Dto;
 using UndergroundBank.Common.Dto.BankAccountService;
+using UndergroundBank.Common.Dto.Transaction;
 
 namespace UndergroundBank.BankAccountService.Application.Interfaces
 {
@@ -29,6 +29,6 @@ namespace UndergroundBank.BankAccountService.Application.Interfaces
         public Task TopUpAccountNumber(string accountNumber, decimal moneyCount);
 
         public Task WithdrawAccountNumber(string accountNumber, decimal moneyCount, Guid userId);
-        public Task WithdrawMoneyForLoan(TransactionDto transactionDtoCreds);
+        public Task WithdrawMoneyForLoan(TransactionRequestDto transactionDtoCreds);
     }
 }
