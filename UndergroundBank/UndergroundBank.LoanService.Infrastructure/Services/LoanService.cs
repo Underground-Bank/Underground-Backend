@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Quartz;
+using Quartz.Spi;
 using UndergroundBank.Common.Data.Constants;
 using UndergroundBank.Common.Data.Enums;
 using UndergroundBank.Common.Data.Models;
@@ -19,13 +20,16 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
         private readonly IMapper _mapper;
         private readonly LoanDbContext _dbContext;
         private readonly ISchedulerFactory _schedulerFactory;
+        private readonly IJobFactory _jobFactory;
+        private Quartz.IScheduler _scheduler;
         private readonly QueueSender _queueSender;
 
         public LoansService(
             LoanDbContext dbContext,
             IMapper mapper,
             ISchedulerFactory schedulerFactory,
-            QueueSender queueSender
+            QueueSender queueSender,
+            IJobFactory jobFactory
         )
         {
             _mapper = mapper;
@@ -33,6 +37,7 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
             _mapper = mapper;
             _schedulerFactory = schedulerFactory;
             _queueSender = queueSender;
+            _jobFactory = jobFactory;
         }
 
         public async Task<GetLoansDto> GetAllLoans(Guid? userId)
@@ -51,9 +56,9 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
             return loanDto;
         }
 
-        public async Task<GetLoansDto> GetMyLoans()
+        public async Task<GetLoansDto> GetMyLoans(Guid userId)
         {
-            return await GetLoansLogic(null);
+            return await GetLoansLogic(userId);
         }
 
         public async Task TakeLoan(TakeLoanDto takeLoanDto, Guid userId)
@@ -82,7 +87,7 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task StartTopUpLoan(decimal payment, string BankAccountNumber, Guid loanId)
+        public async Task StartTopUpLoan(decimal payment, string BankAccountNumber, Guid loanId, Guid userId)
         {
             var loan = _dbContext
                 .Loans.Where(l => l.Id == loanId)
@@ -92,12 +97,14 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
             {
                 throw new NotFoundException("Кредита с таким id не существует");
             }
+
             var transaction = new TransactionRequestDto
             {
                 TransactionId = Guid.NewGuid(),
                 AccountNumber = BankAccountNumber,
                 LoanId = loanId,
                 MoneyCount = payment,
+                UserId = userId,
                 Status = Status.InProgress,
             };
             await _queueSender.SendMessage<TransactionRequestDto>(
@@ -107,7 +114,7 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
             await WriteTransaction(transaction);
         }
 
-        public async Task AutoTopUpLoan(Guid loanId, string accountNumber)
+        public async Task AutoTopUpLoan(Guid loanId, string accountNumber, Guid userId)
         {
             var loan = _dbContext
                 .Loans.Where(l => l.Id == loanId)
@@ -127,6 +134,7 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
                 TransactionId = Guid.NewGuid(),
                 AccountNumber = accountNumber,
                 LoanId = loanId,
+                UserId = userId,
                 MoneyCount = monthPayment,
                 Status = Status.InProgress,
             };
@@ -183,27 +191,30 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
             return monthPayment;
         }
 
-        public async Task CreateAutoTopUp(string bankAccountId, Guid loanId)
+        public async Task CreateAutoTopUp(string bankAccountId, Guid loanId, Guid userId)
         {
-            var scheduler = await _schedulerFactory.GetScheduler();
+            _scheduler = await _schedulerFactory.GetScheduler();
+            _scheduler.JobFactory = _jobFactory;
 
-            var jobKey = new JobKey($"{loanId}-{bankAccountId}", "CreditRepaymentJobs");
+            var jobKey = new JobKey($"{loanId}-{bankAccountId}-{userId}", "CreditRepaymentJobs");
 
             var job = JobBuilder
                 .Create<TopUpLoanJob>()
                 .WithIdentity(jobKey)
                 .UsingJobData("LoanId", loanId.ToString())
                 .UsingJobData("BankAccountNumber", bankAccountId.ToString())
+                .UsingJobData("UserId", userId.ToString())
                 .Build();
 
             var trigger = TriggerBuilder
                 .Create()
-                .WithIdentity($"{loanId}-{bankAccountId}-trigger", "CreditRepaymentTriggers")
+                .WithIdentity($"{loanId}-{bankAccountId}-{userId}Trigger", "CreditRepaymentJobs")
                 .StartNow()
-                .WithSimpleSchedule(x => x.WithIntervalInMinutes(20).RepeatForever())
+                .WithSimpleSchedule(x => x.WithIntervalInSeconds(5).RepeatForever())
                 .Build();
 
-            await scheduler.ScheduleJob(job, trigger);
+            await _scheduler.ScheduleJob(job, trigger);
+            await _scheduler.Start();
         }
 
         public async Task EndTopUpLoanTransaction(TransactionResponseDto transactionDto)
@@ -233,9 +244,10 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
                 AccountNumber = transactionDto.AccountNumber,
                 StartAt = DateTime.UtcNow,
                 Status = Status.InProgress,
+                UserId = transactionDto.UserId,
                 Id = transactionDto.TransactionId,
-                Description = "",
-                Name = "",
+                Description = "Loan top up transaction",
+                Name = "LoanTopUp",
             };
             await _dbContext.AddAsync(transaction);
             await _dbContext.SaveChangesAsync();

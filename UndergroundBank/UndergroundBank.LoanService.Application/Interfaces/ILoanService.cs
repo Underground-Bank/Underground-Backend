@@ -7,11 +7,11 @@ namespace UndergroundBank.LoanService.Application.Interfaces
     {
         public Task TakeLoan(TakeLoanDto takeLoan, Guid userId);
         public Task<GetLoanDto> GetLoan(Guid loanId);
-        public Task StartTopUpLoan(decimal amount, string BankAccountNumber, Guid loanId);
+        public Task StartTopUpLoan(decimal amount, string BankAccountNumber, Guid loanId, Guid userId);
         public Task EndTopUpLoanTransaction(TransactionResponseDto transaction);
-        public Task AutoTopUpLoan(Guid loanId, string accountNumber);
+        public Task AutoTopUpLoan(Guid loanId, string accountNumber, Guid userId);
         public Task<GetLoansDto> GetAllLoans(Guid? userId);
-        public Task CreateAutoTopUp(string bankAccountId, Guid loanId);
-        public Task<GetLoansDto> GetMyLoans();
+        public Task CreateAutoTopUp(string bankAccountId, Guid loanId, Guid userId);
+        public Task<GetLoansDto> GetMyLoans(Guid userId);
     }
 }

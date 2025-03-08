@@ -13,10 +13,10 @@ namespace UndergroundBank.LoanService.Domain.Entities
         public int MaxLoanDuration { get; set; }
 
         [Range(1, int.MaxValue, ErrorMessage = "Сумма должна быть положительным числом.")]
-        public double MinAmount { get; set; }
+        public decimal MinAmount { get; set; }
 
         [Range(1, int.MaxValue, ErrorMessage = "Сумма должна быть положительным числом.")]
-        public double MaxAmount { get; set; }
+        public decimal MaxAmount { get; set; }
         public decimal InterestRate { get; set; }
     }
 }

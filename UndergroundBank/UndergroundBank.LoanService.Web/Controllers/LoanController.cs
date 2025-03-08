@@ -39,7 +39,7 @@ namespace UndergroundBank.AccountService.Web.Controllers
         [Authorize(Roles = $"{nameof(Role.Client)}")]
         public async Task<ActionResult> TopUpLoan(TopUpLoanDto topUpLoanDto)
         {
-            var TopUpLoanCommand = new TopUpLoanCommand(topUpLoanDto);
+            var TopUpLoanCommand = new TopUpLoanCommand(topUpLoanDto, UserId);
             await Mediator.Send(TopUpLoanCommand);
 
             return Ok();
@@ -49,7 +49,7 @@ namespace UndergroundBank.AccountService.Web.Controllers
         [Authorize(Roles = $"{nameof(Role.Client)}")]
         public async Task<ActionResult> AddAutoTopUpLoan(AddAutoTopUpLoanDto addAutotopUpLoanDto)
         {
-            var addAutoTopUpLoanCommand = new AddAutoTopUpLoanCommand(addAutotopUpLoanDto);
+            var addAutoTopUpLoanCommand = new AddAutoTopUpLoanCommand(addAutotopUpLoanDto, UserId);
             await Mediator.Send(addAutoTopUpLoanCommand);
 
             return Ok();
@@ -79,7 +79,7 @@ namespace UndergroundBank.AccountService.Web.Controllers
         [ProducesResponseType(typeof(GetLoansDto), 200)]
         public async Task<ActionResult<GetLoansDto>> GetMyLoans()
         {
-            var getMyLoansQuery = new GetMyLoansQuery();
+            var getMyLoansQuery = new GetMyLoansQuery(UserId);
             var myLoans = await Mediator.Send(getMyLoansQuery);
 
             return Ok(myLoans);

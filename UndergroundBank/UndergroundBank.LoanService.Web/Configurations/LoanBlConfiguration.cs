@@ -19,11 +19,10 @@ namespace UndergroundBank.LoanService.Web.Configurations
             IConfiguration configuration
         )
         {
-
             services.AddHttpContextAccessor();
 
             services.AddDbContext<LoanDbContext>(options =>
-            options.UseNpgsql(configuration.GetConnectionString("LoanDatabasePostgres"))
+                options.UseNpgsql(configuration.GetConnectionString("LoanDatabasePostgres"))
             );
             services.AddSingleton<RedisDbContext>(provider =>
             {
@@ -37,14 +36,15 @@ namespace UndergroundBank.LoanService.Web.Configurations
 
             return services;
         }
+
         public static IServiceCollection AddQuartzDependencies(
-        this IServiceCollection services,
-        IConfiguration configuration
+            this IServiceCollection services,
+            IConfiguration configuration
         )
         {
             services.AddQuartz();
             services.AddQuartzHostedService(options => options.WaitForJobsToComplete = true);
-            services.AddSingleton<TopUpLoanJob>();
+            services.AddScoped<TopUpLoanJob>();
             services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
             return services;
         }

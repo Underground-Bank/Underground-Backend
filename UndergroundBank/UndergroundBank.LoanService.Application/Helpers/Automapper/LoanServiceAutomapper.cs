@@ -11,7 +11,6 @@ namespace UndergroundBank.LoanService.Application.Helpers.Automapper
         {
             CreateMap<CreateTariffDto, Tariff>().ReverseMap();
             CreateMap<GetLoanDto, Loan>().ReverseMap();
-            CreateMap<Tariff, List<GetTariffDto>>().ReverseMap();
             CreateMap<Tariff, GetTariffDto>().ReverseMap();
         }
     }

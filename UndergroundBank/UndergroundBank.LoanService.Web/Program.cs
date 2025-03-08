@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 using UndergroundBank.Common.Configurations.JWT;
+using UndergroundBank.Common.Middlewares;
 using UndergroundBank.LoanService.Application.Configurations;
 using UndergroundBank.LoanService.Infrastructure;
 using UndergroundBank.LoanService.Infrastructure.Services.LoanQueue;
@@ -24,8 +25,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerConfiguration();
 
 // Add business logic service dependencies
-builder.Services.AddLoanBlServiceDependencies(builder.Configuration);
 builder.Services.AddQuartzDependencies(builder.Configuration);
+builder.Services.AddLoanBlServiceDependencies(builder.Configuration);
 
 // Application layer configuration
 builder.Services.ConfigureApplicationLayer();
@@ -59,6 +60,8 @@ catch (Exception ex)
     throw;
 
 }
+
+app.UseMiddleware<DefaultMiddleware>();
 
 // Enable HTTPS redirection
 app.UseHttpsRedirection();
