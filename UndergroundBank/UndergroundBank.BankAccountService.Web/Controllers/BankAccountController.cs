@@ -8,6 +8,7 @@ using UndergroundBank.BankAccountService.Application.Communication.Commands.Dele
 using UndergroundBank.BankAccountService.Application.Communication.Commands.TopUpAccountNumber;
 using UndergroundBank.BankAccountService.Application.Communication.Commands.UnblockAccountNumber;
 using UndergroundBank.BankAccountService.Application.Communication.Commands.WithdrawAccountNumber;
+using UndergroundBank.BankAccountService.Application.Communication.Queries.GetAccountNumbersWithUserId;
 using UndergroundBank.BankAccountService.Application.Communication.Queries.GetAllAccountNumbers;
 using UndergroundBank.BankAccountService.Application.Communication.Queries.GetMyAccountNumbers;
 using UndergroundBank.BankAccountService.Application.Communication.Queries.GetMyCorrespondingAccountNumber;
@@ -22,19 +23,19 @@ namespace UndergroundBank.BankAccountService.Web.Controllers
 {
     [ApiController]
     [Route("api/bank-account")]
+    [Authorize(Policy = "TokenNotInBlackList")]
+    [ProducesResponseType(typeof(Error), 400)]
+    [ProducesResponseType(typeof(Error), 401)]
+    [ProducesResponseType(typeof(Error), 500)]
     public class BankAccountController : BaseController
     {
         public BankAccountController(IMediator mediator)
             : base(mediator) { }
 
         [HttpPost]
-        [Authorize(Policy = "TokenNotInBlackList")]
         [Authorize(Roles = $"{nameof(Role.Employee)}, {nameof(Role.Admin)}")]
         [Route("block")]
         [ProducesResponseType(200)]
-        [ProducesResponseType(typeof(Error), 400)]
-        [ProducesResponseType(typeof(Error), 401)]
-        [ProducesResponseType(typeof(Error), 500)]
         public async Task<ActionResult> BlockBankAccount([FromQuery] string accountNumber)
         {
             var blockAccountNumberCommand = new BlockAccountNumberCommand(accountNumber);
@@ -44,13 +45,9 @@ namespace UndergroundBank.BankAccountService.Web.Controllers
         }
 
         [HttpPost]
-        [Authorize(Policy = "TokenNotInBlackList")]
         [Authorize(Roles = $"{nameof(Role.Employee)}, {nameof(Role.Admin)}")]
         [Route("unblock")]
         [ProducesResponseType(200)]
-        [ProducesResponseType(typeof(Error), 400)]
-        [ProducesResponseType(typeof(Error), 401)]
-        [ProducesResponseType(typeof(Error), 500)]
         public async Task<ActionResult> UnlockBankAccount([FromQuery] string accountNumber)
         {
             var unblockAccountNumberCommand = new UnblockAccountNumberCommand(accountNumber);
@@ -60,11 +57,7 @@ namespace UndergroundBank.BankAccountService.Web.Controllers
         }
 
         [HttpPost("create")]
-        [Authorize(Policy = "TokenNotInBlackList")]
         [ProducesResponseType(200)]
-        [ProducesResponseType(typeof(Error), 400)]
-        [ProducesResponseType(typeof(Error), 401)]
-        [ProducesResponseType(typeof(Error), 500)]
         public async Task<ActionResult> CreateBankAccount()
         {
             var createBankAccountNumberCommand = new CreateAccountNumberCommand(UserId);
@@ -74,11 +67,7 @@ namespace UndergroundBank.BankAccountService.Web.Controllers
         }
 
         [HttpPost("top-up")]
-        [Authorize(Policy = "TokenNotInBlackList")]
         [ProducesResponseType(200)]
-        [ProducesResponseType(typeof(Error), 400)]
-        [ProducesResponseType(typeof(Error), 401)]
-        [ProducesResponseType(typeof(Error), 500)]
         public async Task<ActionResult> TopUpAccountNumber(
             [FromQuery] string accountNumber,
             decimal moneyCount = 0
@@ -94,11 +83,7 @@ namespace UndergroundBank.BankAccountService.Web.Controllers
         }
 
         [HttpPost("withdraw")]
-        [Authorize(Policy = "TokenNotInBlackList")]
         [ProducesResponseType(200)]
-        [ProducesResponseType(typeof(Error), 400)]
-        [ProducesResponseType(typeof(Error), 401)]
-        [ProducesResponseType(typeof(Error), 500)]
         public async Task<ActionResult> WithdrawAccountNumber(
             [FromQuery] string accountNumber,
             decimal moneyCount = 0
@@ -114,11 +99,7 @@ namespace UndergroundBank.BankAccountService.Web.Controllers
         }
 
         [HttpDelete("delete")]
-        [Authorize(Policy = "TokenNotInBlackList")]
         [ProducesResponseType(200)]
-        [ProducesResponseType(typeof(Error), 400)]
-        [ProducesResponseType(typeof(Error), 401)]
-        [ProducesResponseType(typeof(Error), 500)]
         public async Task<ActionResult> DeleteAccountNumber([FromQuery] string accountNumber)
         {
             var deleteAccountNumberCommand = new DeleteAccountNumberCommand(accountNumber);
@@ -128,11 +109,8 @@ namespace UndergroundBank.BankAccountService.Web.Controllers
         }
 
         [HttpGet("all")]
-        [Authorize(Policy = "TokenNotInBlackList")]
         [Authorize(Roles = $"{nameof(Role.Employee)}, {nameof(Role.Admin)}")]
         [ProducesResponseType(typeof(BankAccountDto), 200)]
-        [ProducesResponseType(typeof(Error), 400)]
-        [ProducesResponseType(typeof(Error), 500)]
         public async Task<ActionResult<List<BankAccountDto>>> GetAllAccountNumbers()
         {
             var bankAccountQuery = new GetAllAccountNumbersQuery();
@@ -142,10 +120,7 @@ namespace UndergroundBank.BankAccountService.Web.Controllers
         }
 
         [HttpGet("my")]
-        [Authorize(Policy = "TokenNotInBlackList")]
         [ProducesResponseType(typeof(BankAccountDto), 200)]
-        [ProducesResponseType(typeof(Error), 400)]
-        [ProducesResponseType(typeof(Error), 500)]
         public async Task<ActionResult<List<BankAccountDto>>> GetMyAccountNumbers()
         {
             var bankAccountQuery = new GetMyAccountNumbersQuery(UserId);
@@ -155,15 +130,24 @@ namespace UndergroundBank.BankAccountService.Web.Controllers
         }
 
         [HttpGet("corresponding")]
-        [Authorize(Policy = "TokenNotInBlackList")]
         [ProducesResponseType(typeof(BankAccountDto), 200)]
-        [ProducesResponseType(typeof(Error), 400)]
-        [ProducesResponseType(typeof(Error), 500)]
-        public async Task<ActionResult<BankAccountDto>> GetCorrespondingAccountNumbers(
+        public async Task<ActionResult<BankAccountDto>> GetCorrespondingAccountNumber(
             [FromQuery] string accountNumber
         )
         {
             var bankAccountQuery = new GetMyCorrespondingAccountNumberQuery(accountNumber, UserId);
+            var bankAccountResponse = await Mediator.Send(bankAccountQuery);
+
+            return Ok(bankAccountResponse);
+        }
+
+        [HttpGet("corresponding/{userId}")]
+        [ProducesResponseType(typeof(BankAccountDto), 200)]
+        public async Task<ActionResult<BankAccountDto>> GetCorrespondingAccountNumbersWithUserId(
+            Guid userId
+        )
+        {
+            var bankAccountQuery = new GetAccountNumbersWithUserIdQuery(userId);
             var bankAccountResponse = await Mediator.Send(bankAccountQuery);
 
             return Ok(bankAccountResponse);

@@ -24,6 +24,7 @@ namespace UndergroundBank.BankAccountService.Web.Configurations
             });
 
             services.AddHttpContextAccessor();
+            services.AddSingleton<QueueSender>();
             services.AddScoped<IBankService, BankService>();
 
             return services;
