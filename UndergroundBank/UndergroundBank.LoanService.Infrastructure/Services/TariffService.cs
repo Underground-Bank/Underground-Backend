@@ -31,8 +31,6 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
 
         public async Task<GetTariffsDto> GetAllTariffs()
         {
-
-            //TODO IMPLEMENT FILTER PARAMS 
             var tariffs = await _dbContext.Tariffs.ToListAsync();
             var tariffsDto = _mapper.Map<List<GetTariffDto>>(tariffs);
             var getTariffsDto = new GetTariffsDto()

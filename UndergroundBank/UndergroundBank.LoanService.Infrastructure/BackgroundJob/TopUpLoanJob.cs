@@ -19,8 +19,11 @@ namespace UndergroundBank.LoanService.Infrastructure.BackgroundJob
             {
                 var loanService = scope.ServiceProvider.GetRequiredService<ILoanService>();
 
-                var creditId = context.JobDetail.Key.Name;
-                await loanService.AutoTopUpLoan(Guid.Parse(creditId));
+                var dataMap = context.JobDetail.JobDataMap;
+
+                var loanId = dataMap.GetString("LoanId");
+                var bankAccountNumber = dataMap.GetString("BankAccountNumber");
+                await loanService.AutoTopUpLoan(Guid.Parse(loanId), bankAccountNumber);
             }
         }
     }

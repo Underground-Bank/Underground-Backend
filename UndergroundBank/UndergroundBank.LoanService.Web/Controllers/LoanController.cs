@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UndergroundBank.Common.Base;
+using UndergroundBank.Common.Data.Enums;
 using UndergroundBank.LoanService.Application.Communication.Commands.LoanService.AddAutoTopUpLoan;
 using UndergroundBank.LoanService.Application.Communication.Commands.LoanService.SomeMethod;
 using UndergroundBank.LoanService.Application.Communication.Commands.LoanService.TopUpLoan;
@@ -15,15 +16,17 @@ namespace UndergroundBank.AccountService.Web.Controllers
 {
     [ApiController]
     [Route("api/loan")]
+    [Authorize]
+    [Authorize(Policy = "TokenNotInBlackList")]
+    [ProducesResponseType(typeof(Error), 400)]
+    [ProducesResponseType(typeof(Error), 500)]
     public class LoanController : BaseController
     {
         public LoanController(IMediator mediator)
             : base(mediator) { }
 
         [HttpPost("take")]
-        [Authorize]
-        [ProducesResponseType(typeof(Error), 400)]
-        [ProducesResponseType(typeof(Error), 500)]
+        [Authorize(Roles = $"{nameof(Role.Client)}")]
         public async Task<ActionResult> TakeLoan(TakeLoanDto takeLoanDto)
         {
             var takeLoanCommand = new TakeLoanCommand(takeLoanDto, UserId);
@@ -33,9 +36,7 @@ namespace UndergroundBank.AccountService.Web.Controllers
         }
 
         [HttpPost("top-up")]
-        [Authorize]
-        [ProducesResponseType(typeof(Error), 400)]
-        [ProducesResponseType(typeof(Error), 500)]
+        [Authorize(Roles = $"{nameof(Role.Client)}")]
         public async Task<ActionResult> TopUpLoan(TopUpLoanDto topUpLoanDto)
         {
             var TopUpLoanCommand = new TopUpLoanCommand(topUpLoanDto);
@@ -45,9 +46,7 @@ namespace UndergroundBank.AccountService.Web.Controllers
         }
 
         [HttpPost("auto-top-up/add")]
-        [Authorize]
-        [ProducesResponseType(typeof(Error), 400)]
-        [ProducesResponseType(typeof(Error), 500)]
+        [Authorize(Roles = $"{nameof(Role.Client)}")]
         public async Task<ActionResult> AddAutoTopUpLoan(AddAutoTopUpLoanDto addAutotopUpLoanDto)
         {
             var addAutoTopUpLoanCommand = new AddAutoTopUpLoanCommand(addAutotopUpLoanDto);
@@ -56,11 +55,8 @@ namespace UndergroundBank.AccountService.Web.Controllers
             return Ok();
         }
 
-        [HttpPost("{id}")]
-        [Authorize]
-        [ProducesResponseType(typeof(Error), 400)]
-        [ProducesResponseType(typeof(Error), 404)]
-        [ProducesResponseType(typeof(Error), 500)]
+        [HttpGet("{id}")]
+        [ProducesResponseType(typeof(GetLoanDto), 200)]
         public async Task<ActionResult<GetLoanDto>> GetLoan(Guid id)
         {
             var getLoanQuery = new GetLoanQuery(id);
@@ -70,21 +66,17 @@ namespace UndergroundBank.AccountService.Web.Controllers
         }
 
         [HttpGet("all")]
-        [Authorize]
-        [ProducesResponseType(typeof(Error), 400)]
-        [ProducesResponseType(typeof(Error), 500)]
-        public async Task<ActionResult<GetLoansDto>> GetAllLoans()
+        [ProducesResponseType(typeof(GetLoansDto), 200)]
+        public async Task<ActionResult<GetLoansDto>> GetAllLoans([FromQuery] Guid? userId)
         {
-            var getLoansQuery = new GetLoansQuery();
+            var getLoansQuery = new GetLoansQuery(userId);
             var loans = await Mediator.Send(getLoansQuery);
 
             return Ok(loans);
         }
 
         [HttpGet("my")]
-        [Authorize]
-        [ProducesResponseType(typeof(Error), 400)]
-        [ProducesResponseType(typeof(Error), 500)]
+        [ProducesResponseType(typeof(GetLoansDto), 200)]
         public async Task<ActionResult<GetLoansDto>> GetMyLoans()
         {
             var getMyLoansQuery = new GetMyLoansQuery();

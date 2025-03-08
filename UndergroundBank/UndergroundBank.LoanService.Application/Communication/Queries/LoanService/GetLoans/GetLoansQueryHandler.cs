@@ -18,7 +18,7 @@ namespace UndergroundBank.LoanService.Application.Communication.Queries.LoanServ
             CancellationToken cancellationToken
         )
         {
-            return await _loanService.GetAllLoans();
+            return await _loanService.GetAllLoans(request.userId);
         }
     }
 }

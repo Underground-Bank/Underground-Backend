@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using UndergroundBank.Common.Data.Models;
 using UndergroundBank.LoanService.Domain.Entities;
 
 namespace UndergroundBank.LoanService.Infrastructure
@@ -12,6 +13,7 @@ namespace UndergroundBank.LoanService.Infrastructure
 
         public DbSet<Loan> Loans { get; set; }
         public DbSet<Tariff> Tariffs { get; set; }
+        public DbSet<Transaction> Transactions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

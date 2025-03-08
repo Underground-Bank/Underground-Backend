@@ -8,6 +8,7 @@ using UndergroundBank.LoanService.Infrastructure;
 using UndergroundBank.LoanService.Infrastructure.BackgroundJob;
 using UndergroundBank.LoanService.Infrastructure.Repositories;
 using UndergroundBank.LoanService.Infrastructure.Services;
+using UndergroundBank.LoanService.Infrastructure.Services.LoanQueue;
 
 namespace UndergroundBank.LoanService.Web.Configurations
 {
@@ -30,7 +31,7 @@ namespace UndergroundBank.LoanService.Web.Configurations
                 var connectionString = configuration.GetConnectionString("RedisDBContext");
                 return new RedisDbContext(connectionString);
             });
-
+            services.AddSingleton<QueueSender>();
             services.AddScoped<ILoanRepository, LoanRepository>();
             services.AddScoped<ILoanService, LoansService>();
             services.AddScoped<ITariffService, TariffService>();
