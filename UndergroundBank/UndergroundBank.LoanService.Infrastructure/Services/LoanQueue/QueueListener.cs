@@ -14,7 +14,7 @@ namespace UndergroundBank.LoanService.Infrastructure.Services.LoanQueue
             var serviceProvider = services.BuildServiceProvider();
             var loanService = serviceProvider.GetRequiredService<ILoanService>();
 
-            bus.PubSub.Subscribe<TransactionRequestDto>(
+            bus.PubSub.Subscribe<TransactionResponseDto>(
                 Queues.TRANSACTION_QUEUE_RESPONSE,
                 data => loanService.EndTopUpLoanTransaction(data)
             );

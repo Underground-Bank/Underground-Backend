@@ -210,7 +210,7 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
             await scheduler.ScheduleJob(job, trigger);
         }
 
-        public async Task EndTopUpLoanTransaction(TransactionRequestDto transactionDto)
+        public async Task EndTopUpLoanTransaction(TransactionResponseDto transactionDto)
         {
             _dbContext.ignoreUserFilter = true;
             var transaction = _dbContext
