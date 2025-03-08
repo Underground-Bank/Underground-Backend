@@ -79,6 +79,7 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
             if (loan == null) { throw new NotFoundException("Кредита с таким id не существует"); }
             var transaction = new TransactionDto
             {
+                TransactionId = Guid.NewGuid(),
                 AccountNumber = BankAccountNumber,
                 LoanId = loanId,
                 MoneyCount = payment,
@@ -95,6 +96,7 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
             var monthPayment = CalculateMonthPayment(loan.Tariff, loan.LoanDurationInMonth, loan.Amount);
             var transaction = new TransactionDto
             {
+                TransactionId = Guid.NewGuid(),
                 AccountNumber = accountNumber,
                 LoanId = loanId,
                 MoneyCount = monthPayment,
