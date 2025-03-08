@@ -2,6 +2,8 @@ using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using UndergroundBank.BankAccountService.Application.Configurations;
 using UndergroundBank.BankAccountService.Infrastructure;
+using UndergroundBank.BankAccountService.Infrastructure.MessageBroker;
+using UndergroundBank.BankAccountService.Infrastructure.Services;
 using UndergroundBank.BankAccountService.Web.Configurations;
 using UndergroundBank.Common.Configurations.JWT;
 using UndergroundBank.Common.Middlewares;
@@ -32,6 +34,7 @@ builder.Services.ConfigureBankAccountApplicationLayer();
 builder.Services.AddTokenRequirement();
 
 builder.Services.UseJwtConfiguration(builder.Configuration);
+builder.Services.QueueSubscribe();
 builder.Services.AddHttpClient();
 
 var app = builder.Build();

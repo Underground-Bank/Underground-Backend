@@ -1,4 +1,6 @@
-﻿using UndergroundBank.Common.Dto.BankAccountService;
+﻿using System.Transactions;
+using UndergroundBank.Common.Dto;
+using UndergroundBank.Common.Dto.BankAccountService;
 
 namespace UndergroundBank.BankAccountService.Application.Interfaces
 {
@@ -25,5 +27,6 @@ namespace UndergroundBank.BankAccountService.Application.Interfaces
         public Task TopUpAccountNumber(string accountNumber, decimal moneyCount);
 
         public Task WithdrawAccountNumber(string accountNumber, decimal moneyCount);
+        public Task WithdrawMoneyForLoan(TransactionDto transactionDtoCreds);
     }
 }

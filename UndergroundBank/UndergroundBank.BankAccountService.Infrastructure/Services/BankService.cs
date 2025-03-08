@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using UndergroundBank.BankAccountService.Application.Interfaces;
 using UndergroundBank.BankAccountService.Domain.Entities;
 using UndergroundBank.Common.Data.Enums;
+using UndergroundBank.Common.Dto;
 using UndergroundBank.Common.Dto.AccountService;
 using UndergroundBank.Common.Dto.BankAccountService;
 using UndergroundBank.Common.Middlewares;
@@ -14,14 +15,16 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Services
     public class BankService : IBankService
     {
         private readonly BankAccountDbContext _dbContext;
+        private readonly QueueSender _queueSender;
         private readonly IBus _bus;
         private readonly IMapper _mapper;
 
-        public BankService(BankAccountDbContext dBContext, IMapper mapper)
+        public BankService(BankAccountDbContext dBContext, IMapper mapper, QueueSender queueSender)
         {
             _dbContext = dBContext;
             _mapper = mapper;
             _bus = RabbitHutch.CreateBus("host=localhost");
+            _queueSender = queueSender;
         }
 
         public async Task BlockAccountNumber(string accountNumber)
@@ -201,6 +204,26 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Services
             }
 
             return _mapper.Map<List<BankAccountDto>>(bankAccounts);
+        }
+
+        public async Task WithdrawMoneyForLoan(TransactionDto transactionCreds)
+        {
+            var bankAccount = await _dbContext.BankAccounts.FirstOrDefaultAsync(bc =>
+                bc.AccountNumber == transactionCreds.AccountNumber
+            );
+
+            if (bankAccount == null || bankAccount.Balance < transactionCreds.MoneyCount)
+            {
+                transactionCreds.Status = Status.Rejected;
+            }
+            else
+            {
+                transactionCreds.Status = Status.Approved;
+                bankAccount.Balance -= transactionCreds.MoneyCount;
+                await _dbContext.SaveChangesAsync();
+            }
+
+            await _queueSender.SendTransaction(transactionCreds);
         }
 
         private string GenerateAccountNumber()
