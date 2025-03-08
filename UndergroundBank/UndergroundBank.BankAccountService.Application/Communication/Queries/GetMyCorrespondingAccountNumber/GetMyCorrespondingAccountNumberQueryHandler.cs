@@ -27,7 +27,8 @@ namespace UndergroundBank.BankAccountService.Application.Communication.Queries.G
         {
             return await _bankService.GetMyCorrespondingAccountNumber(
                 request.accountNumber,
-                request.userId
+                request.userId,
+                request.userRoles
             );
         }
     }

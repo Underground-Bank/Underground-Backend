@@ -18,7 +18,11 @@ namespace UndergroundBank.BankAccountService.Infrastructure.MessageBroker
 
             bus.PubSub.Subscribe<TransactionDto>(
                 Queues.TRANSACTION_QUEUE_REQUEST,
-                data => bankAccountService.WithdrawMoneyForLoan(data)
+                async data =>
+                {
+                    await bankAccountService.WithdrawMoneyForLoan(data);
+                },
+                x => x.WithAutoDelete()
             );
         }
     }

@@ -91,7 +91,8 @@ namespace UndergroundBank.BankAccountService.Web.Controllers
         {
             var withdrawAccountNumberCommand = new WithdrawAccountNumberCommand(
                 accountNumber,
-                moneyCount
+                moneyCount,
+                UserId
             );
             await Mediator.Send(withdrawAccountNumberCommand);
 
@@ -135,7 +136,12 @@ namespace UndergroundBank.BankAccountService.Web.Controllers
             [FromQuery] string accountNumber
         )
         {
-            var bankAccountQuery = new GetMyCorrespondingAccountNumberQuery(accountNumber, UserId);
+            var bankAccountQuery = new GetMyCorrespondingAccountNumberQuery(
+                accountNumber,
+                UserId,
+                Roles
+            );
+
             var bankAccountResponse = await Mediator.Send(bankAccountQuery);
 
             return Ok(bankAccountResponse);

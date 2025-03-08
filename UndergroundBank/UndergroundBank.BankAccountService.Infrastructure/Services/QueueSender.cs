@@ -18,7 +18,7 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Services
             await _bus.PubSub.PublishAsync(message, topik);
         }
 
-        public async Task SendTransaction(TransactionDto transaction)
+        public async Task SendTransaction(TransactionSecondDto transaction)
         {
             await SendMessage(transaction, Queues.TRANSACTION_QUEUE_RESPONSE);
         }

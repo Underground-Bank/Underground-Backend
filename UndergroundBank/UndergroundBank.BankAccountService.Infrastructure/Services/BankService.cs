@@ -118,7 +118,8 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Services
 
         public async Task<BankAccountDto> GetMyCorrespondingAccountNumber(
             string accountNumber,
-            Guid userId
+            Guid userId,
+            List<Role> userRoles
         )
         {
             var bankAccount = await _dbContext.BankAccounts.FirstOrDefaultAsync(b =>
@@ -129,7 +130,10 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Services
                 throw new NotFoundException("Данного счета не существует!");
             }
 
-            if (bankAccount.UserId != userId)
+            if (
+                bankAccount.UserId != userId
+                && !(userRoles.Contains(Role.Employee) || userRoles.Contains(Role.Admin))
+            )
             {
                 throw new BadRequestException("Вы не смотреть чужой кошелек");
             }
@@ -162,7 +166,11 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Services
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task WithdrawAccountNumber(string accountNumber, decimal moneyCount)
+        public async Task WithdrawAccountNumber(
+            string accountNumber,
+            decimal moneyCount,
+            Guid userId
+        )
         {
             if (moneyCount <= 0)
             {
@@ -176,6 +184,11 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Services
             if (bankAccount == null)
             {
                 throw new NotFoundException("Данного счета не существует!");
+            }
+
+            if (bankAccount.UserId != userId)
+            {
+                throw new BadRequestException("Вы не можете снять деньги с чужого счета!");
             }
 
             if (bankAccount.IsLocked)
@@ -222,8 +235,16 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Services
                 bankAccount.Balance -= transactionCreds.MoneyCount;
                 await _dbContext.SaveChangesAsync();
             }
+            var trans = new TransactionSecondDto()
+            {
+                TransactionId = transactionCreds.TransactionId,
+                Status = transactionCreds.Status,
+                AccountNumber = transactionCreds.AccountNumber,
+                LoanId = transactionCreds.LoanId,
+                MoneyCount = transactionCreds.MoneyCount,
+            };
 
-            await _queueSender.SendTransaction(transactionCreds);
+            await _queueSender.SendTransaction(trans);
         }
 
         private string GenerateAccountNumber()
