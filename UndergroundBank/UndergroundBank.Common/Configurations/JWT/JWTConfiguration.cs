@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Net;
+using System.Text;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -23,7 +24,7 @@ namespace UndergroundBank.Common.Configurations.JWT
                 );
             });
             services.AddSingleton<IAuthorizationHandler, BlackTokenHandler>();
-
+            services.AddLogging();
             return services;
         }
 
@@ -45,23 +46,7 @@ namespace UndergroundBank.Common.Configurations.JWT
                         Scheme = "Bearer",
                     }
                 );
-
-                option.AddSecurityRequirement(
-                    new OpenApiSecurityRequirement
-                    {
-                        {
-                            new OpenApiSecurityScheme
-                            {
-                                Reference = new OpenApiReference
-                                {
-                                    Type = ReferenceType.SecurityScheme,
-                                    Id = "Bearer",
-                                },
-                            },
-                            Array.Empty<string>()
-                        },
-                    }
-                );
+                option.OperationFilter<AuthorizeCheckOperationFilter>();
             });
 
             return services;
@@ -92,7 +77,38 @@ namespace UndergroundBank.Common.Configurations.JWT
                         ),
                         ValidateIssuerSigningKey = true,
                     };
+
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            var endpoint = context.HttpContext.GetEndpoint();
+                            if (endpoint?.Metadata.GetMetadata<IAllowAnonymous>() != null)
+                            {
+                                context.Token = null;
+                            }
+                            return Task.CompletedTask;
+                        },
+
+                        OnAuthenticationFailed = context =>
+                        {
+                            if (context.Exception is SecurityTokenExpiredException)
+                            {
+                                context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                                context.Response.ContentType = "application/json";
+                                return context.Response.WriteAsync(
+                                    "{\"error\": \"Token expired\"}"
+                                );
+                            }
+
+                            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                            return context.Response.WriteAsync(
+                                "{\"error\": \"Authentication failed\"}"
+                            );
+                        },
+                    };
                 });
+
             return services;
         }
     }

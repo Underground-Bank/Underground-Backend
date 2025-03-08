@@ -26,10 +26,8 @@ namespace UndergroundBank.AccountService.Web.Controllers
             _additionalTokenHelper = additionalTokenHelper;
         }
 
-        /// <summary>
-        /// TODO: Сделать логин для двух разных сайтов с помощью X-Client-Type или чего то другого
-        /// </summary>
         [HttpPost("login")]
+        [AllowAnonymous]
         [ProducesResponseType(typeof(AuthResponseDto), 200)]
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 500)]
@@ -42,6 +40,7 @@ namespace UndergroundBank.AccountService.Web.Controllers
         }
 
         [HttpPost("register")]
+        [AllowAnonymous]
         [ProducesResponseType(typeof(AuthResponseDto), 200)]
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 500)]
