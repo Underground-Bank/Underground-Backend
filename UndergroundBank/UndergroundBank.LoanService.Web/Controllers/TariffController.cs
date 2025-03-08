@@ -31,6 +31,7 @@ namespace UndergroundBank.AccountService.Web.Controllers
 
         [HttpGet("{id}")]
         [Authorize]
+        [ProducesResponseType(typeof(GetTariffDto), 200)]
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 404)]
         [ProducesResponseType(typeof(Error), 500)]
@@ -44,6 +45,7 @@ namespace UndergroundBank.AccountService.Web.Controllers
 
         [HttpGet("getAll")]
         [Authorize]
+        [ProducesResponseType(typeof(GetTariffsDto), 200)]
         [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 500)]
         public async Task<ActionResult<GetTariffsDto>> GetAllTarifs()

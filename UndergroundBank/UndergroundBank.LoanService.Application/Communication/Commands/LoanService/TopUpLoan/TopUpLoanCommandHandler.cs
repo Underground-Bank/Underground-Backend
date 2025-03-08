@@ -17,7 +17,7 @@ namespace UndergroundBank.LoanService.Application.Communication.Commands.LoanSer
             CancellationToken cancellationToken
         )
         {
-            await _loanService.TopUpLoan(request.topUpLoanDto.Amount, request.topUpLoanDto.LoanId);
+            await _loanService.StartTopUpLoan(request.topUpLoanDto.Amount, request.topUpLoanDto.BankAccountNumber, request.topUpLoanDto.LoanId);
         }
 
     }

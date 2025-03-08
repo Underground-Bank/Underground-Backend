@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using UndergroundBank.Common.Configurations.JWT;
 using UndergroundBank.LoanService.Application.Configurations;
 using UndergroundBank.LoanService.Infrastructure;
+using UndergroundBank.LoanService.Infrastructure.Services.LoanQueue;
 using UndergroundBank.LoanService.Web.Configurations;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,6 +33,7 @@ builder.Services.ConfigureApplicationLayer();
 builder.Services.AddTokenRequirement();
 
 builder.Services.UseJwtConfiguration(builder.Configuration);
+builder.Services.AddListeners();
 builder.Services.AddHttpClient();
 
 var app = builder.Build();
