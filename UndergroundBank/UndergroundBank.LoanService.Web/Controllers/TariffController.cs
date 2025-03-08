@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UndergroundBank.Common.Base;
+using UndergroundBank.Common.Data.Enums;
 using UndergroundBank.LoanService.Application.Communication.Commands.LoanService.SomeMethod;
 using UndergroundBank.LoanService.Application.Communication.Queries.TariffService.GetTariff;
 using UndergroundBank.LoanService.Application.Communication.Queries.TariffService.GetTariffs;
@@ -12,15 +13,17 @@ namespace UndergroundBank.AccountService.Web.Controllers
 {
     [ApiController]
     [Route("api/tariff")]
+    [Authorize]
+    [Authorize(Policy = "TokenNotInBlackList")]
+    [ProducesResponseType(typeof(Error), 400)]
+    [ProducesResponseType(typeof(Error), 500)]
     public class TariffController : BaseController
     {
         public TariffController(IMediator mediator)
             : base(mediator) { }
 
         [HttpPost("create")]
-        [Authorize]
-        [ProducesResponseType(typeof(Error), 400)]
-        [ProducesResponseType(typeof(Error), 500)]
+        [Authorize(Roles = $"{nameof(Role.Employee)}, {nameof(Role.Admin)}")]
         public async Task<ActionResult> CreateTariff(CreateTariffDto createTariffDto)
         {
             var createTariffCommand = new CreateTariffCommand(createTariffDto);
@@ -30,11 +33,9 @@ namespace UndergroundBank.AccountService.Web.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize]
         [ProducesResponseType(typeof(GetTariffDto), 200)]
-        [ProducesResponseType(typeof(Error), 400)]
         [ProducesResponseType(typeof(Error), 404)]
-        [ProducesResponseType(typeof(Error), 500)]
+        [Authorize(Roles = $"{nameof(Role.Employee)}, {nameof(Role.Admin)}")]
         public async Task<ActionResult<GetTariffDto>> GetTariff(Guid id)
         {
             var getTariffQuery = new GetTariffQuery(id);
@@ -44,10 +45,8 @@ namespace UndergroundBank.AccountService.Web.Controllers
         }
 
         [HttpGet("getAll")]
-        [Authorize]
         [ProducesResponseType(typeof(GetTariffsDto), 200)]
-        [ProducesResponseType(typeof(Error), 400)]
-        [ProducesResponseType(typeof(Error), 500)]
+        [Authorize(Roles = $"{nameof(Role.Employee)}, {nameof(Role.Admin)}")]
         public async Task<ActionResult<GetTariffsDto>> GetAllTarifs()
         {
             var getAllTariffsQuery = new GetTariffsQuery();
