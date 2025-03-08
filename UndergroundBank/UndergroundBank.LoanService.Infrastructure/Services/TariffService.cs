@@ -22,6 +22,7 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
         {
             var tariff = _mapper.Map<Tariff>(createTariffDto);
             await _dbContext.AddAsync(tariff);
+            await _dbContext.SaveChangesAsync();
         }
 
         public Task DeleteTariff(Guid tariffId)

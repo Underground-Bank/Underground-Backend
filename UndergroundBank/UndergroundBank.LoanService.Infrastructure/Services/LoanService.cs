@@ -199,6 +199,7 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
                 Name = ""
             };
             await _dbContext.AddAsync(transaction);
+            await _dbContext.SaveChangesAsync();
         }
     }
 }
