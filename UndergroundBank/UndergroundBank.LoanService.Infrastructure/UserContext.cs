@@ -24,9 +24,7 @@ namespace UndergroundBank.LoanService.Infrastructure
                 var userIdClaim = _httpContextAccessor.HttpContext?.User.FindFirst(
                     ClaimTypes.NameIdentifier
                 );
-                return userIdClaim != null
-                    ? Guid.Parse(userIdClaim.Value)
-                    : throw new UnauthorizedAccessException();
+                return userIdClaim != null ? Guid.Parse(userIdClaim.Value) : Guid.Empty;
             }
         }
     }

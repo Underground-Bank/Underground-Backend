@@ -91,6 +91,7 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
 
         public async Task AutoTopUpLoan(Guid loanId, string accountNumber)
         {
+            _dbContext.ignoreUserFilter = true;
             var loan = _dbContext.Loans.Where(l => l.Id == loanId).Include(u => u.Tariff).FirstOrDefault();
             if (loan == null) { throw new NotFoundException("Кредита с таким id не существует"); }
             var monthPayment = CalculateMonthPayment(loan.Tariff, loan.LoanDurationInMonth, loan.Amount);
@@ -108,6 +109,7 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
 
         private async Task TopUpLoanLogic(Guid loanId, decimal payment)
         {
+            _dbContext.ignoreUserFilter = true;
             var loan = await _dbContext.Loans.Where(l => l.Id == loanId).FirstOrDefaultAsync();
             if (loan == null)
             {
@@ -173,6 +175,7 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
 
         public async Task EndTopUpLoanTransaction(TransactionDto transactionDto)
         {
+            _dbContext.ignoreUserFilter = true;
             var transaction = _dbContext.Transactions.Where(t => t.Id == transactionDto.TransactionId).FirstOrDefault();
             if (transaction == null)
             {
