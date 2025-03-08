@@ -15,12 +15,7 @@ namespace UndergroundBank.LoanService.Infrastructure
             var optionsBuilder = new DbContextOptionsBuilder<LoanDbContext>();
             optionsBuilder.UseNpgsql(configuration.GetConnectionString("LoanDatabasePostgres"));
 
-            return new LoanDbContext(optionsBuilder.Options, new FakeUserContext());
+            return new LoanDbContext(optionsBuilder.Options);
         }
-    }
-
-    public class FakeUserContext : IUserContext
-    {
-        public Guid UserId => Guid.Empty;
     }
 }

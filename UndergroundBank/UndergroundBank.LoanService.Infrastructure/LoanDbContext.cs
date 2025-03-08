@@ -6,10 +6,8 @@ namespace UndergroundBank.LoanService.Infrastructure
 {
     public class LoanDbContext : DbContext
     {
-        private readonly IUserContext _userContext;
-        public bool ignoreUserFilter { get; set; } = false;
-        public LoanDbContext(DbContextOptions<LoanDbContext> options, IUserContext userContext)
-            : base(options) { _userContext = userContext; }
+        public LoanDbContext(DbContextOptions<LoanDbContext> options)
+            : base(options) { }
 
         public DbSet<Loan> Loans { get; set; }
         public DbSet<Tariff> Tariffs { get; set; }
@@ -20,7 +18,6 @@ namespace UndergroundBank.LoanService.Infrastructure
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Loan>()
-                .HasQueryFilter(c => !ignoreUserFilter && c.UserId == _userContext.UserId)
                 .HasOne(c => c.Tariff)
                 .WithMany()
                 .HasForeignKey(c => c.TariffId)

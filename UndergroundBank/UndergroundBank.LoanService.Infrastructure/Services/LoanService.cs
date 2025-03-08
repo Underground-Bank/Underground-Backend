@@ -37,13 +37,11 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
 
         public async Task<GetLoansDto> GetAllLoans(Guid? userId)
         {
-            _dbContext.ignoreUserFilter = true;
             return await GetLoansLogic(userId);
         }
 
         public async Task<GetLoanDto> GetLoan(Guid loanId)
         {
-            _dbContext.ignoreUserFilter = true;
             var loan = await _dbContext.Loans.Where(l => l.Id == loanId).FirstOrDefaultAsync();
             if (loan == null)
             {
@@ -111,7 +109,6 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
 
         public async Task AutoTopUpLoan(Guid loanId, string accountNumber)
         {
-            _dbContext.ignoreUserFilter = true;
             var loan = _dbContext
                 .Loans.Where(l => l.Id == loanId)
                 .Include(u => u.Tariff)
@@ -142,7 +139,6 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
 
         private async Task TopUpLoanLogic(Guid loanId, decimal payment)
         {
-            _dbContext.ignoreUserFilter = true;
             var loan = await _dbContext.Loans.Where(l => l.Id == loanId).FirstOrDefaultAsync();
             if (loan == null)
             {
@@ -212,7 +208,6 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
 
         public async Task EndTopUpLoanTransaction(TransactionResponseDto transactionDto)
         {
-            _dbContext.ignoreUserFilter = true;
             var transaction = _dbContext
                 .Transactions.Where(t => t.Id == transactionDto.TransactionId)
                 .FirstOrDefault();

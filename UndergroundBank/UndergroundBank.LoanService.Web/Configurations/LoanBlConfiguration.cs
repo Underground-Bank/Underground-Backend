@@ -21,7 +21,6 @@ namespace UndergroundBank.LoanService.Web.Configurations
         {
 
             services.AddHttpContextAccessor();
-            services.AddScoped<IUserContext, UserContext>();
 
             services.AddDbContext<LoanDbContext>(options =>
             options.UseNpgsql(configuration.GetConnectionString("LoanDatabasePostgres"))
