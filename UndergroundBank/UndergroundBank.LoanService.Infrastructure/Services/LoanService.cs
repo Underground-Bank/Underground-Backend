@@ -183,7 +183,7 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
             return monthPayment;
         }
 
-        public async Task CreateAutoTopUp(Guid bankAccountId, Guid loanId)
+        public async Task CreateAutoTopUp(string bankAccountId, Guid loanId)
         {
             var scheduler = await _schedulerFactory.GetScheduler();
 

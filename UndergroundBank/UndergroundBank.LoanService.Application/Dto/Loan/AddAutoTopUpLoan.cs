@@ -2,7 +2,7 @@
 {
     public class AddAutoTopUpLoanDto
     {
-        public Guid BankAccountId { get; set; }
+        public string BankAccountId { get; set; }
         public Guid LoanId { get; set; }
     }
 }
