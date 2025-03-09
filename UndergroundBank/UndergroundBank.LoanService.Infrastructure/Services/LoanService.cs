@@ -323,6 +323,12 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
                     j.LoanId == loanId && j.UserId == userId && j.BankAccountNumber == bankAccountId
                 )
                 .ToListAsync();
+
+            if (!topUpJobs.Any())
+            {
+                throw new NotFoundException("У этого пользователя нет подключенный автопополнений для этого кредита и счета!");
+            }
+
             foreach (var job in topUpJobs)
             {
                 var jobKey = new JobKey(
