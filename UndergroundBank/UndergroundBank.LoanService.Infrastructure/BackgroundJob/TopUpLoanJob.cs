@@ -14,7 +14,6 @@ namespace UndergroundBank.LoanService.Infrastructure.BackgroundJob
         {
             _serviceScopeFactory = serviceScopeFactory;
             _logger = logger;
-            Console.WriteLine("FUCKING STAAAAAAAAAARTED");
         }
 
         public async Task Execute(IJobExecutionContext context)
@@ -26,7 +25,6 @@ namespace UndergroundBank.LoanService.Infrastructure.BackgroundJob
                 {
                     Console.WriteLine("Service scope created");
 
-                    _logger.LogInformation($"Executing job {context.JobDetail.Key.Name} at {DateTime.UtcNow}");
                     var loanService = scope.ServiceProvider.GetRequiredService<ILoanService>();
 
                     var dataMap = context.JobDetail.JobDataMap;
@@ -35,11 +33,7 @@ namespace UndergroundBank.LoanService.Infrastructure.BackgroundJob
                     var bankAccountNumber = dataMap.GetString("BankAccountNumber");
                     var userId = dataMap.GetString("UserId");
 
-                    Console.WriteLine($"LoanId: {loanId}, BankAccountNumber: {bankAccountNumber}");
-
                     await loanService.AutoTopUpLoan(Guid.Parse(loanId), bankAccountNumber, Guid.Parse(userId));
-
-                    Console.WriteLine("Job completed");
                 }
             }
             catch (Exception ex)

@@ -5,7 +5,6 @@ using UndergroundBank.AccountService.Application.Interfaces;
 using UndergroundBank.Common.Data;
 using UndergroundBank.LoanService.Application.Interfaces;
 using UndergroundBank.LoanService.Infrastructure;
-using UndergroundBank.LoanService.Infrastructure.BackgroundJob;
 using UndergroundBank.LoanService.Infrastructure.Repositories;
 using UndergroundBank.LoanService.Infrastructure.Services;
 using UndergroundBank.LoanService.Infrastructure.Services.LoanQueue;
@@ -33,6 +32,7 @@ namespace UndergroundBank.LoanService.Web.Configurations
             services.AddScoped<ILoanRepository, LoanRepository>();
             services.AddScoped<ILoanService, LoansService>();
             services.AddScoped<ITariffService, TariffService>();
+            services.AddScoped<IJobSchedulerService, JobSchedulerService>();
 
             return services;
         }
@@ -44,7 +44,7 @@ namespace UndergroundBank.LoanService.Web.Configurations
         {
             services.AddQuartz();
             services.AddQuartzHostedService(options => options.WaitForJobsToComplete = true);
-            services.AddScoped<TopUpLoanJob>();
+            services.AddScoped<Infrastructure.BackgroundJob.TopUpLoanJob>();
             services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
             return services;
         }

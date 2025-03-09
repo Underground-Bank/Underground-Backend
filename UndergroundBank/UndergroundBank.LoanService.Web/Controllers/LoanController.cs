@@ -4,8 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using UndergroundBank.Common.Base;
 using UndergroundBank.Common.Data.Enums;
 using UndergroundBank.LoanService.Application.Communication.Commands.LoanService.AddAutoTopUpLoan;
+using UndergroundBank.LoanService.Application.Communication.Commands.LoanService.DeleteAutoTopUpLoan;
 using UndergroundBank.LoanService.Application.Communication.Commands.LoanService.SomeMethod;
 using UndergroundBank.LoanService.Application.Communication.Commands.LoanService.TopUpLoan;
+using UndergroundBank.LoanService.Application.Communication.Queries.LoanService.GetAutoTopUpJobs;
 using UndergroundBank.LoanService.Application.Communication.Queries.LoanService.GetLoan;
 using UndergroundBank.LoanService.Application.Communication.Queries.LoanService.GetLoans;
 using UndergroundBank.LoanService.Application.Communication.Queries.LoanService.GetMyLoans;
@@ -47,7 +49,7 @@ namespace UndergroundBank.LoanService.Web.Controllers
 
         [HttpPost("auto-top-up/add")]
         [Authorize(Roles = $"{nameof(Role.Client)}")]
-        public async Task<ActionResult> AddAutoTopUpLoan(AddAutoTopUpLoanDto addAutotopUpLoanDto)
+        public async Task<ActionResult> AddAutoTopUpLoan(AutoTopUpLoanDto addAutotopUpLoanDto)
         {
             var addAutoTopUpLoanCommand = new AddAutoTopUpLoanCommand(addAutotopUpLoanDto, UserId);
             await Mediator.Send(addAutoTopUpLoanCommand);
@@ -84,5 +86,28 @@ namespace UndergroundBank.LoanService.Web.Controllers
 
             return Ok(myLoans);
         }
+
+        [HttpGet("auto-top-up/my")]
+        [ProducesResponseType(typeof(GetAutoTopUpLoanJobsListDto), 200)]
+        public async Task<ActionResult<GetAutoTopUpLoanJobsListDto>> GetAutoTopUpJobs()
+        {
+            var getAutoTopUpJobsQuery = new GetAutoTopUpJobsQuery(UserId);
+            var myAutoTopUpJobs = await Mediator.Send(getAutoTopUpJobsQuery);
+
+            return Ok(myAutoTopUpJobs);
+        }
+
+        [HttpDelete("auto-top-up/delete")]
+        public async Task<ActionResult> DeleteAutoTopUp(AutoTopUpLoanDto deleteAutotopUpLoanDto)
+        {
+            var deleteAutoTopUpJobCommand = new DeleteAutoTopUpLoanCommand(deleteAutotopUpLoanDto, UserId);
+            await Mediator.Send(deleteAutoTopUpJobCommand);
+
+            return Ok();
+        }
+
+
+
+
     }
 }
