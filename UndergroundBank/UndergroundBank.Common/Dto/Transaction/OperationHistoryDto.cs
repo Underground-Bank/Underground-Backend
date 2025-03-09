@@ -21,6 +21,7 @@ namespace UndergroundBank.Common.Dto.Transaction
 
     public enum TransactionType
     {
+        GettingLoanMoney,
         LoanPayment,
         Withdraw,
         TopUp,

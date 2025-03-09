@@ -11,5 +11,6 @@ namespace UndergroundBank.LoanService.Application.Dto.Loan
 
         [Range(1, int.MaxValue, ErrorMessage = "Сумма должна быть положительным числом.")]
         public int LoanDurationInMonths { get; set; }
+        public string BankAccountNumber { get; set; }
     }
 }

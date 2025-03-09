@@ -1,4 +1,7 @@
 ﻿using EasyNetQ;
+using UndergroundBank.Common.Data.Constants;
+using UndergroundBank.Common.Dto.Transaction;
+using UndergroundBank.Common.Middlewares;
 
 namespace UndergroundBank.LoanService.Infrastructure.Services.LoanQueue
 {
@@ -13,6 +16,20 @@ namespace UndergroundBank.LoanService.Infrastructure.Services.LoanQueue
         public async Task SendMessage<T>(T message, string topik)
         {
             await _bus.PubSub.PublishAsync(message, topik);
+        }
+        public async Task<CheckBankAccountAccessResponse> CheckBankAccountAccess(CheckBankAccountAccessRequest checkAccessDto)
+        {
+            try
+            {
+                var accessionInfo = await _bus.Rpc.RequestAsync<CheckBankAccountAccessRequest, CheckBankAccountAccessResponse>
+                (checkAccessDto, x => x.WithQueueName(Queues.CHECK_BANK_ACCOUNT_ACCESS));
+                return accessionInfo;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.StackTrace);
+                throw new BadRequestException(ex.Message);
+            }
         }
     }
 }

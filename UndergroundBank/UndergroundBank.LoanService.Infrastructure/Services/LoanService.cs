@@ -72,8 +72,13 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
                 throw new NotFoundException("Тарифа с таким id не существует");
             }
 
+            await CeckBankAccountAccession(takeLoanDto.BankAccountNumber, userId);
+
+            var loanId = Guid.NewGuid();
+
             var newLoan = new Loan()
             {
+                Id = loanId,
                 Amount = takeLoanDto.LoanAmount,
                 LoanDurationInMonth = takeLoanDto.LoanDurationInMonths,
                 StartDate = DateOnly.FromDateTime(DateTime.Today),
@@ -85,6 +90,17 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
 
             await _dbContext.AddAsync(newLoan);
             await _dbContext.SaveChangesAsync();
+
+            var topUpBankAccountTransaction = new TopUpBankAccountTransaction
+            {
+                AccountNumber = takeLoanDto.BankAccountNumber,
+                LoanId = loanId,
+                MoneyCount = takeLoanDto.LoanAmount,
+                UserId = userId,
+                TransactionId = Guid.NewGuid(),
+                Status = Status.InProgress,
+            };
+            await _queueSender.SendMessage(topUpBankAccountTransaction, Queues.TOP_UP_BANK_ACCOUNT_FROM_LOAN);
         }
 
         public async Task StartTopUpLoan(decimal payment, string BankAccountNumber, Guid loanId, Guid userId)
@@ -111,7 +127,7 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
                 transaction,
                 Queues.TRANSACTION_QUEUE_REQUEST
             );
-            await WriteTransaction(transaction);
+            await WriteLoanTopUTransaction(transaction);
         }
 
 
@@ -144,7 +160,7 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
                 transaction,
                 Queues.TRANSACTION_QUEUE_REQUEST
             );
-            await WriteTransaction(transaction);
+            await WriteLoanTopUTransaction(transaction);
         }
 
         private async Task TopUpLoanLogic(Guid loanId, decimal payment)
@@ -160,6 +176,11 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
                 throw new BadRequestException(
                     "Сумма пополнения кредита не может превышать оставшийся платёж по кредиту"
                 );
+            }
+
+            if (loan.Status == LoanStatus.Closed)
+            {
+                throw new BadRequestException("Кредит уже закрыт");
             }
 
             loan.RemainingPayment -= payment;
@@ -195,6 +216,8 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
 
         public async Task CreateAutoTopUp(string bankAccountId, Guid loanId, Guid userId)
         {
+            await CeckBankAccountAccession(bankAccountId, userId);
+
             _scheduler = await _schedulerFactory.GetScheduler();
             _scheduler.JobFactory = _jobFactory;
 
@@ -245,7 +268,7 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
             await _dbContext.SaveChangesAsync();
         }
 
-        private async Task WriteTransaction(TransactionRequestDto transactionDto)
+        private async Task WriteLoanTopUTransaction(TransactionRequestDto transactionDto)
         {
             var transaction = new Transaction
             {
@@ -259,6 +282,26 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
             };
             await _dbContext.AddAsync(transaction);
             await _dbContext.SaveChangesAsync();
+        }
+        private async Task CeckBankAccountAccession(string bankAccountNumber, Guid userId)
+        {
+            var accessionInfoRequest = new CheckBankAccountAccessRequest
+            {
+                BankAccountNumber = bankAccountNumber,
+                UserId = userId
+            };
+
+            var accessionInfo = await _queueSender.CheckBankAccountAccess(accessionInfoRequest);
+
+            if (!accessionInfo.IsBankAccountExists)
+            {
+                throw new NotFoundException("Такого счета не существует");
+            }
+
+            if (!accessionInfo.HasUserAccess)
+            {
+                throw new ForbiddenException("У вас нет доступа к этому счету");
+            }
         }
     }
 }
