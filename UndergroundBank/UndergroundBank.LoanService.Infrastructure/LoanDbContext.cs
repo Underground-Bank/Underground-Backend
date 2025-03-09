@@ -12,6 +12,7 @@ namespace UndergroundBank.LoanService.Infrastructure
         public DbSet<Loan> Loans { get; set; }
         public DbSet<Tariff> Tariffs { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
+        public DbSet<AutoTopUpJob> TopUpJobs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -22,6 +23,9 @@ namespace UndergroundBank.LoanService.Infrastructure
                 .WithMany()
                 .HasForeignKey(c => c.TariffId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<AutoTopUpJob>()
+                .HasKey(j => new { j.BankAccountNumber, j.LoanId, j.UserId });
         }
     }
 }

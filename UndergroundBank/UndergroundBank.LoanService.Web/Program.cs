@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using UndergroundBank.Common.Configurations.JWT;
 using UndergroundBank.Common.Middlewares;
 using UndergroundBank.LoanService.Application.Configurations;
+using UndergroundBank.LoanService.Application.Interfaces;
 using UndergroundBank.LoanService.Infrastructure;
 using UndergroundBank.LoanService.Infrastructure.Services.LoanQueue;
 using UndergroundBank.LoanService.Web.Configurations;
@@ -58,6 +59,12 @@ catch (Exception ex)
     var logger = app.Services.GetRequiredService<ILogger<Program>>();
     logger.LogError(ex, "An error occurred while migrating the database.");
     throw;
+}
+
+using (var scope = app.Services.CreateScope())
+{
+    var jobScheduler = scope.ServiceProvider.GetRequiredService<IJobSchedulerService>();
+    await jobScheduler.StartActiveJobsAsync();
 }
 
 app.UseMiddleware<DefaultMiddleware>();

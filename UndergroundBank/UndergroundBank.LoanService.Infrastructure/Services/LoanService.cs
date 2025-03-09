@@ -21,7 +21,7 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
         private readonly LoanDbContext _dbContext;
         private readonly ISchedulerFactory _schedulerFactory;
         private readonly IJobFactory _jobFactory;
-        private Quartz.IScheduler _scheduler;
+        private IScheduler _scheduler;
         private readonly QueueSender _queueSender;
 
         public LoansService(
@@ -114,6 +114,13 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
                 throw new NotFoundException("Кредита с таким id не существует");
             }
 
+            if (loan.RemainingPayment - payment < 0)
+            {
+                throw new BadRequestException(
+                    "Сумма пополнения кредита не может превышать оставшийся платёж по кредиту"
+                );
+            }
+
             var transaction = new TransactionRequestDto
             {
                 TransactionId = Guid.NewGuid(),
@@ -145,7 +152,8 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
             var monthPayment = CalculateMonthPayment(
                 loan.Tariff,
                 loan.LoanDurationInMonth,
-                loan.Amount
+                loan.Amount,
+                loan.RemainingPayment
             );
             var transaction = new TransactionRequestDto
             {
@@ -187,8 +195,15 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
             if (loan.RemainingPayment == 0)
             {
                 loan.Status = LoanStatus.Closed;
-            }
-            ;
+                var jobs = await _dbContext.TopUpJobs
+                    .Where(j => j.LoanId == loanId).ToListAsync();
+                foreach (var job in jobs)
+                {
+                    var jobKey = new JobKey($"{job.LoanId}-{job.BankAccountNumber}-{job.UserId}", "CreditRepaymentJobs");
+                    await _scheduler.DeleteJob(jobKey);
+                }
+                _dbContext.RemoveRange(jobs);
+            };
 
             _dbContext.Update(loan);
 
@@ -207,16 +222,26 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
         private decimal CalculateMonthPayment(
             Tariff tariff,
             int loanDurationInMonth,
-            decimal loanAmount
+            decimal loanAmount,
+            decimal remainingPayment
         )
         {
-            var monthPayment = (loanAmount * (tariff.InterestRate)) / (loanDurationInMonth * 100);
-            return monthPayment;
+            var deafultMonthPayment = (loanAmount * (tariff.InterestRate)) / (loanDurationInMonth * 100);
+            var currentPayment = remainingPayment - deafultMonthPayment < 0 ? remainingPayment : deafultMonthPayment;
+
+            return currentPayment;
         }
 
-        public async Task CreateAutoTopUp(string bankAccountId, Guid loanId, Guid userId)
+        public async Task CreateAutoTopUp(string bankAccountNumber, Guid loanId, Guid userId)
         {
-            await CeckBankAccountAccession(bankAccountId, userId);
+            var currentJob = _dbContext.TopUpJobs.Where(j => j.BankAccountNumber == bankAccountNumber && j.LoanId == loanId && j.UserId == userId).FirstOrDefault();
+
+            if (currentJob != null && currentJob.Status != JobStatus.Closed)
+            {
+                throw new BadRequestException($"Автоплатёж по кредиту на счёт с номером: {bankAccountNumber} уже подключен");
+            }
+
+            await CeckBankAccountAccession(bankAccountNumber, userId);
 
             _scheduler = await _schedulerFactory.GetScheduler();
             _scheduler.JobFactory = _jobFactory;
@@ -227,25 +252,23 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
                 throw new NotFoundException("Кредита с таким ID не существует");
             }
 
-            var jobKey = new JobKey($"{loanId}-{bankAccountId}-{userId}", "CreditRepaymentJobs");
+            var jobCredsDto = JobHelper.GenerateJobKeyAndTriggerForLoan(bankAccountNumber, loanId, userId);
 
-            var job = JobBuilder
-                .Create<TopUpLoanJob>()
-                .WithIdentity(jobKey)
-                .UsingJobData("LoanId", loanId.ToString())
-                .UsingJobData("BankAccountNumber", bankAccountId.ToString())
-                .UsingJobData("UserId", userId.ToString())
-                .Build();
-
-            var trigger = TriggerBuilder
-                .Create()
-                .WithIdentity($"{loanId}-{bankAccountId}-{userId}Trigger", "CreditRepaymentJobs")
-                .StartNow()
-                .WithSimpleSchedule(x => x.WithIntervalInSeconds(5).RepeatForever())
-                .Build();
-
-            await _scheduler.ScheduleJob(job, trigger);
+            await _scheduler.ScheduleJob(jobCredsDto.Job, jobCredsDto.Trigger);
             await _scheduler.Start();
+
+            var jobForDB = new AutoTopUpJob
+            {
+                BankAccountNumber = bankAccountNumber,
+                LoanId = loanId,
+                CreatedAt = DateTime.UtcNow,
+                Status = JobStatus.Active,
+                UserId = userId,
+            };
+
+            await _dbContext.AddAsync(jobForDB);
+            await _dbContext.SaveChangesAsync();
+
         }
 
         public async Task EndTopUpLoanTransaction(TransactionResponseDto transactionDto)
@@ -266,6 +289,18 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
             transaction.EndAt = DateTime.UtcNow;
             _dbContext.Update(transaction);
             await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task DeleteAutoTopUp(string bankAccountId, Guid loanId, Guid userId)
+        {
+            var topUpJobs = await _dbContext.TopUpJobs.Where(j => j.LoanId == loanId && j.UserId == userId && j.BankAccountNumber == bankAccountId).ToListAsync();
+            foreach (var job in topUpJobs)
+            {
+                var jobKey = new JobKey($"{job.LoanId}-{job.BankAccountNumber}-{job.UserId}", "CreditRepaymentJobs");
+                await _scheduler.DeleteJob(jobKey);
+            }
+            _dbContext.RemoveRange(topUpJobs);
+
         }
 
         private async Task WriteLoanTopUTransaction(TransactionRequestDto transactionDto)
@@ -302,6 +337,17 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
             {
                 throw new ForbiddenException("У вас нет доступа к этому счету");
             }
+        }
+
+        public async Task<GetAutoTopUpLoanJobsListDto> GetMyAutoTopUpJobs(Guid userId)
+        {
+            var topUpJobs = await _dbContext.TopUpJobs.Where(j => j.UserId == userId).ToListAsync();
+            var topUpJobsDto = _mapper.Map<List<GetAutoTopUpLoanJobDto>>(topUpJobs);
+            return new GetAutoTopUpLoanJobsListDto
+            {
+                AutoTopUpLoanJobDtos = topUpJobsDto
+            };
+
         }
     }
 }
