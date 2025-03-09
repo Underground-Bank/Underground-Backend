@@ -13,7 +13,7 @@ namespace UndergroundBank.BankAccountService.Application.Helpers.AutoMapper
             CreateMap<ProfileDto, BankAccount>();
             CreateMap<BankAccount, BankAccountDto>();
             CreateMap<BankAccount, List<BankAccountDto>>();
-            CreateMap<OperationHistoryDto, TransactionRequestDto>().ReverseMap();
+            CreateMap<OperationHistoryDto, TransactionResponseDto>().ReverseMap();
         }
     }
 }

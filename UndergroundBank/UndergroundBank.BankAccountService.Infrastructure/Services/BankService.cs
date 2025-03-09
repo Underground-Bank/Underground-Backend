@@ -263,12 +263,14 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Services
                 TransactionId = transactionCreds.TransactionId,
                 Status = transactionCreds.Status,
                 AccountNumber = transactionCreds.AccountNumber,
+                UserId = bankAccount.UserId,
                 LoanId = transactionCreds.LoanId,
                 MoneyCount = transactionCreds.MoneyCount,
             };
 
             await _queueSender.SendTransaction(trans);
             var operation = _mapper.Map<OperationHistoryDto>(trans);
+            operation.CreatedAt = DateTime.UtcNow;
             operation.TransactionType = TransactionType.LoanPayment;
             await _queueSender.SendOperationInfo(operation);
         }
