@@ -114,6 +114,8 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
             await WriteTransaction(transaction);
         }
 
+
+        //TODO: добавить валидацию для accountNumber
         public async Task AutoTopUpLoan(Guid loanId, string accountNumber, Guid userId)
         {
             var loan = _dbContext
@@ -195,6 +197,12 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
         {
             _scheduler = await _schedulerFactory.GetScheduler();
             _scheduler.JobFactory = _jobFactory;
+
+            var loan = _dbContext.Loans.Where(l => l.Id == loanId).FirstOrDefault();
+            if (loan == null)
+            {
+                throw new NotFoundException("Кредита с таким ID не существует");
+            }
 
             var jobKey = new JobKey($"{loanId}-{bankAccountId}-{userId}", "CreditRepaymentJobs");
 

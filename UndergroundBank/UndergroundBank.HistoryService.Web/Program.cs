@@ -1,9 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 using UndergroundBank.Common.Configurations.JWT;
-using UndergroundBank.Common.Middlewares;
-using UndergroundBank.LoanService.Application.Configurations;
-using UndergroundBank.LoanService.Infrastructure;
+using UndergroundBank.HistoryService.Application.Configurations;
+using UndergroundBank.HistoryService.Infrastructure;
 using UndergroundBank.LoanService.Infrastructure.Services.LoanQueue;
 using UndergroundBank.LoanService.Web.Configurations;
 
@@ -18,18 +17,18 @@ builder
         opts.JsonSerializerOptions.Converters.Add(enumConverter);
     });
 
-builder.Services.AddControllers();
+// Add services to the container.
 
+builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 builder.Services.AddSwaggerConfiguration();
 
-// Add business logic service dependencies
-builder.Services.AddQuartzDependencies(builder.Configuration);
-builder.Services.AddLoanBlServiceDependencies(builder.Configuration);
+builder.Services.AddHistoryBlServiceDependencies(builder.Configuration);
 
 // Application layer configuration
-builder.Services.ConfigureApplicationLayer();
+builder.Services.ConfigureHistoryApplicationLayer();
 
 builder.Services.AddTokenRequirement();
 
@@ -46,11 +45,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-
 try
 {
     using var serviceScope = app.Services.CreateScope();
-    var dbContext = serviceScope.ServiceProvider.GetService<LoanDbContext>();
+    var dbContext = serviceScope.ServiceProvider.GetService<HistoryDbContext>();
     dbContext?.Database.Migrate();
 }
 catch (Exception ex)
@@ -60,16 +58,14 @@ catch (Exception ex)
     throw;
 }
 
-app.UseMiddleware<DefaultMiddleware>();
+//app.UseMiddleware<DefaultMiddleware>();
 
-// Enable HTTPS redirection
 app.UseHttpsRedirection();
 
 // Enable authentication and authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Map controllers
 app.MapControllers();
 
 app.Run();
