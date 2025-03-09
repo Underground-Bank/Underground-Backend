@@ -29,6 +29,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.BankAccount
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.BankAccountService.Web", "UndergroundBank.BankAccountService.Web\UndergroundBank.BankAccountService.Web.csproj", "{5E619BC6-39E2-4A68-B500-71B43AE40F9C}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{603367DF-9CCF-457A-86DB-6B5420837EEC}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.HistoryService.Web", "UndergroundBank.HistoryService.Web\UndergroundBank.HistoryService.Web.csproj", "{3F6E1867-16C8-4D9F-B21E-742BE9218436}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.HistoryService.Application", "UndergroundBank.HistoryService.Application\UndergroundBank.HistoryService.Application.csproj", "{DD97D8C2-7175-44B7-85DC-C810EAE4DC02}"

@@ -15,5 +15,10 @@ namespace UndergroundBank.AccountService.Infrastructure.Repositories
         {
             _accountContext = dbContext;
         }
+
+        public async Task<List<User>> GetAllUsers()
+        {
+            return await _accountContext.Users.Where(u => u.Id != null).AsQueryable().ToListAsync();
+        }
     }
 }

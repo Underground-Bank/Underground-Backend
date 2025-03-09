@@ -102,7 +102,10 @@ namespace UndergroundBank.AccountService.Infrastructure.Services
             {
                 throw new NotFoundException("Данного пользователя не существует!");
             }
-
+            if (user.IsLocked == true)
+            {
+                throw new BadRequestException("Данный пользователь заблокирован!");
+            }
             var roles = await _userManager.GetRolesAsync(user);
 
             var jwt = _tokenHelper.GenerateJwtToken(user, roles);

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using UndergroundBank.AccountService.Domain.Enums;
+using UndergroundBank.Common.Data.Enums;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Model;
 
 namespace UndergroundBank.AccountService.Application.Helpers.Validations
