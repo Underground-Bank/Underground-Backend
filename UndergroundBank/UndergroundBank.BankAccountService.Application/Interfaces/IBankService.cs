@@ -30,5 +30,9 @@ namespace UndergroundBank.BankAccountService.Application.Interfaces
 
         public Task WithdrawAccountNumber(string accountNumber, decimal moneyCount, Guid userId);
         public Task WithdrawMoneyForLoan(TransactionRequestDto transactionDtoCreds);
+
+        public Task<CheckBankAccountAccessResponse> CheckAccountNumberExists(
+            CheckBankAccountAccessRequest request
+        );
     }
 }

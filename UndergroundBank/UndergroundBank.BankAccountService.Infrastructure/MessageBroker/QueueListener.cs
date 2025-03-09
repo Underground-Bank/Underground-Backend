@@ -16,6 +16,18 @@ namespace UndergroundBank.BankAccountService.Infrastructure.MessageBroker
             var bus = RabbitHutch.CreateBus("host=localhost");
             var bankAccountService = serviceProvider.GetRequiredService<IBankService>();
 
+            bus.PubSub.Subscribe<TopUpBankAccountTransaction>(
+                Queues.TOP_UP_BANK_ACCOUNT_FROM_LOAN,
+                async data =>
+                {
+                    await bankAccountService.TopUpAccountNumber(
+                        data.AccountNumber,
+                        data.MoneyCount
+                    );
+                },
+                x => x.WithAutoDelete()
+            );
+
             bus.PubSub.Subscribe<TransactionRequestDto>(
                 Queues.TRANSACTION_QUEUE_REQUEST,
                 async data =>
@@ -23,6 +35,14 @@ namespace UndergroundBank.BankAccountService.Infrastructure.MessageBroker
                     await bankAccountService.WithdrawMoneyForLoan(data);
                 },
                 x => x.WithAutoDelete()
+            );
+
+            bus.Rpc.Respond<CheckBankAccountAccessRequest, CheckBankAccountAccessResponse>(
+                async request =>
+                {
+                    return await bankAccountService.CheckAccountNumberExists(request);
+                },
+                x => x.WithQueueName(Queues.CHECK_BANK_ACCOUNT_ACCESS)
             );
         }
     }

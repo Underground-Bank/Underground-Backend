@@ -275,6 +275,32 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Services
             await _queueSender.SendOperationInfo(operation);
         }
 
+        public async Task<CheckBankAccountAccessResponse> CheckAccountNumberExists(
+            CheckBankAccountAccessRequest request
+        )
+        {
+            var bankAccount = await _dbContext.BankAccounts.FirstOrDefaultAsync(b =>
+                b.AccountNumber == request.BankAccountNumber
+            );
+
+            if (bankAccount == null)
+            {
+                return new CheckBankAccountAccessResponse
+                {
+                    IsBankAccountExists = false,
+                    HasUserAccess = false,
+                };
+            }
+
+            bool hasUserAccess = bankAccount.UserId == request.UserId;
+
+            return new CheckBankAccountAccessResponse
+            {
+                IsBankAccountExists = true,
+                HasUserAccess = hasUserAccess,
+            };
+        }
+
         private string GenerateAccountNumber()
         {
             Random random = new Random();
