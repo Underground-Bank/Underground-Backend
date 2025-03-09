@@ -56,6 +56,9 @@ using var serviceScope = app.Services.CreateScope();
 var dbContext = serviceScope.ServiceProvider.GetService<AccountDbContext>();
 dbContext?.Database.Migrate();
 
+app.UseCors(x =>
+    x.AllowAnyMethod().AllowAnyHeader().AllowCredentials().SetIsOriginAllowed(origin => true)
+);
 app.UseMiddleware<DefaultMiddleware>();
 
 // Enable HTTPS redirection
@@ -78,5 +81,7 @@ using (var scope = app.Services.CreateScope())
             await roleManager.CreateAsync(new IdentityRole<Guid>(roleName));
     }
 }
+
+await IdentityDependenciesConfiguration.ConfigureAdminAsync(app.Services);
 
 app.Run();

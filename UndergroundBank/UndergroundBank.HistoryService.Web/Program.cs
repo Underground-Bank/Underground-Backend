@@ -1,6 +1,7 @@
-using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
 using UndergroundBank.Common.Configurations.JWT;
+using UndergroundBank.Common.Middlewares;
 using UndergroundBank.HistoryService.Application.Configurations;
 using UndergroundBank.HistoryService.Infrastructure;
 using UndergroundBank.LoanService.Infrastructure.Services.LoanQueue;
@@ -20,6 +21,7 @@ builder
 // Add services to the container.
 
 builder.Services.AddControllers();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -57,8 +59,10 @@ catch (Exception ex)
     logger.LogError(ex, "An error occurred while migrating the database.");
     throw;
 }
-
-//app.UseMiddleware<DefaultMiddleware>();
+app.UseCors(x =>
+    x.AllowAnyMethod().AllowAnyHeader().AllowCredentials().SetIsOriginAllowed(origin => true)
+);
+app.UseMiddleware<DefaultMiddleware>();
 
 app.UseHttpsRedirection();
 

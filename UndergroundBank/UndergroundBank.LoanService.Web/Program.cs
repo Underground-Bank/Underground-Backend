@@ -1,5 +1,5 @@
-using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
 using UndergroundBank.Common.Configurations.JWT;
 using UndergroundBank.Common.Middlewares;
 using UndergroundBank.LoanService.Application.Configurations;
@@ -47,7 +47,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-
 try
 {
     using var serviceScope = app.Services.CreateScope();
@@ -66,7 +65,9 @@ using (var scope = app.Services.CreateScope())
     var jobScheduler = scope.ServiceProvider.GetRequiredService<IJobSchedulerService>();
     await jobScheduler.StartActiveJobsAsync();
 }
-
+app.UseCors(x =>
+    x.AllowAnyMethod().AllowAnyHeader().AllowCredentials().SetIsOriginAllowed(origin => true)
+);
 app.UseMiddleware<DefaultMiddleware>();
 
 // Enable HTTPS redirection

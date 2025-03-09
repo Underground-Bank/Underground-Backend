@@ -50,6 +50,9 @@ using var serviceScope = app.Services.CreateScope();
 var dbContext = serviceScope.ServiceProvider.GetService<BankAccountDbContext>();
 dbContext?.Database.Migrate();
 
+app.UseCors(x =>
+    x.AllowAnyMethod().AllowAnyHeader().AllowCredentials().SetIsOriginAllowed(origin => true)
+);
 app.UseMiddleware<DefaultMiddleware>();
 
 // Enable HTTPS redirection
