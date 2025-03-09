@@ -57,6 +57,7 @@ namespace UndergroundBank.BankAccountService.Web.Controllers
         }
 
         [HttpPost("create")]
+        [Authorize(Roles = $"{nameof(Role.Client)}")]
         [ProducesResponseType(200)]
         public async Task<ActionResult> CreateBankAccount()
         {
@@ -148,6 +149,7 @@ namespace UndergroundBank.BankAccountService.Web.Controllers
         }
 
         [HttpGet("corresponding/{userId}")]
+        [Authorize(Roles = $"{nameof(Role.Employee)}, {nameof(Role.Admin)}")]
         [ProducesResponseType(typeof(BankAccountDto), 200)]
         public async Task<ActionResult<BankAccountDto>> GetCorrespondingAccountNumbersWithUserId(
             Guid userId
