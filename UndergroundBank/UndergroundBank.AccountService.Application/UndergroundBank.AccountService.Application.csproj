@@ -9,15 +9,17 @@
 	<ItemGroup>
 		<PackageReference Include="AutoMapper" Version="14.0.0" />
 		<PackageReference Include="MediatR" Version="12.4.1" />
-		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.13" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="7.3.0" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Communication\" />
-	  <Folder Include="Dto\" />
 	  <Folder Include="Exceptions\" />
-	  <Folder Include="Helpers\" />
-	  <Folder Include="Interfaces\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\UndergroundBank.AccountService.Domain\UndergroundBank.AccountService.Domain.csproj" />
+	  <ProjectReference Include="..\UndergroundBank.Common\UndergroundBank.Common.csproj" />
 	</ItemGroup>
 
 </Project>

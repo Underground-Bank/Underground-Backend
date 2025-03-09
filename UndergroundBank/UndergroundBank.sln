@@ -3,11 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.12.35527.113
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Элементы решения", "Элементы решения", "{9F77A41F-EA56-427A-867B-988EE7AEF24D}"
-	ProjectSection(SolutionItems) = preProject
-		.gitignore = .gitignore
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.AccountService.Web", "UndergroundBank.AccountService.Web\UndergroundBank.AccountService.Web.csproj", "{EC1EA6DF-D057-4C38-8EAF-9112F1E1588D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.AccountService.Infrastructure", "UndergroundBank.AccountService.Infrastructure\UndergroundBank.AccountService.Infrastructure.csproj", "{DB253F44-903C-4068-80BE-7D9089378328}"
@@ -15,6 +10,36 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.AccountService.Application", "UndergroundBank.AccountService.Application\UndergroundBank.AccountService.Application.csproj", "{9E40CD38-73C8-4163-B0AF-F3F4CF5E03AE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.AccountService.Domain", "UndergroundBank.AccountService.Domain\UndergroundBank.AccountService.Domain.csproj", "{6F6A2C53-DDF3-459C-9ED6-FCBAD1392FB6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.Common", "UndergroundBank.Common\UndergroundBank.Common.csproj", "{1B1EB0CB-DD90-449A-8C19-73BBB1156327}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.LoanService.Web", "UndergroundBank.LoanService.Web\UndergroundBank.LoanService.Web.csproj", "{0E495A9D-8B27-4E3C-9BE6-CBB577D37B6C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.LoanService.Application", "UndergroundBank.LoanService.Application\UndergroundBank.LoanService.Application.csproj", "{5987D938-E488-41DD-BAB9-17EDDCB556F1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.LoanService.Infrastructure", "UndergroundBank.LoanService.Infrastructure\UndergroundBank.LoanService.Infrastructure.csproj", "{D2CB55CD-7D96-4B4A-9176-9099CD3FAA6E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.LoanService.Domain", "UndergroundBank.LoanService.Domain\UndergroundBank.LoanService.Domain.csproj", "{27B371DF-0CEC-47E4-BD8A-90BBB2CAE82E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.BankAccountService.Application", "UndergroundBank.BankAccountService.Application\UndergroundBank.BankAccountService.Application.csproj", "{0ED3760B-0575-4D52-AC60-2CD489901D0A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.BankAccountService.Infrastructure", "UndergroundBank.BankAccountService.Infrastructure\UndergroundBank.BankAccountService.Infrastructure.csproj", "{7426CF9D-719C-4224-BA81-1A7B7047B47A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.BankAccountService.Domain", "UndergroundBank.BankAccountService.Domain\UndergroundBank.BankAccountService.Domain.csproj", "{EE0C7C08-DC07-42D4-B4D6-8E75C4C136FE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.BankAccountService.Web", "UndergroundBank.BankAccountService.Web\UndergroundBank.BankAccountService.Web.csproj", "{5E619BC6-39E2-4A68-B500-71B43AE40F9C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{603367DF-9CCF-457A-86DB-6B5420837EEC}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.HistoryService.Web", "UndergroundBank.HistoryService.Web\UndergroundBank.HistoryService.Web.csproj", "{3F6E1867-16C8-4D9F-B21E-742BE9218436}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.HistoryService.Application", "UndergroundBank.HistoryService.Application\UndergroundBank.HistoryService.Application.csproj", "{DD97D8C2-7175-44B7-85DC-C810EAE4DC02}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.HistoryService.Infrastructure", "UndergroundBank.HistoryService.Infrastructure\UndergroundBank.HistoryService.Infrastructure.csproj", "{9C8C9B53-40E4-4C0F-967A-F52E06E6BB4E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.HistoryService.Domain", "UndergroundBank.HistoryService.Domain\UndergroundBank.HistoryService.Domain.csproj", "{F8CAEF2C-EA99-4658-9CEA-6B721656BC5E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,6 +63,58 @@ Global
 		{6F6A2C53-DDF3-459C-9ED6-FCBAD1392FB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6F6A2C53-DDF3-459C-9ED6-FCBAD1392FB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6F6A2C53-DDF3-459C-9ED6-FCBAD1392FB6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1B1EB0CB-DD90-449A-8C19-73BBB1156327}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B1EB0CB-DD90-449A-8C19-73BBB1156327}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B1EB0CB-DD90-449A-8C19-73BBB1156327}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B1EB0CB-DD90-449A-8C19-73BBB1156327}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E495A9D-8B27-4E3C-9BE6-CBB577D37B6C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E495A9D-8B27-4E3C-9BE6-CBB577D37B6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E495A9D-8B27-4E3C-9BE6-CBB577D37B6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E495A9D-8B27-4E3C-9BE6-CBB577D37B6C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5987D938-E488-41DD-BAB9-17EDDCB556F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5987D938-E488-41DD-BAB9-17EDDCB556F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5987D938-E488-41DD-BAB9-17EDDCB556F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5987D938-E488-41DD-BAB9-17EDDCB556F1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D2CB55CD-7D96-4B4A-9176-9099CD3FAA6E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2CB55CD-7D96-4B4A-9176-9099CD3FAA6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2CB55CD-7D96-4B4A-9176-9099CD3FAA6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2CB55CD-7D96-4B4A-9176-9099CD3FAA6E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27B371DF-0CEC-47E4-BD8A-90BBB2CAE82E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27B371DF-0CEC-47E4-BD8A-90BBB2CAE82E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27B371DF-0CEC-47E4-BD8A-90BBB2CAE82E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27B371DF-0CEC-47E4-BD8A-90BBB2CAE82E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0ED3760B-0575-4D52-AC60-2CD489901D0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0ED3760B-0575-4D52-AC60-2CD489901D0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0ED3760B-0575-4D52-AC60-2CD489901D0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0ED3760B-0575-4D52-AC60-2CD489901D0A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7426CF9D-719C-4224-BA81-1A7B7047B47A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7426CF9D-719C-4224-BA81-1A7B7047B47A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7426CF9D-719C-4224-BA81-1A7B7047B47A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7426CF9D-719C-4224-BA81-1A7B7047B47A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE0C7C08-DC07-42D4-B4D6-8E75C4C136FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE0C7C08-DC07-42D4-B4D6-8E75C4C136FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE0C7C08-DC07-42D4-B4D6-8E75C4C136FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE0C7C08-DC07-42D4-B4D6-8E75C4C136FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E619BC6-39E2-4A68-B500-71B43AE40F9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E619BC6-39E2-4A68-B500-71B43AE40F9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E619BC6-39E2-4A68-B500-71B43AE40F9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E619BC6-39E2-4A68-B500-71B43AE40F9C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F6E1867-16C8-4D9F-B21E-742BE9218436}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F6E1867-16C8-4D9F-B21E-742BE9218436}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F6E1867-16C8-4D9F-B21E-742BE9218436}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F6E1867-16C8-4D9F-B21E-742BE9218436}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD97D8C2-7175-44B7-85DC-C810EAE4DC02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD97D8C2-7175-44B7-85DC-C810EAE4DC02}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD97D8C2-7175-44B7-85DC-C810EAE4DC02}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD97D8C2-7175-44B7-85DC-C810EAE4DC02}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C8C9B53-40E4-4C0F-967A-F52E06E6BB4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C8C9B53-40E4-4C0F-967A-F52E06E6BB4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C8C9B53-40E4-4C0F-967A-F52E06E6BB4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C8C9B53-40E4-4C0F-967A-F52E06E6BB4E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F8CAEF2C-EA99-4658-9CEA-6B721656BC5E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F8CAEF2C-EA99-4658-9CEA-6B721656BC5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F8CAEF2C-EA99-4658-9CEA-6B721656BC5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F8CAEF2C-EA99-4658-9CEA-6B721656BC5E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
