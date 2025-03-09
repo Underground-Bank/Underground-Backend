@@ -1,4 +1,4 @@
-﻿using UndergroundBank.AccountService.Domain.Enums;
+﻿using UndergroundBank.Common.Data.Enums;
 
 namespace UndergroundBank.AccountService.Application.Dto
 {

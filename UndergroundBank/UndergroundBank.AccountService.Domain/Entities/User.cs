@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using UndergroundBank.AccountService.Domain.Enums;
+using UndergroundBank.Common.Data.Enums;
 
 namespace UndergroundBank.AccountService.Domain.Entities
 {
@@ -39,5 +39,10 @@ namespace UndergroundBank.AccountService.Domain.Entities
         /// Time for refresh token expiry
         /// </summary>
         public DateTime RefreshTokenExpiry { get; set; }
+
+        /// <summary>
+        /// Block user param
+        /// </summary>
+        public bool IsLocked { get; set; }
     }
 }

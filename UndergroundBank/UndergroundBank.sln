@@ -20,6 +20,7 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.LoanService.Infrastructure", "UndergroundBank.LoanService.Infrastructure\UndergroundBank.LoanService.Infrastructure.csproj", "{D2CB55CD-7D96-4B4A-9176-9099CD3FAA6E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.LoanService.Domain", "UndergroundBank.LoanService.Domain\UndergroundBank.LoanService.Domain.csproj", "{27B371DF-0CEC-47E4-BD8A-90BBB2CAE82E}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.BankAccountService.Application", "UndergroundBank.BankAccountService.Application\UndergroundBank.BankAccountService.Application.csproj", "{0ED3760B-0575-4D52-AC60-2CD489901D0A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.BankAccountService.Infrastructure", "UndergroundBank.BankAccountService.Infrastructure\UndergroundBank.BankAccountService.Infrastructure.csproj", "{7426CF9D-719C-4224-BA81-1A7B7047B47A}"
@@ -27,6 +28,11 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.BankAccountService.Domain", "UndergroundBank.BankAccountService.Domain\UndergroundBank.BankAccountService.Domain.csproj", "{EE0C7C08-DC07-42D4-B4D6-8E75C4C136FE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.BankAccountService.Web", "UndergroundBank.BankAccountService.Web\UndergroundBank.BankAccountService.Web.csproj", "{5E619BC6-39E2-4A68-B500-71B43AE40F9C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{603367DF-9CCF-457A-86DB-6B5420837EEC}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

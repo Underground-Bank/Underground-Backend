@@ -19,10 +19,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\UndergroundBank.AccountService.Domain\UndergroundBank.AccountService.Domain.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Folder Include="Helpers\Validation\" />
   </ItemGroup>
 

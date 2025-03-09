@@ -15,6 +15,9 @@ namespace UndergroundBank.AccountService.Web.Controllers
 {
     [ApiController]
     [Route("api/profile")]
+    [Authorize(Policy = "TokenNotInBlackList")]
+    [ProducesResponseType(typeof(Error), 400)]
+    [ProducesResponseType(typeof(Error), 500)]
     public class ProfileController : BaseController
     {
         private readonly AdditionalTokenHelper _additionalTokenHelper;
@@ -26,10 +29,7 @@ namespace UndergroundBank.AccountService.Web.Controllers
         }
 
         [HttpGet()]
-        [Authorize(Policy = "TokenNotInBlackList")]
         [ProducesResponseType(typeof(ProfileDto), 200)]
-        [ProducesResponseType(typeof(Error), 400)]
-        [ProducesResponseType(typeof(Error), 500)]
         public async Task<ActionResult<ProfileDto>> GetProfile()
         {
             var profileQuery = new GetUserProfileQuery(UserId.ToString());
@@ -39,10 +39,7 @@ namespace UndergroundBank.AccountService.Web.Controllers
         }
 
         [HttpPut()]
-        [Authorize(Policy = "TokenNotInBlackList")]
         [ProducesResponseType(typeof(Error), 200)]
-        [ProducesResponseType(typeof(Error), 400)]
-        [ProducesResponseType(typeof(Error), 500)]
         public async Task<ActionResult> EditProfile(EditProfileInfoDto editProfileInfo)
         {
             var editCommand = new EditProfileCommand(editProfileInfo, UserId.ToString());
@@ -52,11 +49,8 @@ namespace UndergroundBank.AccountService.Web.Controllers
         }
 
         [HttpPut()]
-        [Authorize(Policy = "TokenNotInBlackList")]
         [Route("change-password")]
         [ProducesResponseType(typeof(Error), 200)]
-        [ProducesResponseType(typeof(Error), 400)]
-        [ProducesResponseType(typeof(Error), 500)]
         public async Task<ActionResult> ChangePassword(ChangePasswordDto changePasswordCreds)
         {
             var changePasswordCommand = new ChangePasswordCommand(
