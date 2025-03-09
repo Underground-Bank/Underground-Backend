@@ -35,7 +35,6 @@ namespace UndergroundBank.LoanService.Web.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(GetTariffDto), 200)]
         [ProducesResponseType(typeof(Error), 404)]
-        [Authorize(Roles = $"{nameof(Role.Employee)}, {nameof(Role.Admin)}")]
         public async Task<ActionResult<GetTariffDto>> GetTariff(Guid id)
         {
             var getTariffQuery = new GetTariffQuery(id);
@@ -46,7 +45,6 @@ namespace UndergroundBank.LoanService.Web.Controllers
 
         [HttpGet("getAll")]
         [ProducesResponseType(typeof(GetTariffsDto), 200)]
-        [Authorize(Roles = $"{nameof(Role.Employee)}, {nameof(Role.Admin)}")]
         public async Task<ActionResult<GetTariffsDto>> GetAllTarifs()
         {
             var getAllTariffsQuery = new GetTariffsQuery();
