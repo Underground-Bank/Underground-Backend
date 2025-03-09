@@ -56,7 +56,7 @@ using var serviceScope = app.Services.CreateScope();
 var dbContext = serviceScope.ServiceProvider.GetService<AccountDbContext>();
 dbContext?.Database.Migrate();
 
-//app.UseMiddleware<DefaultMiddleware>();
+app.UseMiddleware<DefaultMiddleware>();
 
 // Enable HTTPS redirection
 app.UseHttpsRedirection();
