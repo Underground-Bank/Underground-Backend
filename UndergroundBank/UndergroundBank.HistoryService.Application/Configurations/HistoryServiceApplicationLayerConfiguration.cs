@@ -1,5 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
+﻿using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 using UndergroundBank.BankAccountService.Application.Helpers.AutoMapper;
 
 namespace UndergroundBank.HistoryService.Application.Configurations
@@ -11,7 +11,7 @@ namespace UndergroundBank.HistoryService.Application.Configurations
             services.AddMediatR(config =>
                 config.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly())
             );
-            services.AddAutoMapper(typeof(HistoryAutomapper));
+            services.AddAutoMapper(typeof(HistoryAutomapper).Assembly);
         }
     }
 }

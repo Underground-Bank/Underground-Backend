@@ -13,24 +13,27 @@ namespace UndergroundBank.HistoryService.Infrastructure.Services
         private readonly IMapper _mapper;
         private readonly HistoryDbContext _dbContext;
 
-        public OperationHistoryService(
-            HistoryDbContext dbContext,
-            IMapper mapper
-        )
+        public OperationHistoryService(HistoryDbContext dbContext, IMapper mapper)
         {
             _mapper = mapper;
             _dbContext = dbContext;
         }
 
-        public async Task<GetOpeationsHistoryDto> GetOperationsHistory(string bankAccountNumber, Guid? userId)
+        public async Task<GetOpeationsHistoryDto> GetOperationsHistory(
+            string bankAccountNumber,
+            Guid? userId
+        )
         {
-            var operationsHistory = await _dbContext.OperationsHistory
-                .Where(x => x.AccountNumber == bankAccountNumber)
+            var operationsHistory = await _dbContext
+                .OperationsHistory.Where(x => x.AccountNumber == bankAccountNumber)
                 .ToListAsync();
 
             if (!operationsHistory.Any())
             {
-                return new GetOpeationsHistoryDto { operationsHistory = new List<OperationsHistoryDto>() };
+                return new GetOpeationsHistoryDto
+                {
+                    operationsHistory = new List<OperationsHistoryDto>(),
+                };
             }
 
             if (userId.HasValue && operationsHistory.Any(a => a.UserId != userId.Value))
@@ -40,11 +43,11 @@ namespace UndergroundBank.HistoryService.Infrastructure.Services
 
             return new GetOpeationsHistoryDto
             {
-                operationsHistory = _mapper.Map<List<OperationsHistoryDto>>(operationsHistory)
+                operationsHistory = _mapper.Map<List<OperationsHistoryDto>>(operationsHistory),
             };
         }
 
-        public async Task AddToHistory(OperationResultDto operationHistoryDto)
+        public async Task AddToHistory(OperationHistoryDto operationHistoryDto)
         {
             var historyElement = _mapper.Map<OperationsHistoryElement>(operationHistoryDto);
             await _dbContext.AddAsync(historyElement);

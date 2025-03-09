@@ -14,7 +14,7 @@ namespace UndergroundBank.LoanService.Infrastructure.Services.LoanQueue
             var serviceProvider = services.BuildServiceProvider();
             var historyService = serviceProvider.GetRequiredService<IHistoryService>();
 
-            bus.PubSub.Subscribe<OperationResultDto>(
+            bus.PubSub.Subscribe<OperationHistoryDto>(
                 Queues.ADD_TO_HISTORY,
                 data => historyService.AddToHistory(data)
             );

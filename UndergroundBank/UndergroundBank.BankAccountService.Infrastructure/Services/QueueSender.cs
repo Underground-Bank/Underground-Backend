@@ -22,5 +22,10 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Services
         {
             await SendMessage(transaction, Queues.TRANSACTION_QUEUE_RESPONSE);
         }
+
+        public async Task SendOperationInfo(OperationHistoryDto operation)
+        {
+            await SendMessage(operation, Queues.ADD_TO_HISTORY);
+        }
     }
 }

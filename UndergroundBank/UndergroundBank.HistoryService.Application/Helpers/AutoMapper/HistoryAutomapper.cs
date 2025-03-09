@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using UndergroundBank.Common.Dto.Transaction;
+using UndergroundBank.HistoryService.Application.DTO;
 using UndergroundBank.LoanService.Domain.Entities;
-
 
 namespace UndergroundBank.BankAccountService.Application.Helpers.AutoMapper
 {
@@ -9,7 +9,8 @@ namespace UndergroundBank.BankAccountService.Application.Helpers.AutoMapper
     {
         public HistoryAutomapper()
         {
-            CreateMap<OperationResultDto, OperationsHistoryElement>().ReverseMap();
+            CreateMap<OperationsHistoryElement, OperationsHistoryDto>();
+            CreateMap<OperationHistoryDto, OperationsHistoryElement>();
         }
     }
 }

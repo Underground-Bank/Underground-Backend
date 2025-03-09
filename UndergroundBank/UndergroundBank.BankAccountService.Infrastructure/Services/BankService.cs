@@ -163,7 +163,19 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Services
             }
 
             bankAccount.Balance += moneyCount;
+
             await _dbContext.SaveChangesAsync();
+            var operation = new OperationHistoryDto()
+            {
+                AccountNumber = accountNumber,
+                CreatedAt = DateTime.UtcNow,
+                MoneyCount = moneyCount,
+                Status = Status.Approved,
+                TransactionId = Guid.NewGuid(),
+                UserId = bankAccount.UserId,
+                TransactionType = TransactionType.TopUp,
+            };
+            await _queueSender.SendOperationInfo(operation);
         }
 
         public async Task WithdrawAccountNumber(
@@ -203,6 +215,17 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Services
 
             bankAccount.Balance -= moneyCount;
             await _dbContext.SaveChangesAsync();
+            var operation = new OperationHistoryDto()
+            {
+                AccountNumber = accountNumber,
+                CreatedAt = DateTime.UtcNow,
+                MoneyCount = moneyCount,
+                Status = Status.Approved,
+                TransactionId = Guid.NewGuid(),
+                UserId = bankAccount.UserId,
+                TransactionType = TransactionType.Withdraw,
+            };
+            await _queueSender.SendOperationInfo(operation);
         }
 
         public async Task<List<BankAccountDto>> GetAccountNumbersWithUserId(Guid userId)
@@ -245,6 +268,9 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Services
             };
 
             await _queueSender.SendTransaction(trans);
+            var operation = _mapper.Map<OperationHistoryDto>(trans);
+            operation.TransactionType = TransactionType.LoanPayment;
+            await _queueSender.SendOperationInfo(operation);
         }
 
         private string GenerateAccountNumber()
