@@ -2,8 +2,6 @@
 using System.Reflection;
 using UndergroundBank.LoanService.Application.Helpers.Automapper;
 
-//using UndergroundBank.AccountService.Application.Helpers.AutoMapper;
-
 namespace UndergroundBank.LoanService.Application.Configurations
 {
     public static class Configure

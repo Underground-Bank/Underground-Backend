@@ -9,7 +9,7 @@ using UndergroundBank.LoanService.Application.Communication.Queries.TariffServic
 using UndergroundBank.LoanService.Application.Dto.Tariff;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace UndergroundBank.AccountService.Web.Controllers
+namespace UndergroundBank.LoanService.Web.Controllers
 {
     [ApiController]
     [Route("api/tariff")]
