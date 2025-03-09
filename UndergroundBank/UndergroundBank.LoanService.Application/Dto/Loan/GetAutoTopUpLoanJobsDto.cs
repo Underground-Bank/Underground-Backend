@@ -2,7 +2,7 @@
 {
     public class GetAutoTopUpLoanJobDto
     {
-        public string BankAccountId { get; set; }
+        public string BankAccountNumber { get; set; }
         public Guid LoanId { get; set; }
         public DateTime CreatedAt { get; set; }
     }
@@ -11,5 +11,4 @@
     {
         public List<GetAutoTopUpLoanJobDto> AutoTopUpLoanJobDtos { get; set; }
     }
-
 }

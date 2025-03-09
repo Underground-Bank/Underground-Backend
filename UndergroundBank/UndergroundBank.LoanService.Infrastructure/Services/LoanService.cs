@@ -100,10 +100,18 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
                 TransactionId = Guid.NewGuid(),
                 Status = Status.InProgress,
             };
-            await _queueSender.SendMessage(topUpBankAccountTransaction, Queues.TOP_UP_BANK_ACCOUNT_FROM_LOAN);
+            await _queueSender.SendMessage(
+                topUpBankAccountTransaction,
+                Queues.TOP_UP_BANK_ACCOUNT_FROM_LOAN
+            );
         }
 
-        public async Task StartTopUpLoan(decimal payment, string BankAccountNumber, Guid loanId, Guid userId)
+        public async Task StartTopUpLoan(
+            decimal payment,
+            string BankAccountNumber,
+            Guid loanId,
+            Guid userId
+        )
         {
             var loan = _dbContext
                 .Loans.Where(l => l.Id == loanId)
@@ -136,7 +144,6 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
             );
             await WriteLoanTopUTransaction(transaction);
         }
-
 
         //TODO: добавить валидацию для accountNumber
         public async Task AutoTopUpLoan(Guid loanId, string accountNumber, Guid userId)
@@ -195,15 +202,18 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
             if (loan.RemainingPayment == 0)
             {
                 loan.Status = LoanStatus.Closed;
-                var jobs = await _dbContext.TopUpJobs
-                    .Where(j => j.LoanId == loanId).ToListAsync();
+                var jobs = await _dbContext.TopUpJobs.Where(j => j.LoanId == loanId).ToListAsync();
                 foreach (var job in jobs)
                 {
-                    var jobKey = new JobKey($"{job.LoanId}-{job.BankAccountNumber}-{job.UserId}", "CreditRepaymentJobs");
+                    var jobKey = new JobKey(
+                        $"{job.LoanId}-{job.BankAccountNumber}-{job.UserId}",
+                        "CreditRepaymentJobs"
+                    );
                     await _scheduler.DeleteJob(jobKey);
                 }
                 _dbContext.RemoveRange(jobs);
-            };
+            }
+            ;
 
             _dbContext.Update(loan);
 
@@ -226,19 +236,29 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
             decimal remainingPayment
         )
         {
-            var deafultMonthPayment = (loanAmount * (tariff.InterestRate)) / (loanDurationInMonth * 100);
-            var currentPayment = remainingPayment - deafultMonthPayment < 0 ? remainingPayment : deafultMonthPayment;
+            var deafultMonthPayment =
+                (loanAmount * (tariff.InterestRate)) / (loanDurationInMonth * 100);
+            var currentPayment =
+                remainingPayment - deafultMonthPayment < 0 ? remainingPayment : deafultMonthPayment;
 
             return currentPayment;
         }
 
         public async Task CreateAutoTopUp(string bankAccountNumber, Guid loanId, Guid userId)
         {
-            var currentJob = _dbContext.TopUpJobs.Where(j => j.BankAccountNumber == bankAccountNumber && j.LoanId == loanId && j.UserId == userId).FirstOrDefault();
+            var currentJob = _dbContext
+                .TopUpJobs.Where(j =>
+                    j.BankAccountNumber == bankAccountNumber
+                    && j.LoanId == loanId
+                    && j.UserId == userId
+                )
+                .FirstOrDefault();
 
             if (currentJob != null && currentJob.Status != JobStatus.Closed)
             {
-                throw new BadRequestException($"Автоплатёж по кредиту на счёт с номером: {bankAccountNumber} уже подключен");
+                throw new BadRequestException(
+                    $"Автоплатёж по кредиту на счёт с номером: {bankAccountNumber} уже подключен"
+                );
             }
 
             await CeckBankAccountAccession(bankAccountNumber, userId);
@@ -252,7 +272,11 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
                 throw new NotFoundException("Кредита с таким ID не существует");
             }
 
-            var jobCredsDto = JobHelper.GenerateJobKeyAndTriggerForLoan(bankAccountNumber, loanId, userId);
+            var jobCredsDto = JobHelper.GenerateJobKeyAndTriggerForLoan(
+                bankAccountNumber,
+                loanId,
+                userId
+            );
 
             await _scheduler.ScheduleJob(jobCredsDto.Job, jobCredsDto.Trigger);
             await _scheduler.Start();
@@ -268,7 +292,6 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
 
             await _dbContext.AddAsync(jobForDB);
             await _dbContext.SaveChangesAsync();
-
         }
 
         public async Task EndTopUpLoanTransaction(TransactionResponseDto transactionDto)
@@ -293,14 +316,23 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
 
         public async Task DeleteAutoTopUp(string bankAccountId, Guid loanId, Guid userId)
         {
-            var topUpJobs = await _dbContext.TopUpJobs.Where(j => j.LoanId == loanId && j.UserId == userId && j.BankAccountNumber == bankAccountId).ToListAsync();
+            _scheduler = await _schedulerFactory.GetScheduler();
+            _scheduler.JobFactory = _jobFactory;
+            var topUpJobs = await _dbContext
+                .TopUpJobs.Where(j =>
+                    j.LoanId == loanId && j.UserId == userId && j.BankAccountNumber == bankAccountId
+                )
+                .ToListAsync();
             foreach (var job in topUpJobs)
             {
-                var jobKey = new JobKey($"{job.LoanId}-{job.BankAccountNumber}-{job.UserId}", "CreditRepaymentJobs");
+                var jobKey = new JobKey(
+                    $"{job.LoanId}-{job.BankAccountNumber}-{job.UserId}",
+                    "CreditRepaymentJobs"
+                );
                 await _scheduler.DeleteJob(jobKey);
             }
             _dbContext.RemoveRange(topUpJobs);
-
+            await _dbContext.SaveChangesAsync();
         }
 
         private async Task WriteLoanTopUTransaction(TransactionRequestDto transactionDto)
@@ -318,12 +350,13 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
             await _dbContext.AddAsync(transaction);
             await _dbContext.SaveChangesAsync();
         }
+
         private async Task CeckBankAccountAccession(string bankAccountNumber, Guid userId)
         {
             var accessionInfoRequest = new CheckBankAccountAccessRequest
             {
                 BankAccountNumber = bankAccountNumber,
-                UserId = userId
+                UserId = userId,
             };
 
             var accessionInfo = await _queueSender.CheckBankAccountAccess(accessionInfoRequest);
@@ -343,11 +376,7 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
         {
             var topUpJobs = await _dbContext.TopUpJobs.Where(j => j.UserId == userId).ToListAsync();
             var topUpJobsDto = _mapper.Map<List<GetAutoTopUpLoanJobDto>>(topUpJobs);
-            return new GetAutoTopUpLoanJobsListDto
-            {
-                AutoTopUpLoanJobDtos = topUpJobsDto
-            };
-
+            return new GetAutoTopUpLoanJobsListDto { AutoTopUpLoanJobDtos = topUpJobsDto };
         }
     }
 }
