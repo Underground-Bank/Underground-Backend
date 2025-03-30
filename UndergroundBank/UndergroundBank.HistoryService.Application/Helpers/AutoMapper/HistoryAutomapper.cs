@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using UndergroundBank.Common.Dto.Transaction;
+using UndergroundBank.Common.DTO.Transaction;
 using UndergroundBank.HistoryService.Application.DTO;
+using UndergroundBank.HistoryService.Domain.Entities;
 using UndergroundBank.LoanService.Domain.Entities;
 
 namespace UndergroundBank.BankAccountService.Application.Helpers.AutoMapper
@@ -11,6 +13,7 @@ namespace UndergroundBank.BankAccountService.Application.Helpers.AutoMapper
         {
             CreateMap<OperationsHistoryElement, OperationsHistoryDto>();
             CreateMap<OperationHistoryDto, OperationsHistoryElement>();
+            CreateMap<GetOverduePaymentDto, OverduePayment>();
         }
     }
 }

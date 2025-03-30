@@ -1,6 +1,6 @@
 ﻿using EasyNetQ;
 
-namespace UndergroundBank.LoanService.Infrastructure.Services.LoanQueue
+namespace UndergroundBank.HistoryService.Infrastructure.Services.HistoryQueue
 {
     public class QueueSender
     {

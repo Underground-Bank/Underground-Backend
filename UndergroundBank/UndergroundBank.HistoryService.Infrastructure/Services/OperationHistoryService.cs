@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using UndergroundBank.Common.Dto.Transaction;
+using UndergroundBank.Common.DTO.Transaction;
 using UndergroundBank.Common.Middlewares;
 using UndergroundBank.HistoryService.Application.DTO;
 using UndergroundBank.HistoryService.Application.Interfaces;
+using UndergroundBank.HistoryService.Domain.Entities;
 using UndergroundBank.LoanService.Domain.Entities;
 
 namespace UndergroundBank.HistoryService.Infrastructure.Services
@@ -12,11 +14,13 @@ namespace UndergroundBank.HistoryService.Infrastructure.Services
     {
         private readonly IMapper _mapper;
         private readonly HistoryDbContext _dbContext;
+        private readonly OperationHistoryHub _historyHub;
 
-        public OperationHistoryService(HistoryDbContext dbContext, IMapper mapper)
+        public OperationHistoryService(HistoryDbContext dbContext, IMapper mapper, OperationHistoryHub operationHistoryHub)
         {
             _mapper = mapper;
             _dbContext = dbContext;
+            _historyHub = operationHistoryHub;
         }
 
         public async Task<GetOpeationsHistoryDto> GetOperationsHistory(
@@ -51,7 +55,30 @@ namespace UndergroundBank.HistoryService.Infrastructure.Services
         {
             var historyElement = _mapper.Map<OperationsHistoryElement>(operationHistoryDto);
             await _dbContext.AddAsync(historyElement);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
+            var operationsHistoryDto = _mapper.Map<OperationsHistoryDto>(historyElement);
+
+            await _historyHub.NotifyNewTransaction(operationsHistoryDto);
+        }
+
+        public async Task AddOverduePayment(OverduePaymentDto overduePaymentDto)
+        {
+            var historyElement = _mapper.Map<OperationsHistoryElement>(overduePaymentDto.OperationHistoryDto);
+            await _dbContext.AddAsync(historyElement);
+            var overduePayment = new OverduePayment { LoanId = overduePaymentDto.LoanId, TransactionId = historyElement.TransactionId };
+            await _dbContext.AddAsync(overduePayment);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task<List<GetOverduePaymentDto>> GetOverduedPayments(Guid? loanId, Guid userId)
+        {
+            var overduedPayments = _dbContext.OverduePayments.Where(p => p.Transaction.UserId == userId);
+            if (loanId != null)
+            {
+                overduedPayments = overduedPayments.Where(p => p.LoanId == loanId);
+            }
+            var overduePaymentsDto = _mapper.Map<List<GetOverduePaymentDto>>(await overduedPayments.ToListAsync());
+            return overduePaymentsDto;
         }
     }
 }

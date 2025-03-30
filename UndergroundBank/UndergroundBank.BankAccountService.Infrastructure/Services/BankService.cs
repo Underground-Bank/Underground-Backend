@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using EasyNetQ;
-using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using UndergroundBank.BankAccountService.Application.Interfaces;
 using UndergroundBank.BankAccountService.Domain.Entities;

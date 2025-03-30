@@ -1,10 +1,11 @@
-using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 using UndergroundBank.Common.Configurations.JWT;
 using UndergroundBank.Common.Middlewares;
 using UndergroundBank.HistoryService.Application.Configurations;
 using UndergroundBank.HistoryService.Infrastructure;
-using UndergroundBank.LoanService.Infrastructure.Services.LoanQueue;
+using UndergroundBank.HistoryService.Infrastructure.Services;
+using UndergroundBank.HistoryService.Infrastructure.Services.HistoryQueue;
 using UndergroundBank.LoanService.Web.Configurations;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -33,6 +34,7 @@ builder.Services.AddHistoryBlServiceDependencies(builder.Configuration);
 builder.Services.ConfigureHistoryApplicationLayer();
 
 builder.Services.AddTokenRequirement();
+builder.Services.AddSignalR();
 
 builder.Services.UseJwtConfiguration(builder.Configuration);
 builder.Services.AddListeners();
@@ -62,6 +64,7 @@ catch (Exception ex)
 app.UseCors(x =>
     x.AllowAnyMethod().AllowAnyHeader().AllowCredentials().SetIsOriginAllowed(origin => true)
 );
+
 app.UseMiddleware<DefaultMiddleware>();
 
 app.UseHttpsRedirection();
@@ -69,6 +72,8 @@ app.UseHttpsRedirection();
 // Enable authentication and authorization
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapHub<OperationHistoryHub>("/historyHub");
 
 app.MapControllers();
 

@@ -11,6 +11,7 @@ namespace UndergroundBank.LoanService.Application.Interfaces
         public Task EndTopUpLoanTransaction(TransactionResponseDto transaction);
         public Task AutoTopUpLoan(Guid loanId, string accountNumber, Guid userId);
         public Task<GetLoansDto> GetAllLoans(Guid? userId);
+        public Task<CreditRatingDto> GetCreditRating(Guid userId);
         public Task CreateAutoTopUp(string bankAccountId, Guid loanId, Guid userId);
         public Task DeleteAutoTopUp(string bankAccountId, Guid loanId, Guid userId);
         public Task<GetLoansDto> GetMyLoans(Guid userId);

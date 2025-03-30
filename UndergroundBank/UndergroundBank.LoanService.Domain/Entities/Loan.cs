@@ -1,4 +1,6 @@
-﻿namespace UndergroundBank.LoanService.Domain.Entities
+﻿using UndergroundBank.Common.Data.Enums;
+
+namespace UndergroundBank.LoanService.Domain.Entities
 {
     public class Loan
     {
@@ -11,6 +13,7 @@
         public Guid TariffId { get; set; }
         public Tariff Tariff { get; set; }
         public decimal RemainingPayment { get; set; }
+        public Currency CreditCurrency { get; set; }
     }
 
     public enum LoanStatus

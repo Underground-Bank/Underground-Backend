@@ -17,6 +17,11 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
 {
     public class LoansService : ILoanService
     {
+        private readonly decimal MaxCreditRate = 1000;
+        private readonly decimal MinimalCreditRate = 300;
+        private readonly int LatePaymentsCountCoefficient = 50;
+        private readonly double LatePaymentsAmountCoefficient = 0.1;
+
         private readonly IMapper _mapper;
         private readonly LoanDbContext _dbContext;
         private readonly ISchedulerFactory _schedulerFactory;
@@ -63,6 +68,14 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
 
         public async Task TakeLoan(TakeLoanDto takeLoanDto, Guid userId)
         {
+
+            var creditScore = await GetCreditRating(userId);
+
+            if (creditScore.CreditRating < MinimalCreditRate)
+            {
+                throw new BadRequestException("Минимальный рейтинг для взятия кредита: 300");
+            }
+
             var tariff = await _dbContext
                 .Tariffs.Where(t => t.Id == takeLoanDto.TariffId)
                 .FirstOrDefaultAsync();
@@ -73,6 +86,8 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
             }
 
             await CeckBankAccountAccession(takeLoanDto.BankAccountNumber, userId);
+
+
 
             var loanId = Guid.NewGuid();
 
@@ -145,7 +160,6 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
             await WriteLoanTopUTransaction(transaction);
         }
 
-        //TODO: добавить валидацию для accountNumber
         public async Task AutoTopUpLoan(Guid loanId, string accountNumber, Guid userId)
         {
             var loan = _dbContext
@@ -341,6 +355,26 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
             await _dbContext.SaveChangesAsync();
         }
 
+        public async Task<CreditRatingDto> GetCreditRating(Guid userId)
+        {
+            var overduedPayments = await _queueSender.GetOverduePayments(userId);
+            var LatePaymentsAmount = overduedPayments.Sum(p => p.MoneyCount);
+            var LatePaymentsCount = overduedPayments.Count();
+            var CreditRating = MaxCreditRate
+                - (LatePaymentsCountCoefficient * (decimal)LatePaymentsAmount)
+                - ((decimal)LatePaymentsAmountCoefficient * LatePaymentsAmount);
+
+            var normalizedCreditRating = Math.Max(0, CreditRating);
+            return new CreditRatingDto { CreditRating = normalizedCreditRating };
+        }
+
+        public async Task<GetAutoTopUpLoanJobsListDto> GetMyAutoTopUpJobs(Guid userId)
+        {
+            var topUpJobs = await _dbContext.TopUpJobs.Where(j => j.UserId == userId).ToListAsync();
+            var topUpJobsDto = _mapper.Map<List<GetAutoTopUpLoanJobDto>>(topUpJobs);
+            return new GetAutoTopUpLoanJobsListDto { AutoTopUpLoanJobDtos = topUpJobsDto };
+        }
+
         private async Task WriteLoanTopUTransaction(TransactionRequestDto transactionDto)
         {
             var transaction = new Transaction
@@ -376,13 +410,6 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
             {
                 throw new ForbiddenException("У вас нет доступа к этому счету");
             }
-        }
-
-        public async Task<GetAutoTopUpLoanJobsListDto> GetMyAutoTopUpJobs(Guid userId)
-        {
-            var topUpJobs = await _dbContext.TopUpJobs.Where(j => j.UserId == userId).ToListAsync();
-            var topUpJobsDto = _mapper.Map<List<GetAutoTopUpLoanJobDto>>(topUpJobs);
-            return new GetAutoTopUpLoanJobsListDto { AutoTopUpLoanJobDtos = topUpJobsDto };
         }
     }
 }

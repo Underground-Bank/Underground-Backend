@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using UndergroundBank.HistoryService.Infrastructure;
@@ -11,9 +12,11 @@ using UndergroundBank.HistoryService.Infrastructure;
 namespace UndergroundBank.HistoryService.Infrastructure.Migrations
 {
     [DbContext(typeof(HistoryDbContext))]
-    partial class HistoryDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250329080038_AddOverduePaymentsTable")]
+    partial class AddOverduePaymentsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

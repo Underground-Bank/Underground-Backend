@@ -3,7 +3,7 @@ using UndergroundBank.Common.Data;
 using UndergroundBank.HistoryService.Application.Interfaces;
 using UndergroundBank.HistoryService.Infrastructure;
 using UndergroundBank.HistoryService.Infrastructure.Services;
-using UndergroundBank.LoanService.Infrastructure.Services.LoanQueue;
+using UndergroundBank.HistoryService.Infrastructure.Services.HistoryQueue;
 
 namespace UndergroundBank.LoanService.Web.Configurations
 {
@@ -24,9 +24,9 @@ namespace UndergroundBank.LoanService.Web.Configurations
                 var connectionString = configuration.GetConnectionString("RedisDBContext");
                 return new RedisDbContext(connectionString);
             });
+            services.AddScoped<OperationHistoryHub>();
             services.AddSingleton<QueueSender>();
             services.AddScoped<IHistoryService, OperationHistoryService>();
-
             return services;
         }
     }
