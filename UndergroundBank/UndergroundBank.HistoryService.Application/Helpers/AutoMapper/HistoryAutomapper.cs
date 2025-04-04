@@ -3,7 +3,6 @@ using UndergroundBank.Common.Dto.Transaction;
 using UndergroundBank.Common.DTO.Transaction;
 using UndergroundBank.HistoryService.Application.DTO;
 using UndergroundBank.HistoryService.Domain.Entities;
-using UndergroundBank.LoanService.Domain.Entities;
 
 namespace UndergroundBank.BankAccountService.Application.Helpers.AutoMapper
 {

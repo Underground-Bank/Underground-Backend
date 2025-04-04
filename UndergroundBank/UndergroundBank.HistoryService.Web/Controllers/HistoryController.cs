@@ -34,17 +34,26 @@ namespace UndergroundBank.HistoryService.Web.Controllers
             return Ok(history);
         }
 
-        [HttpGet("overdue-payments")]
+        [HttpGet("overdue-payments/my")]
         [ProducesResponseType(typeof(List<OverduePaymentDto>), 200)]
-        public async Task<ActionResult<List<OverduePaymentDto>>> GetHistoryByBankAccountNumber([FromQuery] Guid? loanId, [FromQuery] Guid? userId)
+        public async Task<ActionResult<List<OverduePaymentDto>>> GetMyOverduedPayments([FromQuery] Guid? loanId)
         {
-
-            Guid neededUserId = userId == null ? UserId : userId.Value;
-
-            var getOverduePayments = new GetOverduePaymentsQuery(loanId, neededUserId);
+            var getOverduePayments = new GetOverduePaymentsQuery(loanId, UserId);
             var overduePayments = await Mediator.Send(getOverduePayments);
 
             return Ok(overduePayments);
         }
+
+        [HttpGet("overdue-payments/{userId}")]
+        [ProducesResponseType(typeof(List<OverduePaymentDto>), 200)]
+        [Authorize(Roles = $"{nameof(Role.Admin)}, {nameof(Role.Employee)}")]
+        public async Task<ActionResult<List<OverduePaymentDto>>> GetOverduedPaymentsByUserId(Guid userId, [FromQuery] Guid? loanId)
+        {
+            var getOverduePayments = new GetOverduePaymentsQuery(loanId, userId);
+            var overduePayments = await Mediator.Send(getOverduePayments);
+
+            return Ok(overduePayments);
+        }
+
     }
 }

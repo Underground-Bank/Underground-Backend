@@ -244,7 +244,7 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Services
         public async Task WithdrawMoneyForLoan(TransactionRequestDto transactionCreds)
         {
             var bankAccount = await _dbContext.BankAccounts.FirstOrDefaultAsync(bc =>
-                bc.AccountNumber == transactionCreds.AccountNumber
+                bc.AccountNumber == transactionCreds.To.AccountNumber
             );
 
             if (bankAccount == null || bankAccount.Balance < transactionCreds.MoneyCount)
@@ -261,9 +261,9 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Services
             {
                 TransactionId = transactionCreds.TransactionId,
                 Status = transactionCreds.Status,
-                AccountNumber = transactionCreds.AccountNumber,
+                To = new TransferEndpoint { AccountNumber = transactionCreds.To.AccountNumber, Type = AccountType.Account },
                 UserId = bankAccount.UserId,
-                LoanId = transactionCreds.LoanId,
+                From = new TransferEndpoint { LoanId = transactionCreds.From.LoanId, Type = AccountType.Loan },
                 MoneyCount = transactionCreds.MoneyCount,
             };
 

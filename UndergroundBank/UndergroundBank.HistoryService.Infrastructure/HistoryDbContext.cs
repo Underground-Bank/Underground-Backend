@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using UndergroundBank.HistoryService.Domain.Entities;
-using UndergroundBank.LoanService.Domain.Entities;
 
 namespace UndergroundBank.HistoryService.Infrastructure
 {

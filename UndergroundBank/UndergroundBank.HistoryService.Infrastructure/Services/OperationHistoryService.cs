@@ -6,7 +6,6 @@ using UndergroundBank.Common.Middlewares;
 using UndergroundBank.HistoryService.Application.DTO;
 using UndergroundBank.HistoryService.Application.Interfaces;
 using UndergroundBank.HistoryService.Domain.Entities;
-using UndergroundBank.LoanService.Domain.Entities;
 
 namespace UndergroundBank.HistoryService.Infrastructure.Services
 {

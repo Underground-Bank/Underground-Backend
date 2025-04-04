@@ -147,8 +147,8 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
             var transaction = new TransactionRequestDto
             {
                 TransactionId = Guid.NewGuid(),
-                AccountNumber = BankAccountNumber,
-                LoanId = loanId,
+                From = new TransferEndpoint { LoanId = loanId, Type = AccountType.Loan },
+                To = new TransferEndpoint { AccountNumber = BankAccountNumber, Type = AccountType.Account },
                 MoneyCount = payment,
                 UserId = userId,
                 Status = Status.InProgress,
@@ -179,8 +179,8 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
             var transaction = new TransactionRequestDto
             {
                 TransactionId = Guid.NewGuid(),
-                AccountNumber = accountNumber,
-                LoanId = loanId,
+                From = new TransferEndpoint { LoanId = loanId, Type = AccountType.Loan },
+                To = new TransferEndpoint { AccountNumber = accountNumber, Type = AccountType.Account },
                 UserId = userId,
                 MoneyCount = monthPayment,
                 Status = Status.InProgress,
@@ -320,7 +320,7 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
 
             if (transaction.Status == Status.InProgress && transactionDto.Status == Status.Approved)
             {
-                await TopUpLoanLogic(transactionDto.LoanId, transactionDto.MoneyCount);
+                await TopUpLoanLogic(transactionDto.To.GetLoanId(), transactionDto.MoneyCount);
             }
             transaction.Status = Status.Finished;
             transaction.EndAt = DateTime.UtcNow;
@@ -379,7 +379,7 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
         {
             var transaction = new Transaction
             {
-                AccountNumber = transactionDto.AccountNumber,
+                AccountNumber = transactionDto.From.GetAccountNumber(),
                 StartAt = DateTime.UtcNow,
                 Status = Status.InProgress,
                 UserId = transactionDto.UserId,
