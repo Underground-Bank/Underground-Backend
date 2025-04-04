@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using UndergroundBank.AccountService.Application.Interfaces;
 using UndergroundBank.AccountService.Infrastructure;
-using UndergroundBank.AccountService.Infrastructure.Helpers.TokenHerlpers;
 using UndergroundBank.AccountService.Infrastructure.Repositories;
 using UndergroundBank.AccountService.Infrastructure.Services;
 using UndergroundBank.Common.Data;
@@ -18,8 +19,10 @@ namespace UndergroundBank.AccountService.Web.Configurations
         )
         {
             services.AddDbContext<AccountDbContext>(options =>
-                options.UseNpgsql(configuration.GetConnectionString("AuthDatabasePostgres"))
-            );
+            {
+                options.UseNpgsql(configuration.GetConnectionString("AuthDatabasePostgres"));
+                options.UseOpenIddict();
+            });
             services.AddSingleton<RedisDbContext>(provider =>
             {
                 var connectionString = configuration.GetConnectionString("RedisDBContext");
@@ -31,7 +34,44 @@ namespace UndergroundBank.AccountService.Web.Configurations
             services.AddScoped<IManagementService, ManagementService>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<AdditionalTokenHelper>();
-            services.AddScoped<TokenHelper>();
+            services
+                .AddOpenIddict()
+                .AddCore(options =>
+                {
+                    options.UseEntityFrameworkCore().UseDbContext<AccountDbContext>();
+                })
+                .AddServer(options =>
+                {
+                    options.DisableAccessTokenEncryption();
+                    options
+                        .SetAuthorizationEndpointUris("/connect/authorize")
+                        .SetTokenEndpointUris("/connect/token");
+
+                    options.AllowAuthorizationCodeFlow().RequireProofKeyForCodeExchange();
+
+                    options.AcceptAnonymousClients();
+
+                    // Убедитесь, что клиент может отправить client_secret
+                    options.RegisterScopes("openid", "profile", "email", "roles", "api");
+                    options.AllowClientCredentialsFlow();
+
+                    options
+                        .UseAspNetCore()
+                        .EnableAuthorizationEndpointPassthrough()
+                        .EnableTokenEndpointPassthrough()
+                        .EnableStatusCodePagesIntegration();
+
+                    options
+                        .AddDevelopmentEncryptionCertificate()
+                        .AddDevelopmentSigningCertificate();
+                })
+                .AddValidation(options =>
+                {
+                    options.SetIssuer("https://localhost:5026/");
+                    options.UseSystemNetHttp();
+                    options.UseAspNetCore();
+                });
+
             return services;
         }
     }

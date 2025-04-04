@@ -11,7 +11,6 @@ using Microsoft.Extensions.Configuration;
 using UndergroundBank.AccountService.Application.Helpers.Validations;
 using UndergroundBank.AccountService.Application.Interfaces;
 using UndergroundBank.AccountService.Domain.Entities;
-using UndergroundBank.AccountService.Infrastructure.Helpers.TokenHerlpers;
 using UndergroundBank.Common.Data;
 using UndergroundBank.Common.Data.Enums;
 using UndergroundBank.Common.Dto.AccountService;
@@ -22,7 +21,6 @@ namespace UndergroundBank.AccountService.Infrastructure.Services
     public class ManagementService : IManagementService
     {
         private readonly IMapper _mapper;
-        private readonly TokenHelper _tokenHelper;
         private readonly IUserRepository _userRepository;
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
@@ -33,7 +31,6 @@ namespace UndergroundBank.AccountService.Infrastructure.Services
             UserManager<User> userManager,
             SignInManager<User> signInManager,
             IConfiguration configuration,
-            TokenHelper tokenHelper,
             IMapper mapper,
             IUserRepository userRepository,
             RedisDbContext redisDBContext
@@ -42,7 +39,6 @@ namespace UndergroundBank.AccountService.Infrastructure.Services
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
-            _tokenHelper = tokenHelper;
             _mapper = mapper;
             _userRepository = userRepository;
             _redisDBContext = redisDBContext;

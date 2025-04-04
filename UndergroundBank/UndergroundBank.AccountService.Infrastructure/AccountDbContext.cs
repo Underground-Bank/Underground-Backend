@@ -19,5 +19,11 @@ namespace UndergroundBank.AccountService.Infrastructure
     {
         public AccountDbContext(DbContextOptions<AccountDbContext> options)
             : base(options) { }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+            builder.UseOpenIddict();
+        }
     }
 }

@@ -1,87 +1,149 @@
-using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Authorization;
+﻿using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using OpenIddict.Abstractions;
+using OpenIddict.Validation.AspNetCore;
 using UndergroundBank.AccountService.Application.Configurations;
 using UndergroundBank.AccountService.Infrastructure;
-using UndergroundBank.AccountService.Infrastructure.MessageBroker;
 using UndergroundBank.AccountService.Web.Configurations;
-using UndergroundBank.Common.Configurations.JWT;
+using UndergroundBank.Common.Configurations.OpenIddict;
 using UndergroundBank.Common.Data.Enums;
-using UndergroundBank.Common.Helpers.TokenRequirment;
-using UndergroundBank.Common.Middlewares;
+using static OpenIddict.Abstractions.OpenIddictConstants;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenLocalhost(
+        5026,
+        listenOptions =>
+        {
+            listenOptions.UseHttps(); // OpenIddict login, /connect/*
+        }
+    );
+
+    options.ListenLocalhost(
+        7255,
+        listenOptions =>
+        {
+            listenOptions.UseHttps(); // Swagger + API
+        }
+    );
+});
+
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.Cookie.IsEssential = true;
+    options.IdleTimeout = TimeSpan.FromMinutes(30); // Примерное время жизни сессии
+});
+
+// ✅ Контроллеры + Razor Pages + enum -> string
 builder
     .Services.AddControllers()
-    .AddJsonOptions(opts =>
+    .AddJsonOptions(opt =>
     {
-        var enumConverter = new JsonStringEnumConverter();
-        opts.JsonSerializerOptions.Converters.Add(enumConverter);
+        opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
+builder.Services.AddRazorPages();
 
-builder.Services.AddControllers();
-
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// ✅ Swagger с OAuth2
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerConfiguration();
-
-// Add business logic service dependencies
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
+});
+builder.Services.AddSwaggerWithOAuth();
 builder.Services.AddAccountBlServiceDependencies(builder.Configuration);
-
-// Add Identity dependencies configuration
 builder.Services.AddMicIdentityConfiguration();
-
-// Application layer configuration
 builder.Services.ConfigureApplicationLayer();
-
-builder.Services.AddTokenRequirement();
-
-builder.Services.UseJwtConfiguration(builder.Configuration);
-builder.Services.QueueSubscribe();
-builder.Services.AddHttpClient();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// ✅ Swagger UI
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Account Service API");
+        c.OAuthClientId("user-app");
+        c.OAuthClientSecret("111");
+        c.OAuthUsePkce();
+        c.OAuthScopes("openid", "profile", "email", "api");
+    });
 }
 
-using var serviceScope = app.Services.CreateScope();
-var dbContext = serviceScope.ServiceProvider.GetService<AccountDbContext>();
-dbContext?.Database.Migrate();
+app.UseDeveloperExceptionPage();
 
-app.UseCors(x =>
-    x.AllowAnyMethod().AllowAnyHeader().AllowCredentials().SetIsOriginAllowed(origin => true)
-);
-app.UseMiddleware<DefaultMiddleware>();
+app.UseForwardedHeaders();
 
-// Enable HTTPS redirection
 app.UseHttpsRedirection();
+app.UseSession();
+app.UseRouting();
+app.UseCors(x =>
+    x.WithOrigins("https://localhost:7255").AllowAnyHeader().AllowAnyMethod().AllowCredentials()
+);
 
-// Enable authentication and authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Map controllers
-app.MapControllers();
+app.MapRazorPages();
+app.UseEndpoints(options =>
+{
+    options.MapControllers();
+    options.MapDefaultControllerRoute();
+});
 
 using (var scope = app.Services.CreateScope())
 {
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
-    var roles = Enum.GetNames(typeof(Role));
-    foreach (var roleName in roles)
-    {
-        if (!await roleManager.RoleExistsAsync(roleName))
-            await roleManager.CreateAsync(new IdentityRole<Guid>(roleName));
-    }
-}
+    var db = scope.ServiceProvider.GetRequiredService<AccountDbContext>();
+    db.Database.Migrate();
 
-await IdentityDependenciesConfiguration.ConfigureAdminAsync(app.Services);
+    var manager = scope.ServiceProvider.GetRequiredService<IOpenIddictApplicationManager>();
+
+    var existingApplication = await manager.FindByClientIdAsync("user-app");
+    if (existingApplication != null)
+    {
+        await manager.DeleteAsync(existingApplication);
+    }
+
+    // Создаем новое приложение
+    await manager.CreateAsync(
+        new OpenIddictApplicationDescriptor
+        {
+            ClientId = "user-app",
+            ClientSecret = "111",
+            RedirectUris = { new Uri("https://localhost:7255/swagger/oauth2-redirect.html") },
+            PostLogoutRedirectUris = { new Uri("https://localhost:7255/signout-callback-oidc") },
+            Permissions =
+            {
+                Permissions.Endpoints.Authorization,
+                Permissions.Endpoints.Token,
+                Permissions.GrantTypes.AuthorizationCode,
+                Permissions.ResponseTypes.Code,
+                Permissions.Prefixes.Scope + Scopes.OpenId,
+                Permissions.Prefixes.Scope + Scopes.Profile,
+                Permissions.Prefixes.Scope + Scopes.Email,
+                Permissions.Prefixes.Scope + Scopes.Roles,
+                Permissions.Prefixes.Scope + "api",
+                Permissions.Prefixes.GrantType + GrantTypes.AuthorizationCode,
+                Permissions.Prefixes.ResponseType + ResponseTypes.Code,
+            },
+            Requirements = { Requirements.Features.ProofKeyForCodeExchange },
+        }
+    );
+
+    // ✅ Роли + админ
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+    foreach (var role in Enum.GetNames(typeof(Role)))
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+            await roleManager.CreateAsync(new IdentityRole<Guid>(role));
+    }
+
+    await IdentityDependenciesConfiguration.ConfigureAdminAsync(app.Services);
+}
 
 app.Run();

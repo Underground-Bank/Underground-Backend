@@ -1,0 +1,45 @@
+﻿@model UndergroundBank.AccountService.Web.ViewModels.LoginViewModel
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+</head>
+<body>
+    @using (Html.BeginForm("Login", "Authorization", FormMethod.Post))
+    {
+        <div class="d-flex justify-content-center mt-2">
+            <h1>Login to Underground Bank</h1>
+        </div>
+
+        @Html.HiddenFor(x => x.ReturnUrl, (string)ViewBag.ReturnUrl)
+
+        <div class="d-grid mx-4 gap-4">
+            <div class="d-grid gap-2">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input class="form-control" type="email" name="email" id="email" value="@Model?.Email" />
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input class="form-control" type="password" name="password" id="password" />
+                </div>
+            </div>
+
+            @if (ViewBag.LoginError == true || Model?.WasFailed == true)
+            {
+                <div class="d-flex border border-danger rounded-2 p-2">
+                    <p class="text-danger">Wrong credentials lmao</p>
+                </div>
+            }
+
+            <div>
+                <button type="submit" class="btn btn-primary">Log in</button>
+            </div>
+        </div>
+    }
+</body>
+</html>

@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OpenIddict.Validation.AspNetCore;
 using UndergroundBank.AccountService.Application.Communication.Commands.Profile.ChangePassword;
 using UndergroundBank.AccountService.Application.Communication.Commands.Profile.EditProfile;
 using UndergroundBank.AccountService.Application.Communication.Queries.ProfileService.GetUserProfile;
@@ -15,7 +16,7 @@ namespace UndergroundBank.AccountService.Web.Controllers
 {
     [ApiController]
     [Route("api/profile")]
-    [Authorize(Policy = "TokenNotInBlackList")]
+    [Authorize(AuthenticationSchemes = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme)]
     [ProducesResponseType(typeof(Error), 400)]
     [ProducesResponseType(typeof(Error), 500)]
     public class ProfileController : BaseController
@@ -42,6 +43,8 @@ namespace UndergroundBank.AccountService.Web.Controllers
         [ProducesResponseType(typeof(Error), 200)]
         public async Task<ActionResult> EditProfile(EditProfileInfoDto editProfileInfo)
         {
+            var useeeer = UserId.ToString();
+            Console.WriteLine(useeeer);
             var editCommand = new EditProfileCommand(editProfileInfo, UserId.ToString());
             await Mediator.Send(editCommand);
 
