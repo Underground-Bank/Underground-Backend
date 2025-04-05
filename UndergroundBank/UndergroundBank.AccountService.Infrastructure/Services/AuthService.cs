@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using UndergroundBank.AccountService.Application.Dto;
@@ -9,6 +10,7 @@ using UndergroundBank.AccountService.Application.Helpers.Validations;
 using UndergroundBank.AccountService.Application.Interfaces;
 using UndergroundBank.AccountService.Domain.Entities;
 using UndergroundBank.Common.Data;
+using UndergroundBank.Common.Data.Enums;
 using UndergroundBank.Common.Middlewares;
 
 namespace UndergroundBank.AccountService.Infrastructure.Services
@@ -21,6 +23,7 @@ namespace UndergroundBank.AccountService.Infrastructure.Services
         private readonly SignInManager<User> _signInManager;
         private readonly IConfiguration _configuration;
         private readonly RedisDbContext _redisDBContext;
+        private readonly AccountDbContext _dbContext;
 
         public AuthService(
             UserManager<User> userManager,
@@ -28,7 +31,8 @@ namespace UndergroundBank.AccountService.Infrastructure.Services
             IConfiguration configuration,
             IMapper mapper,
             IUserRepository userRepository,
-            RedisDbContext redisDBContext
+            RedisDbContext redisDBContext,
+            AccountDbContext dbContext
         )
         {
             _userManager = userManager;
@@ -37,6 +41,7 @@ namespace UndergroundBank.AccountService.Infrastructure.Services
             _mapper = mapper;
             _userRepository = userRepository;
             _redisDBContext = redisDBContext;
+            _dbContext = dbContext;
         }
 
         /// <inheritdoc/>
@@ -63,6 +68,9 @@ namespace UndergroundBank.AccountService.Infrastructure.Services
             if (result.Succeeded)
             {
                 await _userManager.AddToRoleAsync(user, "Client");
+                var newSettings = new UserSettings() { UserId = user.Id, Theme = Theme.Light };
+                await _dbContext.UserSettings.AddAsync(newSettings);
+                await _dbContext.SaveChangesAsync();
             }
             else
             {

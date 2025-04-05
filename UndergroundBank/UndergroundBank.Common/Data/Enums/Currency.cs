@@ -5,6 +5,6 @@
         USD,
         RUB,
         CNY,
-        TENGE
+        KZT,
     }
 }

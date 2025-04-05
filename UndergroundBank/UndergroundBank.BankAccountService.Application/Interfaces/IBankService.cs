@@ -1,4 +1,5 @@
 ﻿using System.Transactions;
+using UndergroundBank.BankAccountService.Application.Dto;
 using UndergroundBank.Common.Data.Enums;
 using UndergroundBank.Common.Dto.BankAccountService;
 using UndergroundBank.Common.Dto.Transaction;
@@ -7,7 +8,9 @@ namespace UndergroundBank.BankAccountService.Application.Interfaces
 {
     public interface IBankService
     {
-        public Task CreateAccountNumber(Guid userId);
+        public Task CreateAccountNumber(Guid userId, Currency currency);
+
+        public Task ChangeVisibilityOfBankAccount(string accountNumber);
 
         public Task<BankAccountDto> GetMyCorrespondingAccountNumber(
             string accountNumber,
@@ -26,7 +29,8 @@ namespace UndergroundBank.BankAccountService.Application.Interfaces
 
         public Task<List<BankAccountDto>> GetAccountNumbersWithUserId(Guid userId);
 
-        public Task TopUpAccountNumber(string accountNumber, decimal moneyCount);
+        public Task TopUpAccountNumber(string accountNumber, decimal moneyCount, Currency currency);
+        public Task TransferMoneyToAccountNumber(MoneyTransferDto moneyTransfer);
 
         public Task WithdrawAccountNumber(string accountNumber, decimal moneyCount, Guid userId);
         public Task WithdrawMoneyForLoan(TransactionRequestDto transactionDtoCreds);

@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
+using UndergroundBank.Common.Data.Enums;
 
 namespace UndergroundBank.BankAccountService.Domain.Entities
 {
@@ -15,5 +16,7 @@ namespace UndergroundBank.BankAccountService.Domain.Entities
         public DateTime CreatedDate { get; set; }
         public decimal Balance { get; set; }
         public Boolean IsLocked { get; set; }
+        public Boolean IsHidden { get; set; }
+        public Currency Currency { get; set; }
     }
 }

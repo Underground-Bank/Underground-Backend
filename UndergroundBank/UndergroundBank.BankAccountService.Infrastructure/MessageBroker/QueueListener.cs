@@ -22,7 +22,8 @@ namespace UndergroundBank.BankAccountService.Infrastructure.MessageBroker
                 {
                     await bankAccountService.TopUpAccountNumber(
                         data.AccountNumber,
-                        data.MoneyCount
+                        data.MoneyCount,
+                        data.Currency
                     );
                 },
                 x => x.WithAutoDelete()

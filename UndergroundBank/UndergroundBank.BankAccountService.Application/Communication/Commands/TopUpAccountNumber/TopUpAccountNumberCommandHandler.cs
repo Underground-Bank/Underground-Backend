@@ -23,7 +23,11 @@ namespace UndergroundBank.BankAccountService.Application.Communication.Commands.
             CancellationToken cancellationToken
         )
         {
-            await _bankService.TopUpAccountNumber(request.accountNumber, request.moneyCount);
+            await _bankService.TopUpAccountNumber(
+                request.accountNumber,
+                request.moneyCount,
+                request.currency
+            );
         }
     }
 }

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using UndergroundBank.BankAccountService.Infrastructure;
@@ -11,9 +12,11 @@ using UndergroundBank.BankAccountService.Infrastructure;
 namespace UndergroundBank.BankAccountService.Infrastructure.Migrations
 {
     [DbContext(typeof(BankAccountDbContext))]
-    partial class BankAccountDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250405094123_UpdateBankAccountEntity")]
+    partial class UpdateBankAccountEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -32,9 +35,6 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Migrations
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("Currency")
-                        .HasColumnType("integer");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -64,26 +64,6 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Migrations
                     b.HasKey("AccountNumber");
 
                     b.ToTable("BankAccounts");
-                });
-
-            modelBuilder.Entity("UndergroundBank.BankAccountService.Domain.Entities.CurrencyModel", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("Currency")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<decimal>("Value")
-                        .HasColumnType("numeric");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Currencies");
                 });
 #pragma warning restore 612, 618
         }

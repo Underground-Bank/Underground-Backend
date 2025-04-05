@@ -13,6 +13,8 @@ using UndergroundBank.BankAccountService.Application.Communication.Queries.GetAc
 using UndergroundBank.BankAccountService.Application.Communication.Queries.GetAllAccountNumbers;
 using UndergroundBank.BankAccountService.Application.Communication.Queries.GetMyAccountNumbers;
 using UndergroundBank.BankAccountService.Application.Communication.Queries.GetMyCorrespondingAccountNumber;
+using UndergroundBank.BankAccountService.Application.Dto;
+using UndergroundBank.BankAccountService.Application.Interfaces;
 using UndergroundBank.Common.Base;
 using UndergroundBank.Common.Data.Enums;
 using UndergroundBank.Common.Data.Models;
@@ -30,8 +32,13 @@ namespace UndergroundBank.BankAccountService.Web.Controllers
     [ProducesResponseType(typeof(Error), 500)]
     public class BankAccountController : BaseController
     {
-        public BankAccountController(IMediator mediator)
-            : base(mediator) { }
+        private readonly IBankService _service;
+
+        public BankAccountController(IMediator mediator, IBankService service)
+            : base(mediator)
+        {
+            _service = service;
+        }
 
         [HttpPost]
         [Authorize(Roles = $"{nameof(Role.Employee)}, {nameof(Role.Admin)}")]
@@ -60,9 +67,9 @@ namespace UndergroundBank.BankAccountService.Web.Controllers
         [HttpPost("create")]
         [Authorize(Roles = $"{nameof(Role.Client)}, {nameof(Role.Admin)}")]
         [ProducesResponseType(200)]
-        public async Task<ActionResult> CreateBankAccount()
+        public async Task<ActionResult> CreateBankAccount([FromQuery] Currency currency)
         {
-            var createBankAccountNumberCommand = new CreateAccountNumberCommand(UserId);
+            var createBankAccountNumberCommand = new CreateAccountNumberCommand(UserId, currency);
             await Mediator.Send(createBankAccountNumberCommand);
 
             return Ok();
@@ -72,12 +79,14 @@ namespace UndergroundBank.BankAccountService.Web.Controllers
         [ProducesResponseType(200)]
         public async Task<ActionResult> TopUpAccountNumber(
             [FromQuery] string accountNumber,
-            decimal moneyCount = 0
+            decimal moneyCount = 0,
+            Currency currency = Currency.RUB
         )
         {
             var topUpAccountNumberCommand = new TopUpAccountNumberCommand(
                 accountNumber,
-                moneyCount
+                moneyCount,
+                currency
             );
             await Mediator.Send(topUpAccountNumberCommand);
 
@@ -98,6 +107,22 @@ namespace UndergroundBank.BankAccountService.Web.Controllers
             );
             await Mediator.Send(withdrawAccountNumberCommand);
 
+            return Ok();
+        }
+
+        [HttpPut("change/visibility")]
+        [ProducesResponseType(200)]
+        public async Task<ActionResult> ChangeVisibility([FromQuery] string accountNumber)
+        {
+            await _service.ChangeVisibilityOfBankAccount(accountNumber);
+            return Ok();
+        }
+
+        [HttpPut("transfer")]
+        [ProducesResponseType(200)]
+        public async Task<ActionResult> TransferMoney([FromQuery] MoneyTransferDto moneyTransfer)
+        {
+            await _service.TransferMoneyToAccountNumber(moneyTransfer);
             return Ok();
         }
 
@@ -160,6 +185,16 @@ namespace UndergroundBank.BankAccountService.Web.Controllers
             var bankAccountResponse = await Mediator.Send(bankAccountQuery);
 
             return Ok(bankAccountResponse);
+        }
+
+        [HttpGet("top-up/master")]
+        [Authorize(Roles = $"{nameof(Role.Admin)}")]
+        [ProducesResponseType(typeof(BankAccountDto), 200)]
+        public async Task<ActionResult<BankAccountDto>> TopUpMaster([FromQuery] decimal moneyCount)
+        {
+            await _service.TopUpAccountNumber("0", moneyCount, Currency.RUB);
+
+            return Ok();
         }
     }
 }

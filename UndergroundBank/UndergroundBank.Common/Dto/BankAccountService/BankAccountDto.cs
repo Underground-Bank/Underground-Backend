@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UndergroundBank.Common.Data.Enums;
 
 namespace UndergroundBank.Common.Dto.BankAccountService
 {
@@ -14,5 +15,7 @@ namespace UndergroundBank.Common.Dto.BankAccountService
         public string Surname { get; set; }
         public decimal Balance { get; set; }
         public bool IsLocked { get; set; }
+        public bool IsHidden { get; set; }
+        public Currency Currency { get; set; }
     }
 }

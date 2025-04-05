@@ -15,4 +15,8 @@
 	  <Folder Include="Enums\" />
 	</ItemGroup>
 	
+	<ItemGroup>
+	  <ProjectReference Include="..\UndergroundBank.Common\UndergroundBank.Common.csproj" />
+	</ItemGroup>
+	
 </Project>

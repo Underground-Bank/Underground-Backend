@@ -61,7 +61,7 @@ namespace UndergroundBank.HistoryService.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("OperationsHistory");
+                    b.ToTable("OperationsHistory", (string)null);
                 });
 
             modelBuilder.Entity("UndergroundBank.Common.Data.Models.Transaction", b =>
@@ -96,7 +96,7 @@ namespace UndergroundBank.HistoryService.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Transaction");
+                    b.ToTable("Transaction", (string)null);
                 });
 
             modelBuilder.Entity("UndergroundBank.HistoryService.Domain.Entities.OverduePayment", b =>
@@ -109,7 +109,7 @@ namespace UndergroundBank.HistoryService.Infrastructure.Migrations
 
                     b.HasKey("TransactionId", "LoanId");
 
-                    b.ToTable("OverduePayments");
+                    b.ToTable("OverduePayments", (string)null);
                 });
 
             modelBuilder.Entity("UndergroundBank.HistoryService.Domain.Entities.OverduePayment", b =>

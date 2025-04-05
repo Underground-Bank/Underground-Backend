@@ -10,7 +10,7 @@ public class TransactionRequestDto
 
     public TransferEndpoint From { get; set; }
     public TransferEndpoint To { get; set; }
-
+    public Currency Currency { get; set; }
     public decimal MoneyCount { get; set; }
     public Status Status { get; set; }
 }
@@ -42,6 +42,5 @@ public class TransferEndpoint
 public enum AccountType
 {
     Account,
-    Loan
+    Loan,
 }
-
