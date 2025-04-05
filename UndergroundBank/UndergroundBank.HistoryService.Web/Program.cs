@@ -1,5 +1,5 @@
-using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
 using UndergroundBank.Common.Configurations.JWT;
 using UndergroundBank.Common.Configurations.OpenIddict;
 using UndergroundBank.Common.Middlewares;
@@ -36,10 +36,7 @@ builder.Services.AddHistoryBlServiceDependencies(builder.Configuration);
 // Application layer configuration
 builder.Services.ConfigureHistoryApplicationLayer();
 
-builder.Services.AddTokenRequirement();
 builder.Services.AddSignalR();
-
-builder.Services.UseJwtConfiguration(builder.Configuration);
 
 builder.Services.AddListeners();
 builder.Services.AddHttpClient();
