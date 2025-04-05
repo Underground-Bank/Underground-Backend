@@ -19,7 +19,6 @@ namespace UndergroundBank.LoanService.Web.Controllers
     [ApiController]
     [Route("api/loan")]
     [Authorize]
-    [Authorize(Policy = "TokenNotInBlackList")]
     [ProducesResponseType(typeof(Error), 400)]
     [ProducesResponseType(typeof(Error), 500)]
     public class LoanController : BaseController
@@ -100,14 +99,13 @@ namespace UndergroundBank.LoanService.Web.Controllers
         [HttpDelete("auto-top-up/delete")]
         public async Task<ActionResult> DeleteAutoTopUp(AutoTopUpLoanDto deleteAutotopUpLoanDto)
         {
-            var deleteAutoTopUpJobCommand = new DeleteAutoTopUpLoanCommand(deleteAutotopUpLoanDto, UserId);
+            var deleteAutoTopUpJobCommand = new DeleteAutoTopUpLoanCommand(
+                deleteAutotopUpLoanDto,
+                UserId
+            );
             await Mediator.Send(deleteAutoTopUpJobCommand);
 
             return Ok();
         }
-
-
-
-
     }
 }

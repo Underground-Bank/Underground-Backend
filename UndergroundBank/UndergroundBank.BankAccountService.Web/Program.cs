@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using UndergroundBank.BankAccountService.Application.Configurations;
 using UndergroundBank.BankAccountService.Infrastructure;
@@ -6,6 +6,7 @@ using UndergroundBank.BankAccountService.Infrastructure.MessageBroker;
 using UndergroundBank.BankAccountService.Infrastructure.Services;
 using UndergroundBank.BankAccountService.Web.Configurations;
 using UndergroundBank.Common.Configurations.JWT;
+using UndergroundBank.Common.Configurations.OpenIddict;
 using UndergroundBank.Common.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,17 +24,16 @@ builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerConfiguration();
+builder.Services.AddOpenIddictValidation("https://localhost:5026/");
+builder.Services.AddSwaggerWithOAuth();
+
+builder.Services.AddCustomCors();
 
 // Add business logic service dependencies
 builder.Services.AddBankAccountServiceConfiguration(builder.Configuration);
 
 // Application layer configuration
 builder.Services.ConfigureBankAccountApplicationLayer();
-
-builder.Services.AddTokenRequirement();
-
-builder.Services.UseJwtConfiguration(builder.Configuration);
 builder.Services.QueueSubscribe();
 builder.Services.AddHttpClient();
 
@@ -43,17 +43,16 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerWithOAuthUI();
 }
 
 using var serviceScope = app.Services.CreateScope();
 var dbContext = serviceScope.ServiceProvider.GetService<BankAccountDbContext>();
 dbContext?.Database.Migrate();
 
-app.UseCors(x =>
-    x.AllowAnyMethod().AllowAnyHeader().AllowCredentials().SetIsOriginAllowed(origin => true)
-);
-app.UseMiddleware<DefaultMiddleware>();
+app.UseCors("AllowSwaggerClients");
+
+//app.UseMiddleware<DefaultMiddleware>();
 
 // Enable HTTPS redirection
 app.UseHttpsRedirection();

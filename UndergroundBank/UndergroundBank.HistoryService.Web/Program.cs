@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using UndergroundBank.Common.Configurations.JWT;
+using UndergroundBank.Common.Configurations.OpenIddict;
 using UndergroundBank.Common.Middlewares;
 using UndergroundBank.HistoryService.Application.Configurations;
 using UndergroundBank.HistoryService.Infrastructure;
@@ -24,17 +25,15 @@ builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddSwaggerConfiguration();
+builder.Services.AddOpenIddictValidation("https://localhost:5026/");
+builder.Services.AddSwaggerWithOAuth();
+
+builder.Services.AddCustomCors();
 
 builder.Services.AddHistoryBlServiceDependencies(builder.Configuration);
 
 // Application layer configuration
 builder.Services.ConfigureHistoryApplicationLayer();
-
-builder.Services.AddTokenRequirement();
-
-builder.Services.UseJwtConfiguration(builder.Configuration);
 builder.Services.AddListeners();
 builder.Services.AddHttpClient();
 
@@ -44,7 +43,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerWithOAuthUI();
 }
 
 try
@@ -59,9 +58,7 @@ catch (Exception ex)
     logger.LogError(ex, "An error occurred while migrating the database.");
     throw;
 }
-app.UseCors(x =>
-    x.AllowAnyMethod().AllowAnyHeader().AllowCredentials().SetIsOriginAllowed(origin => true)
-);
+app.UseCors("AllowSwaggerClients");
 app.UseMiddleware<DefaultMiddleware>();
 
 app.UseHttpsRedirection();

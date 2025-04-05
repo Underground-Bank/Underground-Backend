@@ -131,7 +131,7 @@ public class AuthorizationController : Controller
         var userRoles = await _userManager.GetRolesAsync(user);
         foreach (var role in userRoles)
         {
-            claims.Add(new Claim(ClaimTypes.Role, role));
+            claims.Add(new Claim("role", role));
         }
 
         var identity = new ClaimsIdentity(

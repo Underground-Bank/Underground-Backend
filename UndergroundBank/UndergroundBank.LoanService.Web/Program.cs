@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using UndergroundBank.Common.Configurations.JWT;
+using UndergroundBank.Common.Configurations.OpenIddict;
 using UndergroundBank.Common.Middlewares;
 using UndergroundBank.LoanService.Application.Configurations;
 using UndergroundBank.LoanService.Application.Interfaces;
@@ -23,7 +24,10 @@ builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerConfiguration();
+builder.Services.AddOpenIddictValidation("https://localhost:5026/");
+builder.Services.AddSwaggerWithOAuth();
+
+builder.Services.AddCustomCors();
 
 // Add business logic service dependencies
 builder.Services.AddQuartzDependencies(builder.Configuration);
@@ -31,10 +35,6 @@ builder.Services.AddLoanBlServiceDependencies(builder.Configuration);
 
 // Application layer configuration
 builder.Services.ConfigureApplicationLayer();
-
-builder.Services.AddTokenRequirement();
-
-builder.Services.UseJwtConfiguration(builder.Configuration);
 builder.Services.AddListeners();
 builder.Services.AddHttpClient();
 
@@ -44,7 +44,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerWithOAuthUI();
 }
 
 try
@@ -65,9 +65,7 @@ using (var scope = app.Services.CreateScope())
     var jobScheduler = scope.ServiceProvider.GetRequiredService<IJobSchedulerService>();
     await jobScheduler.StartActiveJobsAsync();
 }
-app.UseCors(x =>
-    x.AllowAnyMethod().AllowAnyHeader().AllowCredentials().SetIsOriginAllowed(origin => true)
-);
+app.UseCors("AllowSwaggerClients");
 app.UseMiddleware<DefaultMiddleware>();
 
 // Enable HTTPS redirection

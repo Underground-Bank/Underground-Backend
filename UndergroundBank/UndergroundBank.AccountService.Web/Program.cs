@@ -6,6 +6,7 @@ using OpenIddict.Abstractions;
 using OpenIddict.Validation.AspNetCore;
 using UndergroundBank.AccountService.Application.Configurations;
 using UndergroundBank.AccountService.Infrastructure;
+using UndergroundBank.AccountService.Infrastructure.MessageBroker;
 using UndergroundBank.AccountService.Web.Configurations;
 using UndergroundBank.Common.Configurations.OpenIddict;
 using UndergroundBank.Common.Data.Enums;
@@ -19,7 +20,7 @@ builder.WebHost.ConfigureKestrel(options =>
         5026,
         listenOptions =>
         {
-            listenOptions.UseHttps(); // OpenIddict login, /connect/*
+            listenOptions.UseHttps();
         }
     );
 
@@ -27,7 +28,7 @@ builder.WebHost.ConfigureKestrel(options =>
         7255,
         listenOptions =>
         {
-            listenOptions.UseHttps(); // Swagger + API
+            listenOptions.UseHttps();
         }
     );
 });
@@ -36,10 +37,9 @@ builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
     options.Cookie.IsEssential = true;
-    options.IdleTimeout = TimeSpan.FromMinutes(30); // Примерное время жизни сессии
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
 });
 
-// ✅ Контроллеры + Razor Pages + enum -> string
 builder
     .Services.AddControllers()
     .AddJsonOptions(opt =>
@@ -48,31 +48,26 @@ builder
     });
 builder.Services.AddRazorPages();
 
-// ✅ Swagger с OAuth2
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
 });
 builder.Services.AddSwaggerWithOAuth();
+builder.Services.AddCustomCors();
 builder.Services.AddAccountBlServiceDependencies(builder.Configuration);
 builder.Services.AddMicIdentityConfiguration();
 builder.Services.ConfigureApplicationLayer();
 
+builder.Services.QueueSubscribe();
+builder.Services.AddHttpClient();
+
 var app = builder.Build();
 
-// ✅ Swagger UI
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Account Service API");
-        c.OAuthClientId("user-app");
-        c.OAuthClientSecret("111");
-        c.OAuthUsePkce();
-        c.OAuthScopes("openid", "profile", "email", "api");
-    });
+    app.UseSwaggerWithOAuthUI();
 }
 
 app.UseDeveloperExceptionPage();
@@ -82,9 +77,7 @@ app.UseForwardedHeaders();
 app.UseHttpsRedirection();
 app.UseSession();
 app.UseRouting();
-app.UseCors(x =>
-    x.WithOrigins("https://localhost:7255").AllowAnyHeader().AllowAnyMethod().AllowCredentials()
-);
+app.UseCors("AllowSwaggerClients");
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -109,14 +102,25 @@ using (var scope = app.Services.CreateScope())
         await manager.DeleteAsync(existingApplication);
     }
 
-    // Создаем новое приложение
     await manager.CreateAsync(
         new OpenIddictApplicationDescriptor
         {
             ClientId = "user-app",
             ClientSecret = "111",
-            RedirectUris = { new Uri("https://localhost:7255/swagger/oauth2-redirect.html") },
-            PostLogoutRedirectUris = { new Uri("https://localhost:7255/signout-callback-oidc") },
+            RedirectUris =
+            {
+                new Uri("https://localhost:7255/swagger/oauth2-redirect.html"),
+                new Uri("https://localhost:7025/swagger/oauth2-redirect.html"),
+                new Uri("https://localhost:7008/swagger/oauth2-redirect.html"),
+                new Uri("https://localhost:7032/swagger/oauth2-redirect.html"),
+            },
+            PostLogoutRedirectUris =
+            {
+                new Uri("https://localhost:7255/signout-callback-oidc"),
+                new Uri("https://localhost:7025/signout-callback-oidc"),
+                new Uri("https://localhost:7008/signout-callback-oidc"),
+                new Uri("https://localhost:7032/signout-callback-oidc"),
+            },
             Permissions =
             {
                 Permissions.Endpoints.Authorization,
@@ -135,7 +139,6 @@ using (var scope = app.Services.CreateScope())
         }
     );
 
-    // ✅ Роли + админ
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
     foreach (var role in Enum.GetNames(typeof(Role)))
     {
