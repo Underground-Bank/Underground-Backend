@@ -2,12 +2,10 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using UndergroundBank.AccountService.Application.Communication.Commands.Auth.Login;
+using OpenIddict.Validation.AspNetCore;
 using UndergroundBank.AccountService.Application.Communication.Commands.Auth.Logout;
-using UndergroundBank.AccountService.Application.Communication.Commands.Auth.RefreshToken;
 using UndergroundBank.AccountService.Application.Communication.Commands.Auth.Register;
 using UndergroundBank.AccountService.Application.Dto;
-using UndergroundBank.AccountService.Infrastructure.Helpers.TokenHerlpers;
 using UndergroundBank.Common.Base;
 using UndergroundBank.Common.Data.Models;
 using UndergroundBank.Common.Helpers;
@@ -26,19 +24,6 @@ namespace UndergroundBank.AccountService.Web.Controllers
             _additionalTokenHelper = additionalTokenHelper;
         }
 
-        [HttpPost("login")]
-        [AllowAnonymous]
-        [ProducesResponseType(typeof(AuthResponseDto), 200)]
-        [ProducesResponseType(typeof(Error), 400)]
-        [ProducesResponseType(typeof(Error), 500)]
-        public async Task<ActionResult<AuthResponseDto>> Login(LoginInfoDto loginCreds)
-        {
-            var loginCommand = new LoginCommand(loginCreds);
-            var tokenResponse = await Mediator.Send(loginCommand);
-
-            return Ok(tokenResponse);
-        }
-
         [HttpPost("register")]
         [AllowAnonymous]
         [ProducesResponseType(typeof(AuthResponseDto), 200)]
@@ -47,13 +32,15 @@ namespace UndergroundBank.AccountService.Web.Controllers
         public async Task<ActionResult<AuthResponseDto>> Register(RegisterInfoDto registerCreds)
         {
             var registerCommand = new RegisterCommand(registerCreds);
-            var tokenResponse = await Mediator.Send(registerCommand);
+            await Mediator.Send(registerCommand);
 
-            return Ok(tokenResponse);
+            return Ok();
         }
 
         [HttpPost]
-        [Authorize(Policy = "TokenNotInBlackList")]
+        [Authorize(
+            AuthenticationSchemes = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme
+        )]
         [Route("logout")]
         [ProducesResponseType(200)]
         [ProducesResponseType(typeof(Error), 400)]
@@ -67,23 +54,6 @@ namespace UndergroundBank.AccountService.Web.Controllers
             await Mediator.Send(logoutCommand);
 
             return Ok();
-        }
-
-        [HttpPost]
-        [Authorize(Policy = "TokenNotInBlackList")]
-        [Route("refresh-token")]
-        [ProducesResponseType(typeof(AuthResponseDto), 200)]
-        [ProducesResponseType(typeof(Error), 400)]
-        [ProducesResponseType(typeof(Error), 401)]
-        [ProducesResponseType(typeof(Error), 500)]
-        public async Task<ActionResult<AuthResponseDto>> RefreshToken(
-            RefreshTokenRequestDto refreshTokenRequestCreds
-        )
-        {
-            var refreshTokenCommand = new RefreshTokenCommand(refreshTokenRequestCreds);
-            var newTokens = await Mediator.Send(refreshTokenCommand);
-
-            return Ok(newTokens);
         }
     }
 }

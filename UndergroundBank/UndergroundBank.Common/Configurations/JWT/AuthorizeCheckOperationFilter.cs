@@ -32,7 +32,7 @@ namespace UndergroundBank.Common.Configurations.JWT
                                 Reference = new OpenApiReference
                                 {
                                     Type = ReferenceType.SecurityScheme,
-                                    Id = "Bearer",
+                                    Id = "oauth2",
                                 },
                             },
                             new string[] { }

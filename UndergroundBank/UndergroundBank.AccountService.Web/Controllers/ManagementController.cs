@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OpenIddict.Validation.AspNetCore;
 using UndergroundBank.AccountService.Application.Communication.Commands.Management.BlockUser;
 using UndergroundBank.AccountService.Application.Communication.Commands.Management.CreateNewEmployee;
 using UndergroundBank.AccountService.Application.Communication.Commands.Management.DeleteUser;
@@ -17,7 +18,7 @@ namespace UndergroundBank.AccountService.Web.Controllers
 {
     [ApiController]
     [Route("api/management")]
-    [Authorize(Policy = "TokenNotInBlackList")]
+    [Authorize(AuthenticationSchemes = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme)]
     [Authorize(Roles = $"{nameof(Role.Employee)}, {nameof(Role.Admin)}")]
     [ProducesResponseType(typeof(Error), 400)]
     [ProducesResponseType(typeof(Error), 500)]

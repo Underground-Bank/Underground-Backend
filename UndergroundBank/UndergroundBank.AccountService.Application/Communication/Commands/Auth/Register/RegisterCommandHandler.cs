@@ -9,7 +9,7 @@ using UndergroundBank.AccountService.Application.Interfaces;
 
 namespace UndergroundBank.AccountService.Application.Communication.Commands.Auth.Register
 {
-    public class RegisterCommandHandler : IRequestHandler<RegisterCommand, AuthResponseDto>
+    public class RegisterCommandHandler : IRequestHandler<RegisterCommand>
     {
         private readonly IAuthService _authService;
 
@@ -18,12 +18,9 @@ namespace UndergroundBank.AccountService.Application.Communication.Commands.Auth
             _authService = authService;
         }
 
-        public async Task<AuthResponseDto> Handle(
-            RegisterCommand request,
-            CancellationToken cancellationToken
-        )
+        public async Task Handle(RegisterCommand request, CancellationToken cancellationToken)
         {
-            return await _authService.Register(request.registerCreds);
+            await _authService.Register(request.registerCreds);
         }
     }
 }

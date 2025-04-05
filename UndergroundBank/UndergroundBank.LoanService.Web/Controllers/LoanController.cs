@@ -20,7 +20,6 @@ namespace UndergroundBank.LoanService.Web.Controllers
     [ApiController]
     [Route("api/loan")]
     [Authorize]
-    [Authorize(Policy = "TokenNotInBlackList")]
     [ProducesResponseType(typeof(Error), 400)]
     [ProducesResponseType(typeof(Error), 500)]
     public class LoanController : BaseController

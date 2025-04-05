@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OpenIddict.Validation.AspNetCore;
 using UndergroundBank.BankAccountService.Application.Communication.Commands.BlockAccountNumber;
 using UndergroundBank.BankAccountService.Application.Communication.Commands.CreateAccountNumber;
 using UndergroundBank.BankAccountService.Application.Communication.Commands.DeleteAccountNumber;
@@ -23,7 +24,7 @@ namespace UndergroundBank.BankAccountService.Web.Controllers
 {
     [ApiController]
     [Route("api/bank-account")]
-    [Authorize(Policy = "TokenNotInBlackList")]
+    [Authorize(AuthenticationSchemes = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme)]
     [ProducesResponseType(typeof(Error), 400)]
     [ProducesResponseType(typeof(Error), 401)]
     [ProducesResponseType(typeof(Error), 500)]
@@ -57,7 +58,7 @@ namespace UndergroundBank.BankAccountService.Web.Controllers
         }
 
         [HttpPost("create")]
-        [Authorize(Roles = $"{nameof(Role.Client)}")]
+        [Authorize(Roles = $"{nameof(Role.Client)}, {nameof(Role.Admin)}")]
         [ProducesResponseType(200)]
         public async Task<ActionResult> CreateBankAccount()
         {
