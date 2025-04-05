@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MediatR;
-using UndergroundBank.AccountService.Application.Communication.Commands.Auth.Login;
 using UndergroundBank.AccountService.Application.Dto;
 using UndergroundBank.AccountService.Application.Interfaces;
 

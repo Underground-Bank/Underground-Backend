@@ -8,5 +8,5 @@ using UndergroundBank.AccountService.Application.Dto;
 
 namespace UndergroundBank.AccountService.Application.Communication.Commands.Auth.Register
 {
-    public record RegisterCommand(RegisterInfoDto registerCreds) : IRequest<AuthResponseDto> { }
+    public record RegisterCommand(RegisterInfoDto registerCreds) : IRequest { }
 }

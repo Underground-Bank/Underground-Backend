@@ -12,7 +12,6 @@ namespace UndergroundBank.HistoryService.Web.Controllers
     [ApiController]
     [Route("api/history")]
     [Authorize]
-    [Authorize(Policy = "TokenNotInBlackList")]
     [ProducesResponseType(typeof(Error), 400)]
     [ProducesResponseType(typeof(Error), 500)]
     public class HistoryController : BaseController
@@ -22,12 +21,16 @@ namespace UndergroundBank.HistoryService.Web.Controllers
 
         [HttpGet("{bankAccountNumber}")]
         [ProducesResponseType(typeof(GetOpeationsHistoryDto), 200)]
-        public async Task<ActionResult<GetOpeationsHistoryDto>> GetHistoryByBankAccountNumber(string bankAccountNumber)
+        public async Task<ActionResult<GetOpeationsHistoryDto>> GetHistoryByBankAccountNumber(
+            string bankAccountNumber
+        )
         {
-
             Guid? userId = Roles.Contains(Role.Employee) ? UserId : null;
 
-            var getHistoryCommand = new GetHistoryByBankAccountNumberQuery(bankAccountNumber, userId);
+            var getHistoryCommand = new GetHistoryByBankAccountNumberQuery(
+                bankAccountNumber,
+                userId
+            );
             var history = await Mediator.Send(getHistoryCommand);
 
             return Ok(history);

@@ -10,26 +10,15 @@ namespace UndergroundBank.AccountService.Application.Interfaces
     public interface IAuthService
     {
         /// <summary>
-        /// Method to authorize user in system
-        /// </summary>
-        /// <param name="loginCreds">Login creds</param>
-        public Task<AuthResponseDto> Login(LoginInfoDto loginCreds);
-
-        /// <summary>
         /// Method for add new user to system
         /// </summary>
         /// <param name="registerCreds">Register creds</param>
         /// <returns></returns>
-        public Task<AuthResponseDto> Register(RegisterInfoDto registerCreds);
+        public Task Register(RegisterInfoDto registerCreds);
 
         /// <summary>
         /// Method for logout from system
         /// </summary>
         public Task Logout(string token, string userId);
-
-        /// <summary>
-        /// Method for refresh token
-        /// </summary>
-        public Task<AuthResponseDto> RefreshToken(RefreshTokenRequestDto refreshTokenRequest);
     }
 }

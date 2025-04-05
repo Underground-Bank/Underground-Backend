@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OpenIddict.Validation.AspNetCore;
 using UndergroundBank.Common.Base;
 using UndergroundBank.Common.Data.Enums;
 using UndergroundBank.LoanService.Application.Communication.Commands.LoanService.SomeMethod;
@@ -14,7 +15,6 @@ namespace UndergroundBank.LoanService.Web.Controllers
     [ApiController]
     [Route("api/tariff")]
     [Authorize]
-    [Authorize(Policy = "TokenNotInBlackList")]
     [ProducesResponseType(typeof(Error), 400)]
     [ProducesResponseType(typeof(Error), 500)]
     public class TariffController : BaseController

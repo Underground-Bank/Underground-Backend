@@ -1,115 +1,124 @@
-﻿using System.Net;
-using System.Text;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.Extensions.Options;
+using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Models;
-using UndergroundBank.Common.Helpers.TokenRequirment;
+using OpenIddict.Server.AspNetCore;
+using OpenIddict.Validation.AspNetCore;
+using UndergroundBank.Common.Configurations.JWT;
 
-namespace UndergroundBank.Common.Configurations.JWT
+namespace UndergroundBank.Common.Configurations.OpenIddict
 {
-    public static class JWTConfiguration
+    public static class OpenIddictJwtConfiguration
     {
-        public static IServiceCollection AddTokenRequirement(this IServiceCollection services)
-        {
-            services.AddAuthorization(services =>
-            {
-                services.AddPolicy(
-                    "TokenNotInBlackList",
-                    policy => policy.Requirements.Add(new TokenBlackListRequirment())
-                );
-            });
-            services.AddSingleton<IAuthorizationHandler, BlackTokenHandler>();
-            services.AddLogging();
-            return services;
-        }
-
-        public static IServiceCollection AddSwaggerConfiguration(this IServiceCollection services)
-        {
-            services.AddSwaggerGen(option =>
-            {
-                option.SwaggerDoc("v1", new OpenApiInfo { Title = "Entrance API", Version = "v1" });
-
-                option.AddSecurityDefinition(
-                    "Bearer",
-                    new OpenApiSecurityScheme
-                    {
-                        In = ParameterLocation.Header,
-                        Description = "Please enter a valid token",
-                        Name = "Authorization",
-                        Type = SecuritySchemeType.Http,
-                        BearerFormat = "JWT",
-                        Scheme = "Bearer",
-                    }
-                );
-                option.OperationFilter<AuthorizeCheckOperationFilter>();
-            });
-
-            return services;
-        }
-
-        public static IServiceCollection UseJwtConfiguration(
+        public static IServiceCollection AddOpenIddictValidation(
             this IServiceCollection services,
-            IConfiguration configuration
+            string authority
         )
         {
+            services.AddAuthentication(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
+
+            services.AddAuthorization();
+
             services
-                .AddAuthentication(options =>
+                .AddOpenIddict()
+                .AddValidation(options =>
                 {
-                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                })
-                .AddJwtBearer(options =>
-                {
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuer = true,
-                        ValidIssuer = configuration["Jwt:Issuer"],
-                        ValidateAudience = true,
-                        ValidAudience = configuration["Jwt:Audience"],
-                        ValidateLifetime = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(
-                            Encoding.ASCII.GetBytes(configuration["Jwt:Secret"] ?? string.Empty)
-                        ),
-                        ValidateIssuerSigningKey = true,
-                    };
-
-                    options.Events = new JwtBearerEvents
-                    {
-                        OnMessageReceived = context =>
-                        {
-                            var endpoint = context.HttpContext.GetEndpoint();
-                            if (endpoint?.Metadata.GetMetadata<IAllowAnonymous>() != null)
-                            {
-                                context.Token = null;
-                            }
-                            return Task.CompletedTask;
-                        },
-
-                        OnAuthenticationFailed = context =>
-                        {
-                            if (context.Exception is SecurityTokenExpiredException)
-                            {
-                                context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-                                context.Response.ContentType = "application/json";
-                                return context.Response.WriteAsync(
-                                    "{\"error\": \"Token expired\"}"
-                                );
-                            }
-
-                            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                            return context.Response.WriteAsync(
-                                "{\"error\": \"Authentication failed\"}"
-                            );
-                        },
-                    };
+                    options.SetIssuer(authority);
+                    options.UseSystemNetHttp();
+                    options.UseAspNetCore();
                 });
 
             return services;
+        }
+
+        public static IServiceCollection AddSwaggerWithOAuth(this IServiceCollection services)
+        {
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
+
+                c.AddSecurityDefinition(
+                    "oauth2",
+                    new OpenApiSecurityScheme
+                    {
+                        Type = SecuritySchemeType.OAuth2,
+                        Flows = new OpenApiOAuthFlows
+                        {
+                            AuthorizationCode = new OpenApiOAuthFlow
+                            {
+                                AuthorizationUrl = new Uri(
+                                    "https://localhost:5026/connect/authorize"
+                                ),
+                                TokenUrl = new Uri("https://localhost:5026/connect/token"),
+                                Scopes = new Dictionary<string, string>
+                                {
+                                    { "openid", "OpenID" },
+                                    { "profile", "User profile" },
+                                    { "email", "User email" },
+                                    { "api", "Access to API" },
+                                },
+                            },
+                        },
+                    }
+                );
+
+                c.AddSecurityRequirement(
+                    new OpenApiSecurityRequirement
+                    {
+                        {
+                            new OpenApiSecurityScheme
+                            {
+                                Reference = new OpenApiReference
+                                {
+                                    Type = ReferenceType.SecurityScheme,
+                                    Id = "oauth2",
+                                },
+                            },
+                            new[] { "openid", "profile", "email", "api" }
+                        },
+                    }
+                );
+            });
+
+            return services;
+        }
+
+        public static IServiceCollection AddCustomCors(this IServiceCollection services)
+        {
+            services.AddCors(options =>
+            {
+                options.AddPolicy(
+                    "AllowSwaggerClients",
+                    policy =>
+                    {
+                        policy
+                            .WithOrigins(
+                                "https://localhost:7255",
+                                "https://localhost:7025",
+                                "https://localhost:7008",
+                                "https://localhost:7032"
+                            )
+                            .AllowAnyHeader()
+                            .AllowAnyMethod()
+                            .AllowCredentials();
+                    }
+                );
+            });
+
+            return services;
+        }
+
+        public static void UseSwaggerWithOAuthUI(this IApplicationBuilder app)
+        {
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Account Service API");
+                c.OAuthClientId("user-app");
+                c.OAuthClientSecret("111");
+                c.OAuthUsePkce();
+                c.OAuthScopes("openid", "profile", "email", "api");
+            });
         }
     }
 }
