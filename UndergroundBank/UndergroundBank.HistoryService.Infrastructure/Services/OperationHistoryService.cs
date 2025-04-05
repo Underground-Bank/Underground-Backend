@@ -15,7 +15,11 @@ namespace UndergroundBank.HistoryService.Infrastructure.Services
         private readonly HistoryDbContext _dbContext;
         private readonly OperationHistoryHub _historyHub;
 
-        public OperationHistoryService(HistoryDbContext dbContext, IMapper mapper, OperationHistoryHub operationHistoryHub)
+        public OperationHistoryService(
+            HistoryDbContext dbContext,
+            IMapper mapper,
+            OperationHistoryHub operationHistoryHub
+        )
         {
             _mapper = mapper;
             _dbContext = dbContext;
@@ -62,21 +66,31 @@ namespace UndergroundBank.HistoryService.Infrastructure.Services
 
         public async Task AddOverduePayment(OverduePaymentDto overduePaymentDto)
         {
-            var historyElement = _mapper.Map<OperationsHistoryElement>(overduePaymentDto.OperationHistoryDto);
+            var historyElement = _mapper.Map<OperationsHistoryElement>(
+                overduePaymentDto.OperationHistoryDto
+            );
             await _dbContext.AddAsync(historyElement);
-            var overduePayment = new OverduePayment { LoanId = overduePaymentDto.LoanId, TransactionId = historyElement.TransactionId };
+            var overduePayment = new OverduePayment
+            {
+                LoanId = overduePaymentDto.LoanId,
+                TransactionId = historyElement.TransactionId,
+            };
             await _dbContext.AddAsync(overduePayment);
             await _dbContext.SaveChangesAsync();
         }
 
         public async Task<List<GetOverduePaymentDto>> GetOverduedPayments(Guid? loanId, Guid userId)
         {
-            var overduedPayments = _dbContext.OverduePayments.Where(p => p.Transaction.UserId == userId);
+            var overduedPayments = _dbContext.OverduePayments.Where(p =>
+                p.Transaction.UserId == userId
+            );
             if (loanId != null)
             {
                 overduedPayments = overduedPayments.Where(p => p.LoanId == loanId);
             }
-            var overduePaymentsDto = _mapper.Map<List<GetOverduePaymentDto>>(await overduedPayments.ToListAsync());
+            var overduePaymentsDto = _mapper.Map<List<GetOverduePaymentDto>>(
+                await overduedPayments.ToListAsync()
+            );
             return overduePaymentsDto;
         }
     }

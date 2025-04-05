@@ -68,7 +68,6 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
 
         public async Task TakeLoan(TakeLoanDto takeLoanDto, Guid userId)
         {
-
             var creditScore = await GetCreditRating(userId);
 
             if (creditScore.CreditRating < MinimalCreditRate)
@@ -86,8 +85,6 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
             }
 
             await CeckBankAccountAccession(takeLoanDto.BankAccountNumber, userId);
-
-
 
             var loanId = Guid.NewGuid();
 
@@ -149,7 +146,11 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
             {
                 TransactionId = Guid.NewGuid(),
                 From = new TransferEndpoint { LoanId = loanId, Type = AccountType.Loan },
-                To = new TransferEndpoint { AccountNumber = BankAccountNumber, Type = AccountType.Account },
+                To = new TransferEndpoint
+                {
+                    AccountNumber = BankAccountNumber,
+                    Type = AccountType.Account,
+                },
                 MoneyCount = payment,
                 UserId = userId,
                 Status = Status.InProgress,
@@ -181,7 +182,11 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
             {
                 TransactionId = Guid.NewGuid(),
                 From = new TransferEndpoint { LoanId = loanId, Type = AccountType.Loan },
-                To = new TransferEndpoint { AccountNumber = accountNumber, Type = AccountType.Account },
+                To = new TransferEndpoint
+                {
+                    AccountNumber = accountNumber,
+                    Type = AccountType.Account,
+                },
                 UserId = userId,
                 MoneyCount = monthPayment,
                 Status = Status.InProgress,
@@ -341,7 +346,9 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
 
             if (!topUpJobs.Any())
             {
-                throw new NotFoundException("У этого пользователя нет подключенный автопополнений для этого кредита и счета!");
+                throw new NotFoundException(
+                    "У этого пользователя нет подключенный автопополнений для этого кредита и счета!"
+                );
             }
 
             foreach (var job in topUpJobs)
@@ -361,7 +368,8 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
             var overduedPayments = await _queueSender.GetOverduePayments(userId);
             var LatePaymentsAmount = overduedPayments.Sum(p => p.MoneyCount);
             var LatePaymentsCount = overduedPayments.Count();
-            var CreditRating = MaxCreditRate
+            var CreditRating =
+                MaxCreditRate
                 - (LatePaymentsCountCoefficient * (decimal)LatePaymentsAmount)
                 - ((decimal)LatePaymentsAmountCoefficient * LatePaymentsAmount);
 

@@ -75,7 +75,6 @@ namespace UndergroundBank.LoanService.Web.Controllers
             return Ok(loans);
         }
 
-
         [HttpGet("rating")]
         [Authorize(Roles = $"{nameof(Role.Admin)}, {nameof(Role.Employee)}")]
         [ProducesResponseType(typeof(CreditRatingDto), 200)]
@@ -120,7 +119,10 @@ namespace UndergroundBank.LoanService.Web.Controllers
         [HttpDelete("auto-top-up/delete")]
         public async Task<ActionResult> DeleteAutoTopUp(AutoTopUpLoanDto deleteAutotopUpLoanDto)
         {
-            var deleteAutoTopUpJobCommand = new DeleteAutoTopUpLoanCommand(deleteAutotopUpLoanDto, UserId);
+            var deleteAutoTopUpJobCommand = new DeleteAutoTopUpLoanCommand(
+                deleteAutotopUpLoanDto,
+                UserId
+            );
             await Mediator.Send(deleteAutoTopUpJobCommand);
 
             return Ok();

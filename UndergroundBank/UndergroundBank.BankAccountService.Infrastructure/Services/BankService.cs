@@ -261,15 +261,24 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Services
             {
                 TransactionId = transactionCreds.TransactionId,
                 Status = transactionCreds.Status,
-                To = new TransferEndpoint { LoanId = transactionCreds.From.GetLoanId(), Type = AccountType.Loan },
+                To = new TransferEndpoint
+                {
+                    LoanId = transactionCreds.From.GetLoanId(),
+                    Type = AccountType.Loan,
+                },
                 UserId = bankAccount.UserId,
-                From = new TransferEndpoint { AccountNumber = transactionCreds.To.GetAccountNumber(), Type = AccountType.Account },
+                From = new TransferEndpoint
+                {
+                    AccountNumber = transactionCreds.To.GetAccountNumber(),
+                    Type = AccountType.Account,
+                },
                 MoneyCount = transactionCreds.MoneyCount,
             };
 
             await _queueSender.SendTransaction(trans);
             var operation = _mapper.Map<OperationHistoryDto>(trans);
-            operation.AccountNumber = trans.To.GetAccountNumber();
+            operation.AccountNumber = trans.From.GetAccountNumber();
+            operation.DestinationLoanId = trans.To.GetLoanId();
             operation.CreatedAt = DateTime.UtcNow;
             operation.TransactionType = TransactionType.LoanPayment;
             await _queueSender.SendOperationInfo(operation);
