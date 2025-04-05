@@ -23,25 +23,19 @@ namespace UndergroundBank.AccountService.Infrastructure.Services
         private readonly IMapper _mapper;
         private readonly IUserRepository _userRepository;
         private readonly UserManager<User> _userManager;
-        private readonly SignInManager<User> _signInManager;
-        private readonly IConfiguration _configuration;
-        private readonly RedisDbContext _redisDBContext;
+        private readonly AccountDbContext _dbContext;
 
         public ManagementService(
             UserManager<User> userManager,
-            SignInManager<User> signInManager,
-            IConfiguration configuration,
             IMapper mapper,
             IUserRepository userRepository,
-            RedisDbContext redisDBContext
+            AccountDbContext dbContext
         )
         {
             _userManager = userManager;
-            _signInManager = signInManager;
-            _configuration = configuration;
             _mapper = mapper;
             _userRepository = userRepository;
-            _redisDBContext = redisDBContext;
+            _dbContext = dbContext;
         }
 
         public async Task BlockUser(Guid userId, Guid currentUserId)
@@ -117,8 +111,11 @@ namespace UndergroundBank.AccountService.Infrastructure.Services
             {
                 throw new Exception("Ошибка при назначении роли.");
             }
-
             await _userRepository.SaveChangeAsync();
+
+            var newSettings = new UserSettings() { UserId = user.Id, Theme = Theme.Light };
+            await _dbContext.UserSettings.AddAsync(newSettings);
+            await _dbContext.SaveChangesAsync();
 
             return _mapper.Map<InputManagerDataDto>(managerCreds);
         }
