@@ -8,6 +8,7 @@ using UndergroundBank.LoanService.Application.Communication.Commands.LoanService
 using UndergroundBank.LoanService.Application.Communication.Commands.LoanService.SomeMethod;
 using UndergroundBank.LoanService.Application.Communication.Commands.LoanService.TopUpLoan;
 using UndergroundBank.LoanService.Application.Communication.Queries.LoanService.GetAutoTopUpJobs;
+using UndergroundBank.LoanService.Application.Communication.Queries.LoanService.GetCreditRating;
 using UndergroundBank.LoanService.Application.Communication.Queries.LoanService.GetLoan;
 using UndergroundBank.LoanService.Application.Communication.Queries.LoanService.GetLoans;
 using UndergroundBank.LoanService.Application.Communication.Queries.LoanService.GetMyLoans;
@@ -27,7 +28,6 @@ namespace UndergroundBank.LoanService.Web.Controllers
             : base(mediator) { }
 
         [HttpPost("take")]
-        [Authorize(Roles = $"{nameof(Role.Client)}")]
         public async Task<ActionResult> TakeLoan(TakeLoanDto takeLoanDto)
         {
             var takeLoanCommand = new TakeLoanCommand(takeLoanDto, UserId);
@@ -37,7 +37,6 @@ namespace UndergroundBank.LoanService.Web.Controllers
         }
 
         [HttpPost("top-up")]
-        [Authorize(Roles = $"{nameof(Role.Client)}")]
         public async Task<ActionResult> TopUpLoan(TopUpLoanDto topUpLoanDto)
         {
             var TopUpLoanCommand = new TopUpLoanCommand(topUpLoanDto, UserId);
@@ -47,7 +46,6 @@ namespace UndergroundBank.LoanService.Web.Controllers
         }
 
         [HttpPost("auto-top-up/add")]
-        [Authorize(Roles = $"{nameof(Role.Client)}")]
         public async Task<ActionResult> AddAutoTopUpLoan(AutoTopUpLoanDto addAutotopUpLoanDto)
         {
             var addAutoTopUpLoanCommand = new AddAutoTopUpLoanCommand(addAutotopUpLoanDto, UserId);
@@ -74,6 +72,27 @@ namespace UndergroundBank.LoanService.Web.Controllers
             var loans = await Mediator.Send(getLoansQuery);
 
             return Ok(loans);
+        }
+
+        [HttpGet("rating")]
+        [Authorize(Roles = $"{nameof(Role.Admin)}, {nameof(Role.Employee)}")]
+        [ProducesResponseType(typeof(CreditRatingDto), 200)]
+        public async Task<ActionResult<CreditRatingDto>> GetCreditRating([FromQuery] Guid userId)
+        {
+            var creditRatingQuery = new GetCreditRatingQuery(userId);
+            var creditRating = await Mediator.Send(creditRatingQuery);
+
+            return Ok(creditRating);
+        }
+
+        [HttpGet("rating/my")]
+        [ProducesResponseType(typeof(CreditRatingDto), 200)]
+        public async Task<ActionResult<CreditRatingDto>> GetCreditRating()
+        {
+            var creditRatingQuery = new GetCreditRatingQuery(UserId);
+            var creditRating = await Mediator.Send(creditRatingQuery);
+
+            return Ok(creditRating);
         }
 
         [HttpGet("my")]

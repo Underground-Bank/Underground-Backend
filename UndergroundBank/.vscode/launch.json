@@ -1,0 +1,52 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "LoanService.Web Debug",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/UndergroundBank.LoanService.Web/UndergroundBank.LoanService.Web.csproj",
+            "env": {
+                "ASPNETCORE_URLS": "http://localhost:5001"
+            }
+        },
+        {
+            "name": "BankAccountService.Web Debug",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/UndergroundBank.BankAccountService.Web/UndergroundBank.BankAccountService.Web.csproj",
+            "env": {
+                "ASPNETCORE_URLS": "http://localhost:5002"
+            }
+        },
+        {
+            "name": "AccountService.Web Debug",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/UndergroundBank.AccountService.Web/UndergroundBank.AccountService.Web.csproj",
+            "env": {
+                "ASPNETCORE_URLS": "http://localhost:5003"
+            }
+        },
+        {
+            "name": "HistoryService.Web Debug",
+            "type": "dotnet",
+            "request": "launch",
+            "projectPath": "${workspaceFolder}/UndergroundBank.HistoryService.Web/UndergroundBank.HistoryService.Web.csproj",
+            "env": {
+                "ASPNETCORE_URLS": "http://localhost:5004"
+            }
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Start All Services",
+            "configurations": [
+                "LoanService.Web Debug",
+                "BankAccountService.Web Debug",
+                "AccountService.Web Debug",
+                "HistoryService.Web Debug"
+            ]
+        }
+    ]
+}

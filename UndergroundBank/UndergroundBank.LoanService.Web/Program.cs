@@ -1,5 +1,5 @@
-using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 using UndergroundBank.Common.Configurations.JWT;
 using UndergroundBank.Common.Configurations.OpenIddict;
 using UndergroundBank.Common.Middlewares;
@@ -65,6 +65,10 @@ using (var scope = app.Services.CreateScope())
     var jobScheduler = scope.ServiceProvider.GetRequiredService<IJobSchedulerService>();
     await jobScheduler.StartActiveJobsAsync();
 }
+app.UseCors(x =>
+    x.AllowAnyMethod().AllowAnyHeader().AllowCredentials().SetIsOriginAllowed(origin => true)
+);
+app.UseMiddleware<DefaultMiddleware>();
 app.UseCors("AllowSwaggerClients");
 app.UseMiddleware<DefaultMiddleware>();
 

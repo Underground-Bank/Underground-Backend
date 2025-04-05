@@ -1,11 +1,12 @@
-using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 using UndergroundBank.Common.Configurations.JWT;
 using UndergroundBank.Common.Configurations.OpenIddict;
 using UndergroundBank.Common.Middlewares;
 using UndergroundBank.HistoryService.Application.Configurations;
 using UndergroundBank.HistoryService.Infrastructure;
-using UndergroundBank.LoanService.Infrastructure.Services.LoanQueue;
+using UndergroundBank.HistoryService.Infrastructure.Services;
+using UndergroundBank.HistoryService.Infrastructure.Services.HistoryQueue;
 using UndergroundBank.LoanService.Web.Configurations;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -34,6 +35,12 @@ builder.Services.AddHistoryBlServiceDependencies(builder.Configuration);
 
 // Application layer configuration
 builder.Services.ConfigureHistoryApplicationLayer();
+
+builder.Services.AddTokenRequirement();
+builder.Services.AddSignalR();
+
+builder.Services.UseJwtConfiguration(builder.Configuration);
+
 builder.Services.AddListeners();
 builder.Services.AddHttpClient();
 
@@ -58,6 +65,11 @@ catch (Exception ex)
     logger.LogError(ex, "An error occurred while migrating the database.");
     throw;
 }
+
+app.UseCors(x =>
+    x.AllowAnyMethod().AllowAnyHeader().AllowCredentials().SetIsOriginAllowed(origin => true)
+);
+
 app.UseCors("AllowSwaggerClients");
 app.UseMiddleware<DefaultMiddleware>();
 
@@ -66,6 +78,8 @@ app.UseHttpsRedirection();
 // Enable authentication and authorization
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapHub<OperationHistoryHub>("/historyHub");
 
 app.MapControllers();
 

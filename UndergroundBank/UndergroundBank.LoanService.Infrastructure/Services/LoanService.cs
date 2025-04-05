@@ -17,6 +17,11 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
 {
     public class LoansService : ILoanService
     {
+        private readonly decimal MaxCreditRate = 1000;
+        private readonly decimal MinimalCreditRate = 300;
+        private readonly int LatePaymentsCountCoefficient = 50;
+        private readonly double LatePaymentsAmountCoefficient = 0.1;
+
         private readonly IMapper _mapper;
         private readonly LoanDbContext _dbContext;
         private readonly ISchedulerFactory _schedulerFactory;
@@ -63,6 +68,13 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
 
         public async Task TakeLoan(TakeLoanDto takeLoanDto, Guid userId)
         {
+            var creditScore = await GetCreditRating(userId);
+
+            if (creditScore.CreditRating < MinimalCreditRate)
+            {
+                throw new BadRequestException("Минимальный рейтинг для взятия кредита: 300");
+            }
+
             var tariff = await _dbContext
                 .Tariffs.Where(t => t.Id == takeLoanDto.TariffId)
                 .FirstOrDefaultAsync();
@@ -86,6 +98,7 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
                 RemainingPayment = takeLoanDto.LoanAmount,
                 TariffId = takeLoanDto.TariffId,
                 UserId = userId,
+                CreditCurrency = takeLoanDto.Currency,
             };
 
             await _dbContext.AddAsync(newLoan);
@@ -132,8 +145,12 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
             var transaction = new TransactionRequestDto
             {
                 TransactionId = Guid.NewGuid(),
-                AccountNumber = BankAccountNumber,
-                LoanId = loanId,
+                From = new TransferEndpoint { LoanId = loanId, Type = AccountType.Loan },
+                To = new TransferEndpoint
+                {
+                    AccountNumber = BankAccountNumber,
+                    Type = AccountType.Account,
+                },
                 MoneyCount = payment,
                 UserId = userId,
                 Status = Status.InProgress,
@@ -142,10 +159,9 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
                 transaction,
                 Queues.TRANSACTION_QUEUE_REQUEST
             );
-            await WriteLoanTopUTransaction(transaction);
+            await WriteLoanTopUpTransaction(transaction);
         }
 
-        //TODO: добавить валидацию для accountNumber
         public async Task AutoTopUpLoan(Guid loanId, string accountNumber, Guid userId)
         {
             var loan = _dbContext
@@ -165,8 +181,12 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
             var transaction = new TransactionRequestDto
             {
                 TransactionId = Guid.NewGuid(),
-                AccountNumber = accountNumber,
-                LoanId = loanId,
+                From = new TransferEndpoint { LoanId = loanId, Type = AccountType.Loan },
+                To = new TransferEndpoint
+                {
+                    AccountNumber = accountNumber,
+                    Type = AccountType.Account,
+                },
                 UserId = userId,
                 MoneyCount = monthPayment,
                 Status = Status.InProgress,
@@ -175,7 +195,7 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
                 transaction,
                 Queues.TRANSACTION_QUEUE_REQUEST
             );
-            await WriteLoanTopUTransaction(transaction);
+            await WriteLoanTopUpTransaction(transaction);
         }
 
         private async Task TopUpLoanLogic(Guid loanId, decimal payment)
@@ -306,7 +326,7 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
 
             if (transaction.Status == Status.InProgress && transactionDto.Status == Status.Approved)
             {
-                await TopUpLoanLogic(transactionDto.LoanId, transactionDto.MoneyCount);
+                await TopUpLoanLogic(transactionDto.To.GetLoanId(), transactionDto.MoneyCount);
             }
             transaction.Status = Status.Finished;
             transaction.EndAt = DateTime.UtcNow;
@@ -326,7 +346,9 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
 
             if (!topUpJobs.Any())
             {
-                throw new NotFoundException("У этого пользователя нет подключенный автопополнений для этого кредита и счета!");
+                throw new NotFoundException(
+                    "У этого пользователя нет подключенный автопополнений для этого кредита и счета!"
+                );
             }
 
             foreach (var job in topUpJobs)
@@ -341,11 +363,32 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
             await _dbContext.SaveChangesAsync();
         }
 
-        private async Task WriteLoanTopUTransaction(TransactionRequestDto transactionDto)
+        public async Task<CreditRatingDto> GetCreditRating(Guid userId)
+        {
+            var overduedPayments = await _queueSender.GetOverduePayments(userId);
+            var LatePaymentsAmount = overduedPayments.Sum(p => p.MoneyCount);
+            var LatePaymentsCount = overduedPayments.Count();
+            var CreditRating =
+                MaxCreditRate
+                - (LatePaymentsCountCoefficient * (decimal)LatePaymentsAmount)
+                - ((decimal)LatePaymentsAmountCoefficient * LatePaymentsAmount);
+
+            var normalizedCreditRating = Math.Max(0, CreditRating);
+            return new CreditRatingDto { CreditRating = normalizedCreditRating };
+        }
+
+        public async Task<GetAutoTopUpLoanJobsListDto> GetMyAutoTopUpJobs(Guid userId)
+        {
+            var topUpJobs = await _dbContext.TopUpJobs.Where(j => j.UserId == userId).ToListAsync();
+            var topUpJobsDto = _mapper.Map<List<GetAutoTopUpLoanJobDto>>(topUpJobs);
+            return new GetAutoTopUpLoanJobsListDto { AutoTopUpLoanJobDtos = topUpJobsDto };
+        }
+
+        private async Task WriteLoanTopUpTransaction(TransactionRequestDto transactionDto)
         {
             var transaction = new Transaction
             {
-                AccountNumber = transactionDto.AccountNumber,
+                AccountNumber = transactionDto.To.GetAccountNumber(),
                 StartAt = DateTime.UtcNow,
                 Status = Status.InProgress,
                 UserId = transactionDto.UserId,
@@ -376,13 +419,6 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
             {
                 throw new ForbiddenException("У вас нет доступа к этому счету");
             }
-        }
-
-        public async Task<GetAutoTopUpLoanJobsListDto> GetMyAutoTopUpJobs(Guid userId)
-        {
-            var topUpJobs = await _dbContext.TopUpJobs.Where(j => j.UserId == userId).ToListAsync();
-            var topUpJobsDto = _mapper.Map<List<GetAutoTopUpLoanJobDto>>(topUpJobs);
-            return new GetAutoTopUpLoanJobsListDto { AutoTopUpLoanJobDtos = topUpJobsDto };
         }
     }
 }

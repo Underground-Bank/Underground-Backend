@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using EasyNetQ;
-using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using UndergroundBank.BankAccountService.Application.Interfaces;
 using UndergroundBank.BankAccountService.Domain.Entities;
@@ -245,7 +244,7 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Services
         public async Task WithdrawMoneyForLoan(TransactionRequestDto transactionCreds)
         {
             var bankAccount = await _dbContext.BankAccounts.FirstOrDefaultAsync(bc =>
-                bc.AccountNumber == transactionCreds.AccountNumber
+                bc.AccountNumber == transactionCreds.To.AccountNumber
             );
 
             if (bankAccount == null || bankAccount.Balance < transactionCreds.MoneyCount)
@@ -262,14 +261,24 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Services
             {
                 TransactionId = transactionCreds.TransactionId,
                 Status = transactionCreds.Status,
-                AccountNumber = transactionCreds.AccountNumber,
+                To = new TransferEndpoint
+                {
+                    LoanId = transactionCreds.From.GetLoanId(),
+                    Type = AccountType.Loan,
+                },
                 UserId = bankAccount.UserId,
-                LoanId = transactionCreds.LoanId,
+                From = new TransferEndpoint
+                {
+                    AccountNumber = transactionCreds.To.GetAccountNumber(),
+                    Type = AccountType.Account,
+                },
                 MoneyCount = transactionCreds.MoneyCount,
             };
 
             await _queueSender.SendTransaction(trans);
             var operation = _mapper.Map<OperationHistoryDto>(trans);
+            operation.AccountNumber = trans.From.GetAccountNumber();
+            operation.DestinationLoanId = trans.To.GetLoanId();
             operation.CreatedAt = DateTime.UtcNow;
             operation.TransactionType = TransactionType.LoanPayment;
             await _queueSender.SendOperationInfo(operation);
