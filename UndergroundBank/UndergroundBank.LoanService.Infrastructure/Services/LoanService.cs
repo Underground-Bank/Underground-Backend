@@ -101,6 +101,7 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
                 RemainingPayment = takeLoanDto.LoanAmount,
                 TariffId = takeLoanDto.TariffId,
                 UserId = userId,
+                CreditCurrency = takeLoanDto.Currency,
             };
 
             await _dbContext.AddAsync(newLoan);
@@ -157,7 +158,7 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
                 transaction,
                 Queues.TRANSACTION_QUEUE_REQUEST
             );
-            await WriteLoanTopUTransaction(transaction);
+            await WriteLoanTopUpTransaction(transaction);
         }
 
         public async Task AutoTopUpLoan(Guid loanId, string accountNumber, Guid userId)
@@ -189,7 +190,7 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
                 transaction,
                 Queues.TRANSACTION_QUEUE_REQUEST
             );
-            await WriteLoanTopUTransaction(transaction);
+            await WriteLoanTopUpTransaction(transaction);
         }
 
         private async Task TopUpLoanLogic(Guid loanId, decimal payment)
@@ -375,11 +376,11 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
             return new GetAutoTopUpLoanJobsListDto { AutoTopUpLoanJobDtos = topUpJobsDto };
         }
 
-        private async Task WriteLoanTopUTransaction(TransactionRequestDto transactionDto)
+        private async Task WriteLoanTopUpTransaction(TransactionRequestDto transactionDto)
         {
             var transaction = new Transaction
             {
-                AccountNumber = transactionDto.From.GetAccountNumber(),
+                AccountNumber = transactionDto.To.GetAccountNumber(),
                 StartAt = DateTime.UtcNow,
                 Status = Status.InProgress,
                 UserId = transactionDto.UserId,

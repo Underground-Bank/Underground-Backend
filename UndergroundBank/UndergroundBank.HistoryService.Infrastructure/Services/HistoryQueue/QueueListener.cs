@@ -26,7 +26,7 @@ public static class QueueListener
         {
             return await historyService.GetOverduedPayments(loanId: null, userId: request);
         },
-        x => x.WithQueueName(Queues.CHECK_BANK_ACCOUNT_ACCESS)
+        x => x.WithQueueName(Queues.GET_OVERDUE_PAYMENTS)
         );
 
         bus.PubSub.Subscribe<OverduePaymentDto>(

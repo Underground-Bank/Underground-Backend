@@ -1,7 +1,6 @@
-using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 using UndergroundBank.Common.Configurations.JWT;
-using UndergroundBank.Common.Middlewares;
 using UndergroundBank.LoanService.Application.Configurations;
 using UndergroundBank.LoanService.Application.Interfaces;
 using UndergroundBank.LoanService.Infrastructure;
@@ -68,7 +67,7 @@ using (var scope = app.Services.CreateScope())
 app.UseCors(x =>
     x.AllowAnyMethod().AllowAnyHeader().AllowCredentials().SetIsOriginAllowed(origin => true)
 );
-app.UseMiddleware<DefaultMiddleware>();
+//app.UseMiddleware<DefaultMiddleware>();
 
 // Enable HTTPS redirection
 app.UseHttpsRedirection();
