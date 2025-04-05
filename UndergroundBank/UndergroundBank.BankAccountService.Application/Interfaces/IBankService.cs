@@ -9,6 +9,8 @@ namespace UndergroundBank.BankAccountService.Application.Interfaces
     {
         public Task CreateAccountNumber(Guid userId);
 
+        public Task ChangeVisibilityOfBankAccount(string accountNumber);
+
         public Task<BankAccountDto> GetMyCorrespondingAccountNumber(
             string accountNumber,
             Guid userId,

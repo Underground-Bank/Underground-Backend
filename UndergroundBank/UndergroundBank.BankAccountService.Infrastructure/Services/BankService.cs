@@ -45,6 +45,19 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Services
             await _dbContext.SaveChangesAsync();
         }
 
+        public async Task ChangeVisibilityOfBankAccount(string accountNumber)
+        {
+            var bankAccount = await _dbContext.BankAccounts.FirstOrDefaultAsync(b =>
+                b.AccountNumber == accountNumber
+            );
+            if (bankAccount == null)
+            {
+                throw new NotFoundException("Данного счета не существует!");
+            }
+            bankAccount.IsHidden = !bankAccount.IsHidden;
+            await _dbContext.SaveChangesAsync();
+        }
+
         public async Task UnblockAccountNumber(string accountNumber)
         {
             var bankAccount = await _dbContext.BankAccounts.FirstOrDefaultAsync(b =>
@@ -82,6 +95,7 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Services
             account.CreatedDate = DateTime.UtcNow;
             account.IsLocked = false;
             account.Balance = 0;
+            account.IsHidden = false;
             _dbContext.Add(account);
             await _dbContext.SaveChangesAsync();
         }

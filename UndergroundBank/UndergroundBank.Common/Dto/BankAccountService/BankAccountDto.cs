@@ -14,5 +14,6 @@ namespace UndergroundBank.Common.Dto.BankAccountService
         public string Surname { get; set; }
         public decimal Balance { get; set; }
         public bool IsLocked { get; set; }
+        public bool IsHidden { get; set; }
     }
 }

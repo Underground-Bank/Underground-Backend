@@ -13,6 +13,7 @@ using UndergroundBank.BankAccountService.Application.Communication.Queries.GetAc
 using UndergroundBank.BankAccountService.Application.Communication.Queries.GetAllAccountNumbers;
 using UndergroundBank.BankAccountService.Application.Communication.Queries.GetMyAccountNumbers;
 using UndergroundBank.BankAccountService.Application.Communication.Queries.GetMyCorrespondingAccountNumber;
+using UndergroundBank.BankAccountService.Application.Interfaces;
 using UndergroundBank.Common.Base;
 using UndergroundBank.Common.Data.Enums;
 using UndergroundBank.Common.Data.Models;
@@ -30,8 +31,13 @@ namespace UndergroundBank.BankAccountService.Web.Controllers
     [ProducesResponseType(typeof(Error), 500)]
     public class BankAccountController : BaseController
     {
-        public BankAccountController(IMediator mediator)
-            : base(mediator) { }
+        private readonly IBankService _service;
+
+        public BankAccountController(IMediator mediator, IBankService service)
+            : base(mediator)
+        {
+            _service = service;
+        }
 
         [HttpPost]
         [Authorize(Roles = $"{nameof(Role.Employee)}, {nameof(Role.Admin)}")]
@@ -98,6 +104,14 @@ namespace UndergroundBank.BankAccountService.Web.Controllers
             );
             await Mediator.Send(withdrawAccountNumberCommand);
 
+            return Ok();
+        }
+
+        [HttpPut("change/visibility")]
+        [ProducesResponseType(200)]
+        public async Task<ActionResult> ChangeVisibility([FromQuery] string accountNumber)
+        {
+            await _service.ChangeVisibilityOfBankAccount(accountNumber);
             return Ok();
         }
 

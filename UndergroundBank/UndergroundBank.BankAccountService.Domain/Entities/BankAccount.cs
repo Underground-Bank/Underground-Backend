@@ -15,5 +15,6 @@ namespace UndergroundBank.BankAccountService.Domain.Entities
         public DateTime CreatedDate { get; set; }
         public decimal Balance { get; set; }
         public Boolean IsLocked { get; set; }
+        public Boolean IsHidden { get; set; }
     }
 }
