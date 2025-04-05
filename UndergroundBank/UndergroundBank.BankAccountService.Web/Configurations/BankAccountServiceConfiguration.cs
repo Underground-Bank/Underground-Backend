@@ -1,8 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using UndergroundBank.BankAccountService.Application.Interfaces;
+using UndergroundBank.BankAccountService.Domain.Entities;
 using UndergroundBank.BankAccountService.Infrastructure;
 using UndergroundBank.BankAccountService.Infrastructure.Services;
+using UndergroundBank.Common;
 using UndergroundBank.Common.Data;
+using UndergroundBank.Common.Data.Enums;
 
 namespace UndergroundBank.BankAccountService.Web.Configurations
 {
@@ -25,9 +28,44 @@ namespace UndergroundBank.BankAccountService.Web.Configurations
 
             services.AddHttpContextAccessor();
             services.AddSingleton<QueueSender>();
+            services.AddScoped<AdditionalCurrencyService>();
             services.AddScoped<IBankService, BankService>();
+            services.AddScoped<ICurrencyService, CurrencyService>();
+
+            // Создание мастер-счета банка
+            using var scope = services.BuildServiceProvider().CreateScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<BankAccountDbContext>();
+            EnsureMasterBankAccountExists(dbContext);
 
             return services;
+        }
+
+        private static void EnsureMasterBankAccountExists(BankAccountDbContext dbContext)
+        {
+            var exists = dbContext.BankAccounts.Any(b =>
+                b.AccountNumber == BankDefaults.MasterAccountNumber
+            );
+
+            if (!exists)
+            {
+                var masterAccount = new BankAccount
+                {
+                    AccountNumber = BankDefaults.MasterAccountNumber,
+                    UserId = BankDefaults.MasterUserId,
+                    Email = "bank@underground.local",
+                    Name = "Underground",
+                    Surname = "Bank",
+                    PhoneNumber = "+70000000000",
+                    CreatedDate = DateTime.UtcNow,
+                    Balance = 10000000000000000,
+                    IsLocked = false,
+                    IsHidden = true,
+                    Currency = Currency.RUB,
+                };
+
+                dbContext.BankAccounts.Add(masterAccount);
+                dbContext.SaveChanges();
+            }
         }
     }
 }

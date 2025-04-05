@@ -4,8 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MediatR;
+using UndergroundBank.Common.Data.Enums;
 
 namespace UndergroundBank.BankAccountService.Application.Communication.Commands.TopUpAccountNumber
 {
-    public record TopUpAccountNumberCommand(string accountNumber, decimal moneyCount) : IRequest;
+    public record TopUpAccountNumberCommand(
+        string accountNumber,
+        decimal moneyCount,
+        Currency currency
+    ) : IRequest;
 }

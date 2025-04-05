@@ -60,4 +60,5 @@ public enum TransactionType
     LoanPayment,
     Withdraw,
     TopUp,
+    TransferMoney,
 }

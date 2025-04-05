@@ -9,6 +9,7 @@ namespace UndergroundBank.BankAccountService.Infrastructure
             : base(options) { }
 
         public DbSet<BankAccount> BankAccounts { get; set; }
+        public DbSet<CurrencyModel> Currencies { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using EasyNetQ;
 using Microsoft.EntityFrameworkCore;
+using UndergroundBank.BankAccountService.Application.Dto;
 using UndergroundBank.BankAccountService.Application.Interfaces;
 using UndergroundBank.BankAccountService.Domain.Entities;
 using UndergroundBank.Common.Data.Enums;
@@ -17,13 +18,20 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Services
         private readonly QueueSender _queueSender;
         private readonly IBus _bus;
         private readonly IMapper _mapper;
+        private readonly AdditionalCurrencyService _additionalCurrencyService;
 
-        public BankService(BankAccountDbContext dBContext, IMapper mapper, QueueSender queueSender)
+        public BankService(
+            BankAccountDbContext dBContext,
+            IMapper mapper,
+            QueueSender queueSender,
+            AdditionalCurrencyService additionalCurrencyService
+        )
         {
             _dbContext = dBContext;
             _mapper = mapper;
             _bus = RabbitHutch.CreateBus("host=localhost");
             _queueSender = queueSender;
+            _additionalCurrencyService = additionalCurrencyService;
         }
 
         public async Task BlockAccountNumber(string accountNumber)
@@ -76,7 +84,7 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Services
             await _dbContext.SaveChangesAsync();
         }
 
-        public async Task CreateAccountNumber(Guid userId)
+        public async Task CreateAccountNumber(Guid userId, Currency currency)
         {
             var user = await _bus.Rpc.RequestAsync<Guid, ProfileDto>(
                 userId,
@@ -96,6 +104,7 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Services
             account.IsLocked = false;
             account.Balance = 0;
             account.IsHidden = false;
+            account.Currency = currency;
             _dbContext.Add(account);
             await _dbContext.SaveChangesAsync();
         }
@@ -154,7 +163,76 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Services
             return _mapper.Map<BankAccountDto>(bankAccount);
         }
 
-        public async Task TopUpAccountNumber(string accountNumber, decimal moneyCount)
+        public async Task TransferMoneyToAccountNumber(MoneyTransferDto moneyTransfer)
+        {
+            if (moneyTransfer.MoneyCount <= 0)
+            {
+                throw new BadRequestException("Вы не можете перевести меньше чем на 1 деньгу!");
+            }
+
+            var bankAccount = await _dbContext.BankAccounts.FirstOrDefaultAsync(b =>
+                b.AccountNumber == moneyTransfer.AccountNumberSender
+            );
+
+            if (bankAccount == null)
+            {
+                throw new NotFoundException("Счет с которого вы хотите отправить не существует!");
+            }
+
+            if (bankAccount.IsLocked)
+            {
+                throw new NotFoundException("Счет заблокирован!");
+            }
+            var bankAccountConsumer = await _dbContext.BankAccounts.FirstOrDefaultAsync(b =>
+                b.AccountNumber == moneyTransfer.AccountNumberConsumer
+            );
+
+            if (bankAccountConsumer == null)
+            {
+                throw new NotFoundException("Счет на который вы хотите отправить не существует!");
+            }
+
+            if (bankAccountConsumer.IsLocked)
+            {
+                throw new NotFoundException("Счет заблокирован!");
+            }
+
+            if (bankAccount.Balance - moneyTransfer.MoneyCount < 0)
+            {
+                throw new BadRequestException("Вы не можете отправить такое количество деняг");
+            }
+
+            var convertedAmount = await _additionalCurrencyService.CalculateMoneyCount(
+                bankAccount.Currency,
+                bankAccountConsumer.Currency,
+                moneyTransfer.MoneyCount
+            );
+
+            bankAccount.Balance -= moneyTransfer.MoneyCount;
+            bankAccountConsumer.Balance += convertedAmount;
+
+            await _dbContext.SaveChangesAsync();
+            var operation = new OperationHistoryDto()
+            {
+                AccountNumber = bankAccount.AccountNumber,
+                CreatedAt = DateTime.UtcNow,
+                MoneyCount = moneyTransfer.MoneyCount,
+                Status = Status.Approved,
+                TransactionId = Guid.NewGuid(),
+                UserId = bankAccount.UserId,
+                TransactionType = TransactionType.TransferMoney,
+                DestinationAccountNumber = bankAccountConsumer.AccountNumber,
+                DestinationType = AccountType.Account,
+            };
+
+            await _queueSender.SendOperationInfo(operation);
+        }
+
+        public async Task TopUpAccountNumber(
+            string accountNumber,
+            decimal moneyCount,
+            Currency currency
+        )
         {
             if (moneyCount <= 0)
             {
@@ -175,7 +253,13 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Services
                 throw new NotFoundException("Счет заблокирован!");
             }
 
-            bankAccount.Balance += moneyCount;
+            var convertedAmount = await _additionalCurrencyService.CalculateMoneyCount(
+                currency,
+                bankAccount.Currency,
+                moneyCount
+            );
+
+            bankAccount.Balance += convertedAmount;
 
             await _dbContext.SaveChangesAsync();
             var operation = new OperationHistoryDto()
@@ -268,7 +352,13 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Services
             else
             {
                 transactionCreds.Status = Status.Approved;
-                bankAccount.Balance -= transactionCreds.MoneyCount;
+                var convertedAmount = await _additionalCurrencyService.CalculateMoneyCount(
+                    transactionCreds.Currency,
+                    bankAccount.Currency,
+                    transactionCreds.MoneyCount
+                );
+
+                bankAccount.Balance -= convertedAmount;
                 await _dbContext.SaveChangesAsync();
             }
             var trans = new TransactionResponseDto()

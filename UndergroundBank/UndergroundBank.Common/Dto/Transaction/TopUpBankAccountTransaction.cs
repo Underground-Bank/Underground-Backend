@@ -9,6 +9,6 @@ public class TopUpBankAccountTransaction
     public Guid UserId { get; set; }
     public string AccountNumber { get; set; }
     public decimal MoneyCount { get; set; }
+    public Currency Currency { get; set; }
     public Status Status { get; set; }
 }
-
