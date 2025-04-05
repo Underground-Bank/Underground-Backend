@@ -10,6 +10,7 @@ using UndergroundBank.AccountService.Infrastructure.MessageBroker;
 using UndergroundBank.AccountService.Web.Configurations;
 using UndergroundBank.Common.Configurations.OpenIddict;
 using UndergroundBank.Common.Data.Enums;
+using UndergroundBank.Common.Middlewares;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -78,6 +79,7 @@ app.UseHttpsRedirection();
 app.UseSession();
 app.UseRouting();
 app.UseCors("AllowSwaggerClients");
+app.UseMiddleware<DefaultMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();

@@ -13,6 +13,7 @@ namespace UndergroundBank.AccountService.Application.Helpers.AutoMapper
             CreateMap<User, ProfileDto>();
             CreateMap<ManagerDto, User>();
             CreateMap<User, List<ProfileDto>>();
+            CreateMap<UserSettings, UserSettingsDto>();
             CreateMap<InputManagerDataDto, ManagerDto>();
             CreateMap<ManagerDto, InputManagerDataDto>();
         }

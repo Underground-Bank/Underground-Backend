@@ -52,7 +52,7 @@ dbContext?.Database.Migrate();
 
 app.UseCors("AllowSwaggerClients");
 
-//app.UseMiddleware<DefaultMiddleware>();
+app.UseMiddleware<DefaultMiddleware>();
 
 // Enable HTTPS redirection
 app.UseHttpsRedirection();

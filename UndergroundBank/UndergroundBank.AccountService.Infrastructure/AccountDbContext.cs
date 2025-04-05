@@ -20,6 +20,8 @@ namespace UndergroundBank.AccountService.Infrastructure
         public AccountDbContext(DbContextOptions<AccountDbContext> options)
             : base(options) { }
 
+        public DbSet<UserSettings> UserSettings { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
