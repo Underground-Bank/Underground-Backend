@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using UndergroundBank.Common.Data.Constants;
 using UndergroundBank.Common.Dto.Transaction;
 using UndergroundBank.Common.DTO.Transaction;
 using UndergroundBank.Common.Middlewares;
@@ -13,12 +15,12 @@ namespace UndergroundBank.HistoryService.Infrastructure.Services
     {
         private readonly IMapper _mapper;
         private readonly HistoryDbContext _dbContext;
-        private readonly OperationHistoryHub _historyHub;
+        private readonly IHubContext<OperationHistoryHub> _historyHub;
 
         public OperationHistoryService(
             HistoryDbContext dbContext,
             IMapper mapper,
-            OperationHistoryHub operationHistoryHub
+            IHubContext<OperationHistoryHub> operationHistoryHub
         )
         {
             _mapper = mapper;
@@ -61,7 +63,10 @@ namespace UndergroundBank.HistoryService.Infrastructure.Services
             await _dbContext.SaveChangesAsync();
             var operationsHistoryDto = _mapper.Map<OperationsHistoryDto>(historyElement);
 
-            await _historyHub.NotifyNewTransaction(operationsHistoryDto);
+            await _historyHub.Clients.All.SendAsync(
+                WebSockets.TRANSACTION_UPDATED,
+                operationsHistoryDto
+            );
         }
 
         public async Task AddOverduePayment(OverduePaymentDto overduePaymentDto)

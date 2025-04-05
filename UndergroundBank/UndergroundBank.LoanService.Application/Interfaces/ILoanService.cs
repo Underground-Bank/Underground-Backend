@@ -1,4 +1,5 @@
-﻿using UndergroundBank.Common.Dto.Transaction;
+﻿using UndergroundBank.Common.Data.Enums;
+using UndergroundBank.Common.Dto.Transaction;
 using UndergroundBank.LoanService.Application.Dto.Loan;
 
 namespace UndergroundBank.LoanService.Application.Interfaces
@@ -7,7 +8,12 @@ namespace UndergroundBank.LoanService.Application.Interfaces
     {
         public Task TakeLoan(TakeLoanDto takeLoan, Guid userId);
         public Task<GetLoanDto> GetLoan(Guid loanId);
-        public Task StartTopUpLoan(decimal amount, string BankAccountNumber, Guid loanId, Guid userId);
+        public Task StartTopUpLoan(
+            decimal amount,
+            string BankAccountNumber,
+            Guid loanId,
+            Guid userId
+        );
         public Task EndTopUpLoanTransaction(TransactionResponseDto transaction);
         public Task AutoTopUpLoan(Guid loanId, string accountNumber, Guid userId);
         public Task<GetLoansDto> GetAllLoans(Guid? userId);

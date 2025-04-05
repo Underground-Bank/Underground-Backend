@@ -5,19 +5,19 @@ namespace UndergroundBank.Common.Dto.Transaction;
 
 public class TransactionRequestDto
 {
-    public Guid TransactionId { get; set; }
-    public Guid UserId { get; set; }
+    public required Guid TransactionId { get; set; }
+    public required Guid UserId { get; set; }
 
-    public TransferEndpoint From { get; set; }
-    public TransferEndpoint To { get; set; }
-    public Currency Currency { get; set; }
+    public required TransferEndpoint From { get; set; }
+    public required TransferEndpoint To { get; set; }
+    public required Currency Currency { get; set; }
     public decimal MoneyCount { get; set; }
-    public Status Status { get; set; }
+    public required Status Status { get; set; }
 }
 
 public class TransferEndpoint
 {
-    public AccountType Type { get; set; }
+    public required AccountType Type { get; set; }
 
     public Guid? LoanId { get; set; }
     public string? AccountNumber { get; set; }

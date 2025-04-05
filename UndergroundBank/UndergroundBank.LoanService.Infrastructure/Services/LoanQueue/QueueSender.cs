@@ -38,16 +38,34 @@ namespace UndergroundBank.LoanService.Infrastructure.Services.LoanQueue
                 throw new BadRequestException(ex.Message);
             }
         }
-        public async Task<List<GetOverduePaymentDto>> GetOverduePayments(
-        Guid userId
+
+        public async Task<TransactionResponseDto> RequestMasterBankAccount(
+            TransactionRequestDto transactionRequestDto
         )
         {
             try
             {
-                var overduePayments = await _bus.Rpc.RequestAsync<
-                    Guid,
-                    List<GetOverduePaymentDto>
-                >(userId, x => x.WithQueueName(Queues.GET_OVERDUE_PAYMENTS));
+                var transactionInfo = await _bus.Rpc.RequestAsync<
+                    TransactionRequestDto,
+                    TransactionResponseDto
+                >(transactionRequestDto, x => x.WithQueueName(Queues.WITHDRAW_MONEY_FROM_MASTER));
+                return transactionInfo;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.StackTrace);
+                throw new BadRequestException(ex.Message);
+            }
+        }
+
+        public async Task<List<GetOverduePaymentDto>> GetOverduePayments(Guid userId)
+        {
+            try
+            {
+                var overduePayments = await _bus.Rpc.RequestAsync<Guid, List<GetOverduePaymentDto>>(
+                    userId,
+                    x => x.WithQueueName(Queues.GET_OVERDUE_PAYMENTS)
+                );
                 return overduePayments;
             }
             catch (Exception ex)

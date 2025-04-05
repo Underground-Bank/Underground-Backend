@@ -31,6 +31,9 @@ namespace UndergroundBank.BankAccountService.Application.Interfaces
 
         public Task TopUpAccountNumber(string accountNumber, decimal moneyCount, Currency currency);
         public Task TransferMoneyToAccountNumber(MoneyTransferDto moneyTransfer);
+        public Task<TransactionResponseDto> WithdrawMoneyFromMasterAccount(
+            TransactionRequestDto transactionCreds
+        );
 
         public Task WithdrawAccountNumber(string accountNumber, decimal moneyCount, Guid userId);
         public Task WithdrawMoneyForLoan(TransactionRequestDto transactionDtoCreds);

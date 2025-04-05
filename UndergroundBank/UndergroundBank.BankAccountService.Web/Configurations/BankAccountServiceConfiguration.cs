@@ -3,7 +3,6 @@ using UndergroundBank.BankAccountService.Application.Interfaces;
 using UndergroundBank.BankAccountService.Domain.Entities;
 using UndergroundBank.BankAccountService.Infrastructure;
 using UndergroundBank.BankAccountService.Infrastructure.Services;
-using UndergroundBank.Common;
 using UndergroundBank.Common.Data;
 using UndergroundBank.Common.Data.Enums;
 

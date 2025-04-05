@@ -84,9 +84,29 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
                 throw new NotFoundException("Тарифа с таким id не существует");
             }
 
-            await CeckBankAccountAccession(takeLoanDto.BankAccountNumber, userId);
-
             var loanId = Guid.NewGuid();
+
+            var transaction = new TransactionRequestDto
+            {
+                TransactionId = Guid.NewGuid(),
+                From = new TransferEndpoint { LoanId = loanId, Type = AccountType.Loan },
+                To = new TransferEndpoint { AccountNumber = "0", Type = AccountType.Account },
+                MoneyCount = takeLoanDto.LoanAmount,
+                UserId = userId,
+                Status = Status.InProgress,
+                Currency = takeLoanDto.Currency,
+            };
+
+            var masterBankAccountTransaction = await _queueSender.RequestMasterBankAccount(
+                transaction
+            );
+
+            if (masterBankAccountTransaction.Status == Status.Rejected)
+            {
+                throw new BadRequestException("Банк не настолько богат, как вы думаете");
+            }
+
+            await CeckBankAccountAccession(takeLoanDto.BankAccountNumber, userId);
 
             var newLoan = new Loan()
             {
@@ -154,6 +174,7 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
                 MoneyCount = payment,
                 UserId = userId,
                 Status = Status.InProgress,
+                Currency = loan.CreditCurrency,
             };
             await _queueSender.SendMessage<TransactionRequestDto>(
                 transaction,
@@ -190,6 +211,7 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
                 UserId = userId,
                 MoneyCount = monthPayment,
                 Status = Status.InProgress,
+                Currency = loan.CreditCurrency,
             };
             await _queueSender.SendMessage<TransactionRequestDto>(
                 transaction,
@@ -257,7 +279,7 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
         )
         {
             var deafultMonthPayment =
-                (loanAmount * (tariff.InterestRate)) / (loanDurationInMonth * 100);
+                loanAmount * tariff.InterestRate / (loanDurationInMonth * 100);
             var currentPayment =
                 remainingPayment - deafultMonthPayment < 0 ? remainingPayment : deafultMonthPayment;
 

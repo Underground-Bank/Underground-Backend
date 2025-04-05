@@ -9,5 +9,6 @@
         public const string CHECK_BANK_ACCOUNT_ACCESS = "check_bank_account_access";
         public const string TOP_UP_BANK_ACCOUNT_FROM_LOAN = "top_up_bank_account_from_loan";
         public const string GET_OVERDUE_PAYMENTS = "get_overdue_payments";
+        public const string WITHDRAW_MONEY_FROM_MASTER = "withdraw_money_from_master";
     }
 }

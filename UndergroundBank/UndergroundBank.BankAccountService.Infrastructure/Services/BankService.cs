@@ -376,6 +376,7 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Services
                     AccountNumber = transactionCreds.To.GetAccountNumber(),
                     Type = AccountType.Account,
                 },
+                Currency = transactionCreds.Currency,
                 MoneyCount = transactionCreds.MoneyCount,
             };
 
@@ -386,6 +387,59 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Services
             operation.CreatedAt = DateTime.UtcNow;
             operation.TransactionType = TransactionType.LoanPayment;
             await _queueSender.SendOperationInfo(operation);
+        }
+
+        public async Task<TransactionResponseDto> WithdrawMoneyFromMasterAccount(
+            TransactionRequestDto transactionCreds
+        )
+        {
+            var bankAccount = await _dbContext.BankAccounts.FirstOrDefaultAsync(bc =>
+                bc.AccountNumber == transactionCreds.To.AccountNumber
+            );
+
+            if (bankAccount == null || bankAccount.Balance < transactionCreds.MoneyCount)
+            {
+                transactionCreds.Status = Status.Rejected;
+            }
+            else
+            {
+                transactionCreds.Status = Status.Approved;
+                var convertedAmount = await _additionalCurrencyService.CalculateMoneyCount(
+                    transactionCreds.Currency,
+                    bankAccount.Currency,
+                    transactionCreds.MoneyCount
+                );
+
+                bankAccount.Balance -= convertedAmount;
+                await _dbContext.SaveChangesAsync();
+            }
+            var trans = new TransactionResponseDto()
+            {
+                TransactionId = transactionCreds.TransactionId,
+                Status = transactionCreds.Status,
+                To = new TransferEndpoint
+                {
+                    LoanId = transactionCreds.From.GetLoanId(),
+                    Type = AccountType.Loan,
+                },
+                UserId = bankAccount.UserId,
+                From = new TransferEndpoint
+                {
+                    AccountNumber = transactionCreds.To.GetAccountNumber(),
+                    Type = AccountType.Account,
+                },
+                MoneyCount = transactionCreds.MoneyCount,
+                Currency = transactionCreds.Currency,
+            };
+
+            var operation = _mapper.Map<OperationHistoryDto>(trans);
+            operation.AccountNumber = trans.From.GetAccountNumber();
+            operation.DestinationLoanId = trans.To.GetLoanId();
+            operation.CreatedAt = DateTime.UtcNow;
+            operation.TransactionType = TransactionType.LoanPayment;
+            await _queueSender.SendOperationInfo(operation);
+
+            return trans;
         }
 
         public async Task<CheckBankAccountAccessResponse> CheckAccountNumberExists(

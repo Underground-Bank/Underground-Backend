@@ -45,6 +45,14 @@ namespace UndergroundBank.BankAccountService.Infrastructure.MessageBroker
                 },
                 x => x.WithQueueName(Queues.CHECK_BANK_ACCOUNT_ACCESS)
             );
+
+            bus.Rpc.Respond<TransactionRequestDto, TransactionResponseDto>(
+                async request =>
+                {
+                    return await bankAccountService.WithdrawMoneyFromMasterAccount(request);
+                },
+                x => x.WithQueueName(Queues.WITHDRAW_MONEY_FROM_MASTER)
+            );
         }
     }
 }
