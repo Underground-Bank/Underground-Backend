@@ -97,8 +97,8 @@ namespace UndergroundBank.Common.Configurations.OpenIddict
                                 "https://localhost:7255",
                                 "https://localhost:7025",
                                 "https://localhost:7008",
-                                "https://localhost:5173",
-                                "https://localhost:5174",
+                                "http://localhost:5173",
+                                "http://localhost:5174",
                                 "https://localhost:7032"
                             )
                             .AllowAnyHeader()
