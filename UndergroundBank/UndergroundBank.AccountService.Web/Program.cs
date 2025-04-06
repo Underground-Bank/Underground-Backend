@@ -115,8 +115,8 @@ using (var scope = app.Services.CreateScope())
                 new Uri("https://localhost:7025/swagger/oauth2-redirect.html"),
                 new Uri("https://localhost:7008/swagger/oauth2-redirect.html"),
                 new Uri("https://localhost:7032/swagger/oauth2-redirect.html"),
-                new Uri("http://localhost:5173/swagger/oauth2-redirect.html"),
-                new Uri("http://localhost:5174/swagger/oauth2-redirect.html"),
+                new Uri("http://localhost:5173/callback"),
+                new Uri("http://localhost:5174/callback"),
             },
             PostLogoutRedirectUris =
             {
@@ -124,8 +124,8 @@ using (var scope = app.Services.CreateScope())
                 new Uri("https://localhost:7025/signout-callback-oidc"),
                 new Uri("https://localhost:7008/signout-callback-oidc"),
                 new Uri("https://localhost:7032/signout-callback-oidc"),
-                new Uri("http://localhost:5173/swagger/oauth2-redirect.html"),
-                new Uri("http://localhost:5174/swagger/oauth2-redirect.html"),
+                new Uri("http://localhost:5173"),
+                new Uri("http://localhost:5174"),
             },
             Permissions =
             {
