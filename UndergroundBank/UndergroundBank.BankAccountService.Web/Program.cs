@@ -20,48 +20,39 @@ builder
         opts.JsonSerializerOptions.Converters.Add(enumConverter);
     });
 
-builder.Services.AddControllers();
-
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenIddictValidation("https://localhost:5026/");
 builder.Services.AddSwaggerWithOAuth();
-
 builder.Services.AddCustomCors();
-
-// Add business logic service dependencies
 builder.Services.AddBankAccountServiceConfiguration(builder.Configuration);
-
-// Application layer configuration
 builder.Services.ConfigureBankAccountApplicationLayer();
 builder.Services.QueueSubscribe();
 builder.Services.AddHttpClient();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Run database migrations
+using (var serviceScope = app.Services.CreateScope())
+{
+    var dbContext = serviceScope.ServiceProvider.GetRequiredService<BankAccountDbContext>();
+    dbContext.Database.Migrate();
+
+    // Ensure master bank account exists
+    ServiceDependencyExtension.EnsureMasterBankAccountExists(dbContext);
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerWithOAuthUI();
 }
 
-using var serviceScope = app.Services.CreateScope();
-var dbContext = serviceScope.ServiceProvider.GetService<BankAccountDbContext>();
-dbContext?.Database.Migrate();
-
 app.UseCors("AllowSwaggerClients");
 
 app.UseMiddleware<DefaultMiddleware>();
-
-// Enable HTTPS redirection
 app.UseHttpsRedirection();
-
-// Enable authentication and authorization
 app.UseAuthentication();
 app.UseAuthorization();
-
-// Map controllers
 app.MapControllers();
 
 app.Run();

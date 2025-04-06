@@ -31,15 +31,10 @@ namespace UndergroundBank.BankAccountService.Web.Configurations
             services.AddScoped<IBankService, BankService>();
             services.AddScoped<ICurrencyService, CurrencyService>();
 
-            // Создание мастер-счета банка
-            using var scope = services.BuildServiceProvider().CreateScope();
-            var dbContext = scope.ServiceProvider.GetRequiredService<BankAccountDbContext>();
-            EnsureMasterBankAccountExists(dbContext);
-
             return services;
         }
 
-        private static void EnsureMasterBankAccountExists(BankAccountDbContext dbContext)
+        public static void EnsureMasterBankAccountExists(BankAccountDbContext dbContext)
         {
             var exists = dbContext.BankAccounts.Any(b =>
                 b.AccountNumber == BankDefaults.MasterAccountNumber
