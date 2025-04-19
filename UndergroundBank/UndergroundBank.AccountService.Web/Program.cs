@@ -1,5 +1,4 @@
 ﻿using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OpenIddict.Abstractions;
@@ -80,6 +79,9 @@ app.UseSession();
 app.UseRouting();
 app.UseCors("AllowSwaggerClients");
 app.UseMiddleware<DefaultMiddleware>();
+
+//Это нужно для эмуляции нестабильной работы сервисов
+//app.UseMiddleware<UnstableMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();

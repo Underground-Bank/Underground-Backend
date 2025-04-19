@@ -3,9 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using UndergroundBank.BankAccountService.Application.Configurations;
 using UndergroundBank.BankAccountService.Infrastructure;
 using UndergroundBank.BankAccountService.Infrastructure.MessageBroker;
-using UndergroundBank.BankAccountService.Infrastructure.Services;
 using UndergroundBank.BankAccountService.Web.Configurations;
-using UndergroundBank.Common.Configurations.JWT;
 using UndergroundBank.Common.Configurations.OpenIddict;
 using UndergroundBank.Common.Middlewares;
 
@@ -50,6 +48,10 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowSwaggerClients");
 
 app.UseMiddleware<DefaultMiddleware>();
+
+//Это нужно для эмуляции нестабильной работы сервисов
+//app.UseMiddleware<UnstableMiddleware>();
+
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();

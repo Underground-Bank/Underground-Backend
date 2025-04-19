@@ -1,6 +1,5 @@
-using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
-using UndergroundBank.Common.Configurations.JWT;
+using Microsoft.EntityFrameworkCore;
 using UndergroundBank.Common.Configurations.OpenIddict;
 using UndergroundBank.Common.Middlewares;
 using UndergroundBank.LoanService.Application.Configurations;
@@ -69,8 +68,11 @@ app.UseCors(x =>
     x.AllowAnyMethod().AllowAnyHeader().AllowCredentials().SetIsOriginAllowed(origin => true)
 );
 app.UseMiddleware<DefaultMiddleware>();
+
+//Это нужно для эмуляции нестабильной работы сервисов
+//app.UseMiddleware<UnstableMiddleware>();
+app.UseMiddleware<UnstableMiddleware>();
 app.UseCors("AllowSwaggerClients");
-app.UseMiddleware<DefaultMiddleware>();
 
 // Enable HTTPS redirection
 app.UseHttpsRedirection();
