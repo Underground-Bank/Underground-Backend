@@ -21,6 +21,7 @@ namespace UndergroundBank.AccountService.Infrastructure
             : base(options) { }
 
         public DbSet<UserSettings> UserSettings { get; set; }
+        public DbSet<UserFirebase> UsersFirebase { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

@@ -33,6 +33,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 	EndProjectSection
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.HistoryService.Web", "UndergroundBank.HistoryService.Web\UndergroundBank.HistoryService.Web.csproj", "{3F6E1867-16C8-4D9F-B21E-742BE9218436}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.HistoryService.Application", "UndergroundBank.HistoryService.Application\UndergroundBank.HistoryService.Application.csproj", "{DD97D8C2-7175-44B7-85DC-C810EAE4DC02}"
@@ -40,6 +41,14 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.HistoryService.Infrastructure", "UndergroundBank.HistoryService.Infrastructure\UndergroundBank.HistoryService.Infrastructure.csproj", "{9C8C9B53-40E4-4C0F-967A-F52E06E6BB4E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.HistoryService.Domain", "UndergroundBank.HistoryService.Domain\UndergroundBank.HistoryService.Domain.csproj", "{F8CAEF2C-EA99-4658-9CEA-6B721656BC5E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.NotificationService.Application", "UndergroundBank.NotificationService.Application\UndergroundBank.NotificationService.Application.csproj", "{9E3E1C3B-8582-44E1-9818-FC95093D7E87}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.NotificationService.Web", "UndergroundBank.NotificationService.Web\UndergroundBank.NotificationService.Web.csproj", "{DA458F3C-7339-428C-8CB1-F602B9AE9F11}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.NotificationService.Domain", "UndergroundBank.NotificationService.Domain\UndergroundBank.NotificationService.Domain.csproj", "{24CD2DA3-06A2-4AE4-B0EC-C10BA9B88F3C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.NotificationService.Infrastructure", "UndergroundBank.NotificationService.Infrastructure\UndergroundBank.NotificationService.Infrastructure.csproj", "{4C6481F1-7A4C-4CE4-BE76-4D504EA20B1A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -115,6 +124,22 @@ Global
 		{F8CAEF2C-EA99-4658-9CEA-6B721656BC5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F8CAEF2C-EA99-4658-9CEA-6B721656BC5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F8CAEF2C-EA99-4658-9CEA-6B721656BC5E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E3E1C3B-8582-44E1-9818-FC95093D7E87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E3E1C3B-8582-44E1-9818-FC95093D7E87}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E3E1C3B-8582-44E1-9818-FC95093D7E87}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E3E1C3B-8582-44E1-9818-FC95093D7E87}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA458F3C-7339-428C-8CB1-F602B9AE9F11}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA458F3C-7339-428C-8CB1-F602B9AE9F11}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA458F3C-7339-428C-8CB1-F602B9AE9F11}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA458F3C-7339-428C-8CB1-F602B9AE9F11}.Release|Any CPU.Build.0 = Release|Any CPU
+		{24CD2DA3-06A2-4AE4-B0EC-C10BA9B88F3C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24CD2DA3-06A2-4AE4-B0EC-C10BA9B88F3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24CD2DA3-06A2-4AE4-B0EC-C10BA9B88F3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24CD2DA3-06A2-4AE4-B0EC-C10BA9B88F3C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C6481F1-7A4C-4CE4-BE76-4D504EA20B1A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C6481F1-7A4C-4CE4-BE76-4D504EA20B1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C6481F1-7A4C-4CE4-BE76-4D504EA20B1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C6481F1-7A4C-4CE4-BE76-4D504EA20B1A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
