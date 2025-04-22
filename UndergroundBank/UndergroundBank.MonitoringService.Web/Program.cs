@@ -1,13 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
-using UndergroundBank.Common.Configurations;
 using UndergroundBank.Common.Configurations.OpenIddict;
 using UndergroundBank.Common.Middlewares;
-using UndergroundBank.LoanService.Application.Configurations;
-using UndergroundBank.LoanService.Application.Interfaces;
-using UndergroundBank.LoanService.Infrastructure;
-using UndergroundBank.LoanService.Infrastructure.Services.LoanQueue;
-using UndergroundBank.LoanService.Web.Configurations;
+using UndergroundBank.MonitoringService.Application.Helpers.Automapper;
+using UndergroundBank.MonitoringService.Infrastructure;
+using UndergroundBank.MonitoringService.Web.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,19 +25,9 @@ builder.Services.AddOpenIddictValidation("https://localhost:5026/");
 builder.Services.AddSwaggerWithOAuth();
 
 builder.Services.AddCustomCors();
-
-// Add business logic service dependencies
-builder.Services.AddQuartzDependencies(builder.Configuration);
-builder.Services.AddLoanBlServiceDependencies(builder.Configuration);
-
-// Application layer configuration
-builder.Services.ConfigureApplicationLayer();
-builder.Services.AddListeners();
-builder.Services.AddHttpClient();
-
-var serviceName = "LoanService";
-builder.AddOpenTelemetry(serviceName);
-
+builder.Services.AddSwaggerGen();
+builder.Services.AddAutoMapper(typeof(MonitoringServiceMapper));
+builder.Services.AddMonitoringServiceConfiguration(builder.Configuration);
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -53,7 +40,7 @@ if (app.Environment.IsDevelopment())
 try
 {
     using var serviceScope = app.Services.CreateScope();
-    var dbContext = serviceScope.ServiceProvider.GetService<LoanDbContext>();
+    var dbContext = serviceScope.ServiceProvider.GetService<MonitoringDbContext>();
     dbContext?.Database.Migrate();
 }
 catch (Exception ex)
@@ -63,29 +50,27 @@ catch (Exception ex)
     throw;
 }
 
-using (var scope = app.Services.CreateScope())
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
 {
-    var jobScheduler = scope.ServiceProvider.GetRequiredService<IJobSchedulerService>();
-    await jobScheduler.StartActiveJobsAsync();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
+
 app.UseCors(x =>
     x.AllowAnyMethod().AllowAnyHeader().AllowCredentials().SetIsOriginAllowed(origin => true)
 );
 app.UseMiddleware<DefaultMiddleware>();
 
-//Р­С‚Рѕ РЅСѓР¶РЅРѕ РґР»СЏ СЌРјСѓР»СЏС†РёРё РЅРµСЃС‚Р°Р±РёР»СЊРЅРѕР№ СЂР°Р±РѕС‚С‹ СЃРµСЂРІРёСЃРѕРІ
+//Это нужно для эмуляции нестабильной работы сервисов
 //app.UseMiddleware<UnstableMiddleware>();
 app.UseMiddleware<RequestLoggingMiddleware>();
 app.UseCors("AllowSwaggerClients");
 
-// Enable HTTPS redirection
 app.UseHttpsRedirection();
 
-// Enable authentication and authorization
-app.UseAuthentication();
 app.UseAuthorization();
 
-// Map controllers
 app.MapControllers();
 
 app.Run();

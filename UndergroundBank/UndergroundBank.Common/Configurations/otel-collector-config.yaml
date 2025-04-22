@@ -1,0 +1,28 @@
+receivers:
+  otlp:
+    protocols:
+      http:
+        endpoint: "localhost:4318"
+
+exporters:
+  otlphttp/my-monitor-traces:
+    endpoint: "http://localhost:5035/api/monitoring/traces"
+    compression: none
+
+  otlphttp/my-monitor-logs:
+    endpoint: "http://localhost:5035/api/monitoring/logs"
+    compression: none
+  prometheus:
+    endpoint: "localhost:9090"
+
+  debug:
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      exporters: [debug, otlphttp/my-monitor-traces]
+
+    logs:
+      receivers: [otlp]
+      exporters: [debug, otlphttp/my-monitor-logs]
