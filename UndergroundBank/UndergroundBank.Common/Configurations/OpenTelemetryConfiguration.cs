@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using System.Diagnostics.Metrics;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -5,8 +7,6 @@ using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-using System.Diagnostics;
-using System.Diagnostics.Metrics;
 
 namespace UndergroundBank.Common.Configurations;
 
@@ -17,27 +17,6 @@ public static class OpenTelemetryConfiguration
         string serviceName
     )
     {
-        var collector = new Process
-        {
-            StartInfo = new ProcessStartInfo
-            {
-                FileName = "C:\\Users\\Артем\\Source\\Repos\\Underground-Backend\\UndergroundBank\\UndergroundBank.Common\\Configurations\\otelcol-contrib.exe",
-                Arguments = "--config C:\\Users\\Артем\\Source\\Repos\\Underground-Backend\\UndergroundBank\\UndergroundBank.Common\\Configurations\\otel-collector-config.yaml",
-                UseShellExecute = false,
-                CreateNoWindow = true,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true
-            }
-        };
-
-        collector.OutputDataReceived += (s, e) => Console.WriteLine("[OTEL] " + e.Data);
-        collector.ErrorDataReceived += (s, e) => Console.WriteLine("[OTEL ERROR] " + e.Data);
-
-        collector.Start();
-        collector.BeginOutputReadLine();
-        collector.BeginErrorReadLine();
-
-
         builder.Logging.ClearProviders();
         builder.Logging.AddOpenTelemetry(options =>
         {
@@ -51,7 +30,7 @@ public static class OpenTelemetryConfiguration
 
             options.AddOtlpExporter(o =>
             {
-                o.Endpoint = new Uri("http://localhost:4318");
+                o.Endpoint = new Uri("http://localhost:5035/api/monitoring/logs");
             });
         });
 
@@ -66,12 +45,11 @@ public static class OpenTelemetryConfiguration
                     .AddAspNetCoreInstrumentation(options =>
                     {
                         options.RecordException = true;
-                        options.Filter = ctx => !ctx.Request.Path.StartsWithSegments("/swagger");
                     })
                     .AddHttpClientInstrumentation()
                     .AddOtlpExporter(options =>
                     {
-                        options.Endpoint = new Uri("http://localhost:4318");
+                        options.Endpoint = new Uri("http://localhost:5035/api/monitoring/traces");
                     })
             )
             .AddOpenTelemetryMetrics(builder =>
@@ -82,7 +60,7 @@ public static class OpenTelemetryConfiguration
                     .AddAspNetCoreInstrumentation()
                     .AddOtlpExporter(options =>
                     {
-                        options.Endpoint = new Uri("http://localhost:4318");
+                        options.Endpoint = new Uri("http://localhost:5035/api/monitoring/logs");
                     })
             );
 
