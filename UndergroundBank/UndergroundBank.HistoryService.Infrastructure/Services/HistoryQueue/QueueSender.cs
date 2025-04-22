@@ -1,18 +1,13 @@
 ﻿using EasyNetQ;
+using UndergroundBank.Common.Helpers.MessageBroker;
 
 namespace UndergroundBank.HistoryService.Infrastructure.Services.HistoryQueue
 {
-    public class QueueSender
+    public class QueueSender : ResilientQueueSender
     {
-        private IBus _bus;
-        public QueueSender()
+        public async Task SendMessage<T>(T message, string topic)
         {
-            _bus = RabbitHutch.CreateBus("host=localhost");
-        }
-
-        public async Task SendMessage<T>(T message, string topik)
-        {
-            await _bus.PubSub.PublishAsync(message, topik);
+            await ExecuteWithPolicies(() => _bus.PubSub.PublishAsync(message, topic));
         }
     }
 }

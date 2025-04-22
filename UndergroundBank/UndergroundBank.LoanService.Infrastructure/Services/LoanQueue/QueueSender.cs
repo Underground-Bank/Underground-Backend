@@ -1,78 +1,57 @@
-﻿using EasyNetQ;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using EasyNetQ;
+using Polly;
+using Polly.Wrap;
 using UndergroundBank.Common.Data.Constants;
 using UndergroundBank.Common.Dto.Transaction;
 using UndergroundBank.Common.DTO.Transaction;
+using UndergroundBank.Common.Helpers.MessageBroker;
 using UndergroundBank.Common.Middlewares;
 
 namespace UndergroundBank.LoanService.Infrastructure.Services.LoanQueue
 {
-    public class QueueSender
+    public class QueueSender : ResilientQueueSender
     {
-        private IBus _bus;
-
-        public QueueSender()
+        public async Task SendMessage<T>(T message, string topic)
         {
-            _bus = RabbitHutch.CreateBus("host=localhost");
+            await ExecuteWithPolicies(() => _bus.PubSub.PublishAsync(message, topic));
         }
 
-        public async Task SendMessage<T>(T message, string topik)
-        {
-            await _bus.PubSub.PublishAsync(message, topik);
-        }
-
-        public async Task<CheckBankAccountAccessResponse> CheckBankAccountAccess(
-            CheckBankAccountAccessRequest checkAccessDto
+        public Task<CheckBankAccountAccessResponse> CheckBankAccountAccess(
+            CheckBankAccountAccessRequest dto
         )
         {
-            try
-            {
-                var accessionInfo = await _bus.Rpc.RequestAsync<
-                    CheckBankAccountAccessRequest,
-                    CheckBankAccountAccessResponse
-                >(checkAccessDto, x => x.WithQueueName(Queues.CHECK_BANK_ACCOUNT_ACCESS));
-                return accessionInfo;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.StackTrace);
-                throw new BadRequestException(ex.Message);
-            }
+            return ExecuteWithPolicies(
+                () =>
+                    _bus.Rpc.RequestAsync<
+                        CheckBankAccountAccessRequest,
+                        CheckBankAccountAccessResponse
+                    >(dto, x => x.WithQueueName(Queues.CHECK_BANK_ACCOUNT_ACCESS))
+            );
         }
 
-        public async Task<TransactionResponseDto> RequestMasterBankAccount(
-            TransactionRequestDto transactionRequestDto
-        )
+        public Task<TransactionResponseDto> RequestMasterBankAccount(TransactionRequestDto dto)
         {
-            try
-            {
-                var transactionInfo = await _bus.Rpc.RequestAsync<
-                    TransactionRequestDto,
-                    TransactionResponseDto
-                >(transactionRequestDto, x => x.WithQueueName(Queues.WITHDRAW_MONEY_FROM_MASTER));
-                return transactionInfo;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.StackTrace);
-                throw new BadRequestException(ex.Message);
-            }
+            return ExecuteWithPolicies(
+                () =>
+                    _bus.Rpc.RequestAsync<TransactionRequestDto, TransactionResponseDto>(
+                        dto,
+                        x => x.WithQueueName(Queues.WITHDRAW_MONEY_FROM_MASTER)
+                    )
+            );
         }
 
-        public async Task<List<GetOverduePaymentDto>> GetOverduePayments(Guid userId)
+        public Task<List<GetOverduePaymentDto>> GetOverduePayments(Guid userId)
         {
-            try
-            {
-                var overduePayments = await _bus.Rpc.RequestAsync<Guid, List<GetOverduePaymentDto>>(
-                    userId,
-                    x => x.WithQueueName(Queues.GET_OVERDUE_PAYMENTS)
-                );
-                return overduePayments;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.StackTrace);
-                throw new BadRequestException(ex.Message);
-            }
+            return ExecuteWithPolicies(
+                () =>
+                    _bus.Rpc.RequestAsync<Guid, List<GetOverduePaymentDto>>(
+                        userId,
+                        x => x.WithQueueName(Queues.GET_OVERDUE_PAYMENTS)
+                    )
+            );
         }
     }
 }

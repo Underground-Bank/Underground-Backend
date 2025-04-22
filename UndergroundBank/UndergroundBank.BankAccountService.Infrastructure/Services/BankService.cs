@@ -393,6 +393,10 @@ namespace UndergroundBank.BankAccountService.Infrastructure.Services
             TransactionRequestDto transactionCreds
         )
         {
+            if (true)
+            {
+                throw new InternalServerErrorException("500");
+            }
             var bankAccount = await _dbContext.BankAccounts.FirstOrDefaultAsync(bc =>
                 bc.AccountNumber == transactionCreds.To.AccountNumber
             );
