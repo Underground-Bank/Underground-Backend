@@ -1,9 +1,10 @@
-﻿using System.Text.Json.Serialization;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 using UndergroundBank.BankAccountService.Application.Configurations;
 using UndergroundBank.BankAccountService.Infrastructure;
 using UndergroundBank.BankAccountService.Infrastructure.MessageBroker;
 using UndergroundBank.BankAccountService.Web.Configurations;
+using UndergroundBank.Common.Configurations;
 using UndergroundBank.Common.Configurations.OpenIddict;
 using UndergroundBank.Common.Middlewares;
 
@@ -26,6 +27,9 @@ builder.Services.AddBankAccountServiceConfiguration(builder.Configuration);
 builder.Services.ConfigureBankAccountApplicationLayer();
 builder.Services.QueueSubscribe();
 builder.Services.AddHttpClient();
+
+var serviceName = "BankAccountService";
+builder.AddOpenTelemetry(serviceName);
 
 var app = builder.Build();
 
