@@ -50,6 +50,34 @@ namespace UndergroundBank.AccountService.Infrastructure.Services
             return userProfile;
         }
 
+        public async Task<UserFirebaseDto> GetUserFirebaseProfile(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                throw new NotFoundException("Данного пользователя не существует!");
+            }
+
+            var userFirebase = await _context.UsersFirebase.FirstOrDefaultAsync(u =>
+                u.UserId == Guid.Parse(userId)
+            );
+
+            if (userFirebase == null)
+            {
+                throw new BadRequestException("Такого токена не существует!");
+            }
+
+            var userProfile = new UserFirebaseDto()
+            {
+                UserId = userFirebase.UserId,
+                FirebaseId = userFirebase.FirebaseId,
+                FirebaseUserId = userFirebase.FirebaseUserId,
+            };
+
+            return userProfile;
+        }
+
         public async Task EditProfile(EditProfileInfoDto editCreds, string userId)
         {
             var user = await _userManager.FindByIdAsync(userId);

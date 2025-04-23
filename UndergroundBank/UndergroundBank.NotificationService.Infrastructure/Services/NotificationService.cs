@@ -1,20 +1,25 @@
 ﻿using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using EasyNetQ;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.Extensions.Options;
+using UndergroundBank.Common.Dto.AccountService;
+using UndergroundBank.Common.Dto.Notification;
 using UndergroundBank.NotificationService.Domain.Entities;
 
 public class NotificationService
 {
     private readonly FirebaseConfig _firebaseConfig;
+    private readonly IBus _bus;
 
     public NotificationService(IOptions<FirebaseConfig> firebaseOptions)
     {
         _firebaseConfig = firebaseOptions.Value;
+        _bus = RabbitHutch.CreateBus("host=localhost");
     }
 
-    public async Task SendNotificationAsync(string deviceToken, string title, string body)
+    public async Task SendNotificationAsync(NotificationDto dto)
     {
         var credential = GoogleCredential
             .FromFile(_firebaseConfig.CredentialsPath)
@@ -28,16 +33,21 @@ public class NotificationService
             accessToken
         );
 
+        var user = await _bus.Rpc.RequestAsync<Guid, UserFirebaseDto>(
+            Guid.Parse(dto.UserId),
+            x => x.WithQueueName("firebase_UserProfileResponse")
+        );
+
         var message = new
         {
             message = new
             {
-                token = deviceToken,
-                notification = new { title = title, body = body },
+                token = user.FirebaseId,
+                notification = new { title = dto.Title, body = dto.Body },
             },
         };
 
-        var jsonMessage = JsonSerializer.Serialize(message);
+        var jsonMessage = System.Text.Json.JsonSerializer.Serialize(message);
 
         var request = new HttpRequestMessage(
             HttpMethod.Post,

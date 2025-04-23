@@ -25,6 +25,14 @@ namespace UndergroundBank.AccountService.Infrastructure.MessageBroker
                 },
                 x => x.WithQueueName("bank_UserProfileResponse")
             );
+
+            bus.Rpc.Respond<Guid, UserFirebaseDto>(
+                async request =>
+                {
+                    return await profileService.GetUserFirebaseProfile(request.ToString());
+                },
+                x => x.WithQueueName("firebase_UserProfileResponse")
+            );
         }
     }
 }

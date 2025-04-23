@@ -365,3 +365,4 @@ FodyWeavers.xsd
 storage/
 **/appsettings.Development.json
 /UndergroundBank/UndergroundBank.NotificationService.Web/Secrets
+/UndergroundBank/UndergroundBank.NotificationService.Infrastructure/Secrets

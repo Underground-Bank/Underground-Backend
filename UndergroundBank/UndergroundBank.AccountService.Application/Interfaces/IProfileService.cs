@@ -17,6 +17,12 @@ namespace UndergroundBank.AccountService.Application.Interfaces
         public Task<ProfileDto> GetUserProfile(string userId);
 
         /// <summary>
+        /// Method for getting firebase profile
+        /// </summary>
+        /// <param name="userId">Id of corresponding user</param>
+        public Task<UserFirebaseDto> GetUserFirebaseProfile(string userId);
+
+        /// <summary>
         /// Method for edit user profile
         /// </summary>
         /// <param name="editCreds">Parametrs which user can edit</param>

@@ -2,12 +2,14 @@
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using UndergroundBank.Common.Data.Constants;
+using UndergroundBank.Common.Dto.Notification;
 using UndergroundBank.Common.Dto.Transaction;
 using UndergroundBank.Common.DTO.Transaction;
 using UndergroundBank.Common.Middlewares;
 using UndergroundBank.HistoryService.Application.DTO;
 using UndergroundBank.HistoryService.Application.Interfaces;
 using UndergroundBank.HistoryService.Domain.Entities;
+using UndergroundBank.HistoryService.Infrastructure.Services.HistoryQueue;
 
 namespace UndergroundBank.HistoryService.Infrastructure.Services
 {
@@ -16,16 +18,19 @@ namespace UndergroundBank.HistoryService.Infrastructure.Services
         private readonly IMapper _mapper;
         private readonly HistoryDbContext _dbContext;
         private readonly IHubContext<OperationHistoryHub> _historyHub;
+        private readonly QueueSender _queueSender;
 
         public OperationHistoryService(
             HistoryDbContext dbContext,
             IMapper mapper,
+            QueueSender queueSender,
             IHubContext<OperationHistoryHub> operationHistoryHub
         )
         {
             _mapper = mapper;
             _dbContext = dbContext;
             _historyHub = operationHistoryHub;
+            _queueSender = queueSender;
         }
 
         public async Task<GetOpeationsHistoryDto> GetOperationsHistory(
@@ -67,6 +72,13 @@ namespace UndergroundBank.HistoryService.Infrastructure.Services
                 WebSockets.TRANSACTION_UPDATED,
                 operationsHistoryDto
             );
+            var message = new NotificationDto()
+            {
+                Title = "New Title",
+                Body = "New Body",
+                UserId = operationHistoryDto.UserId.ToString(),
+            };
+            await _queueSender.SendMessageInfo(message);
         }
 
         public async Task AddOverduePayment(OverduePaymentDto overduePaymentDto)
