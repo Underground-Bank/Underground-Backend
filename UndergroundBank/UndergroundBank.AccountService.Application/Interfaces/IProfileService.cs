@@ -28,5 +28,12 @@ namespace UndergroundBank.AccountService.Application.Interfaces
         /// <param name="changePassword">Creds for password from corresponding user</param>
         /// <param name="userId">Id of correspoding user</param>
         public Task ChangePassword(ChangePasswordDto changePassword, string userId);
+
+        /// <summary>
+        /// Method for add bundle of Firebase and user
+        /// </summary>
+        /// <param name="userId">Id of correspoding user</param>
+        /// <param name="firebaseToken">Token from firebase</param>
+        public Task AddFirebaseToken(string userId, string firebaseToken);
     }
 }

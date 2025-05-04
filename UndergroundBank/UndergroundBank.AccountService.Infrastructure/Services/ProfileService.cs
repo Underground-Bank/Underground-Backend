@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using UndergroundBank.AccountService.Application.Helpers.Validations;
 using UndergroundBank.AccountService.Application.Interfaces;
@@ -16,18 +17,21 @@ namespace UndergroundBank.AccountService.Infrastructure.Services
         private readonly IUserRepository _userRepository;
         private readonly UserManager<User> _userManager;
         private readonly IConfiguration _configuration;
+        private readonly AccountDbContext _context;
 
         public ProfileService(
             IMapper mapper,
             IUserRepository userRepository,
             UserManager<User> userManager,
-            IConfiguration configuration
+            IConfiguration configuration,
+            AccountDbContext context
         )
         {
             _configuration = configuration;
             _mapper = mapper;
             _userRepository = userRepository;
             _userManager = userManager;
+            _context = context;
         }
 
         public async Task<ProfileDto> GetUserProfile(string userId)
@@ -105,6 +109,45 @@ namespace UndergroundBank.AccountService.Infrastructure.Services
                     string.Join(", ", result.Errors.Select(x => x.Description))
                 );
             }
+        }
+
+        public async Task AddFirebaseToken(string userId, string firebaseToken)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                throw new NotFoundException("Пользователь не найден!");
+            }
+
+            var userGuid = Guid.Parse(userId);
+
+            var existingToken = await _context.UsersFirebase.FirstOrDefaultAsync(u =>
+                u.UserId == userGuid && u.FirebaseId == firebaseToken
+            );
+
+            if (existingToken != null)
+            {
+                return;
+            }
+
+            var tokenInOtherUser = await _context.UsersFirebase.FirstOrDefaultAsync(u =>
+                u.FirebaseId == firebaseToken && u.UserId != userGuid
+            );
+
+            if (tokenInOtherUser != null)
+            {
+                _context.UsersFirebase.Remove(tokenInOtherUser);
+            }
+
+            var newToken = new UserFirebase
+            {
+                FirebaseUserId = Guid.NewGuid(),
+                UserId = userGuid,
+                FirebaseId = firebaseToken,
+            };
+
+            _context.UsersFirebase.Add(newToken);
+            await _context.SaveChangesAsync();
         }
     }
 }

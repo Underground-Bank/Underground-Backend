@@ -1,21 +1,15 @@
 ﻿using EasyNetQ;
 using UndergroundBank.Common.Data.Constants;
 using UndergroundBank.Common.Dto.Transaction;
+using UndergroundBank.Common.Helpers.MessageBroker;
 
 namespace UndergroundBank.BankAccountService.Infrastructure.Services
 {
-    public class QueueSender
+    public class QueueSender : ResilientQueueSender
     {
-        private IBus _bus;
-
-        public QueueSender()
+        public async Task SendMessage<T>(T message, string topic)
         {
-            _bus = RabbitHutch.CreateBus("host=localhost");
-        }
-
-        public async Task SendMessage<T>(T message, string topik)
-        {
-            await _bus.PubSub.PublishAsync(message, topik);
+            await ExecuteWithPolicies(() => _bus.PubSub.PublishAsync(message, topic));
         }
 
         public async Task SendTransaction(TransactionResponseDto transaction)
