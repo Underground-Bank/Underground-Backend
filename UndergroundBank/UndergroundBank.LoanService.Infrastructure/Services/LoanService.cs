@@ -6,6 +6,7 @@ using UndergroundBank.Common.Data.Constants;
 using UndergroundBank.Common.Data.Enums;
 using UndergroundBank.Common.Data.Models;
 using UndergroundBank.Common.Dto.Transaction;
+using UndergroundBank.Common.Helpers.Logging;
 using UndergroundBank.Common.Middlewares;
 using UndergroundBank.LoanService.Application.Dto.Loan;
 using UndergroundBank.LoanService.Application.Interfaces;
@@ -47,18 +48,24 @@ namespace UndergroundBank.LoanService.Infrastructure.Services
 
         public async Task<GetLoansDto> GetAllLoans(Guid? userId)
         {
-            return await GetLoansLogic(userId);
+            return await LoggingHelpers.WithLogging(async () =>
+            {
+                return await GetLoansLogic(userId);
+            });
         }
 
         public async Task<GetLoanDto> GetLoan(Guid loanId)
         {
-            var loan = await _dbContext.Loans.Where(l => l.Id == loanId).FirstOrDefaultAsync();
-            if (loan == null)
+            return await LoggingHelpers.WithLogging(async () =>
             {
-                throw new NotFoundException("Кредита с таким id не существует");
-            }
-            var loanDto = _mapper.Map<GetLoanDto>(loan);
-            return loanDto;
+                var loan = await _dbContext.Loans.Where(l => l.Id == loanId).FirstOrDefaultAsync();
+                if (loan == null)
+                {
+                    throw new NotFoundException("Кредита с таким id не существует");
+                }
+                var loanDto = _mapper.Map<GetLoanDto>(loan);
+                return loanDto;
+            });
         }
 
         public async Task<GetLoansDto> GetMyLoans(Guid userId)

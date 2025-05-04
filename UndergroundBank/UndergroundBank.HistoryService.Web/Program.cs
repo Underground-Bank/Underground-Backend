@@ -1,6 +1,6 @@
-using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
-using UndergroundBank.Common.Configurations.JWT;
+using System.Text.Json.Serialization;
+using UndergroundBank.Common.Configurations;
 using UndergroundBank.Common.Configurations.OpenIddict;
 using UndergroundBank.Common.Middlewares;
 using UndergroundBank.HistoryService.Application.Configurations;
@@ -40,6 +40,9 @@ builder.Services.AddSignalR();
 
 builder.Services.AddListeners();
 builder.Services.AddHttpClient();
+
+var serviceName = "HistoryService";
+builder.AddOpenTelemetry(serviceName);
 
 var app = builder.Build();
 
