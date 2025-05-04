@@ -50,6 +50,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.MonitoringS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.MonitoringService.Application", "UndergroundBank.MonitoringService.Application\UndergroundBank.MonitoringService.Application.csproj", "{40BD5BAF-EFA2-40B1-92C3-406EA2F5C420}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.MonitoringServiceTricky", "UndergroundBank.MonitoringServiceTricky\UndergroundBank.MonitoringServiceTricky.csproj", "{FA7212BD-BC52-4AD1-8EC5-63453097DE06}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.NotificationService.Application", "UndergroundBank.NotificationService.Application\UndergroundBank.NotificationService.Application.csproj", "{9E3E1C3B-8582-44E1-9818-FC95093D7E87}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.NotificationService.Web", "UndergroundBank.NotificationService.Web\UndergroundBank.NotificationService.Web.csproj", "{DA458F3C-7339-428C-8CB1-F602B9AE9F11}"
@@ -148,6 +150,10 @@ Global
 		{40BD5BAF-EFA2-40B1-92C3-406EA2F5C420}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{40BD5BAF-EFA2-40B1-92C3-406EA2F5C420}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{40BD5BAF-EFA2-40B1-92C3-406EA2F5C420}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FA7212BD-BC52-4AD1-8EC5-63453097DE06}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA7212BD-BC52-4AD1-8EC5-63453097DE06}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA7212BD-BC52-4AD1-8EC5-63453097DE06}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA7212BD-BC52-4AD1-8EC5-63453097DE06}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9E3E1C3B-8582-44E1-9818-FC95093D7E87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9E3E1C3B-8582-44E1-9818-FC95093D7E87}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9E3E1C3B-8582-44E1-9818-FC95093D7E87}.Release|Any CPU.ActiveCfg = Release|Any CPU
