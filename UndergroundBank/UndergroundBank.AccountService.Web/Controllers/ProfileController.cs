@@ -7,6 +7,7 @@ using UndergroundBank.AccountService.Application.Communication.Commands.Profile.
 using UndergroundBank.AccountService.Application.Communication.Commands.Profile.EditProfile;
 using UndergroundBank.AccountService.Application.Communication.Queries.ProfileService.GetUserProfile;
 using UndergroundBank.AccountService.Application.Dto;
+using UndergroundBank.AccountService.Application.Interfaces;
 using UndergroundBank.Common.Base;
 using UndergroundBank.Common.Data.Models;
 using UndergroundBank.Common.Dto.AccountService;
@@ -22,11 +23,25 @@ namespace UndergroundBank.AccountService.Web.Controllers
     public class ProfileController : BaseController
     {
         private readonly AdditionalTokenHelper _additionalTokenHelper;
+        private readonly IProfileService _profileService;
 
-        public ProfileController(IMediator mediator, AdditionalTokenHelper additionalTokenHelper)
+        public ProfileController(
+            IMediator mediator,
+            AdditionalTokenHelper additionalTokenHelper,
+            IProfileService profileService
+        )
             : base(mediator)
         {
             _additionalTokenHelper = additionalTokenHelper;
+            _profileService = profileService;
+        }
+
+        [HttpPost("firebase-token")]
+        [ProducesResponseType(200)]
+        public async Task<ActionResult> AddTokenFromFirebase(string firebaseToken)
+        {
+            await _profileService.AddFirebaseToken(UserId.ToString(), firebaseToken);
+            return Ok();
         }
 
         [HttpGet()]

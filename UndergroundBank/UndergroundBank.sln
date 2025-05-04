@@ -52,6 +52,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.MonitoringS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.MonitoringServiceTricky", "UndergroundBank.MonitoringServiceTricky\UndergroundBank.MonitoringServiceTricky.csproj", "{FA7212BD-BC52-4AD1-8EC5-63453097DE06}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.NotificationService.Application", "UndergroundBank.NotificationService.Application\UndergroundBank.NotificationService.Application.csproj", "{9E3E1C3B-8582-44E1-9818-FC95093D7E87}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.NotificationService.Web", "UndergroundBank.NotificationService.Web\UndergroundBank.NotificationService.Web.csproj", "{DA458F3C-7339-428C-8CB1-F602B9AE9F11}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.NotificationService.Domain", "UndergroundBank.NotificationService.Domain\UndergroundBank.NotificationService.Domain.csproj", "{24CD2DA3-06A2-4AE4-B0EC-C10BA9B88F3C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UndergroundBank.NotificationService.Infrastructure", "UndergroundBank.NotificationService.Infrastructure\UndergroundBank.NotificationService.Infrastructure.csproj", "{4C6481F1-7A4C-4CE4-BE76-4D504EA20B1A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -146,6 +154,22 @@ Global
 		{FA7212BD-BC52-4AD1-8EC5-63453097DE06}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FA7212BD-BC52-4AD1-8EC5-63453097DE06}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FA7212BD-BC52-4AD1-8EC5-63453097DE06}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E3E1C3B-8582-44E1-9818-FC95093D7E87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E3E1C3B-8582-44E1-9818-FC95093D7E87}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E3E1C3B-8582-44E1-9818-FC95093D7E87}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E3E1C3B-8582-44E1-9818-FC95093D7E87}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA458F3C-7339-428C-8CB1-F602B9AE9F11}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA458F3C-7339-428C-8CB1-F602B9AE9F11}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA458F3C-7339-428C-8CB1-F602B9AE9F11}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA458F3C-7339-428C-8CB1-F602B9AE9F11}.Release|Any CPU.Build.0 = Release|Any CPU
+		{24CD2DA3-06A2-4AE4-B0EC-C10BA9B88F3C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24CD2DA3-06A2-4AE4-B0EC-C10BA9B88F3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24CD2DA3-06A2-4AE4-B0EC-C10BA9B88F3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24CD2DA3-06A2-4AE4-B0EC-C10BA9B88F3C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C6481F1-7A4C-4CE4-BE76-4D504EA20B1A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C6481F1-7A4C-4CE4-BE76-4D504EA20B1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C6481F1-7A4C-4CE4-BE76-4D504EA20B1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C6481F1-7A4C-4CE4-BE76-4D504EA20B1A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

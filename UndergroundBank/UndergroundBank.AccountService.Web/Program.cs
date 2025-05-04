@@ -1,12 +1,13 @@
-﻿using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OpenIddict.Abstractions;
 using OpenIddict.Validation.AspNetCore;
+using System.Text.Json.Serialization;
 using UndergroundBank.AccountService.Application.Configurations;
 using UndergroundBank.AccountService.Infrastructure;
 using UndergroundBank.AccountService.Infrastructure.MessageBroker;
 using UndergroundBank.AccountService.Web.Configurations;
+using UndergroundBank.Common.Configurations;
 using UndergroundBank.Common.Configurations.OpenIddict;
 using UndergroundBank.Common.Data.Enums;
 using UndergroundBank.Common.Middlewares;
@@ -61,6 +62,9 @@ builder.Services.ConfigureApplicationLayer();
 
 builder.Services.QueueSubscribe();
 builder.Services.AddHttpClient();
+
+var serviceName = "BankAccountService";
+builder.AddOpenTelemetry(serviceName);
 
 var app = builder.Build();
 
